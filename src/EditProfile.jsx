@@ -34,7 +34,7 @@ export default function EditProfile() {
     const userData = JSON.parse(localStorage.getItem("user")) || {};
     const updatedUser = { ...userData, foto };
     localStorage.setItem("user", JSON.stringify(updatedUser));
-    navigate("/");
+    navigate("/home");
   };
 
   return (
@@ -67,7 +67,7 @@ export default function EditProfile() {
         <button className="btn btn-primary me-2" onClick={handleSave}>
           Simpan
         </button>
-        <button className="btn btn-secondary" onClick={() => navigate("/")}>
+        <button className="btn btn-secondary" onClick={() => navigate("/home")}>
           Batal
         </button>
       </div>

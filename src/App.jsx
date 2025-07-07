@@ -10,10 +10,10 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/izin" element={<FormPerizinan />} />
         <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );

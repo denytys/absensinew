@@ -14,15 +14,15 @@ export default function Login() {
       nama: "Budi Santoso",
       nip: "19801234 202112 1 001",
       kantor: "Kantor Pusat Jakarta",
-      foto: "https://via.placeholder.com/100",
+      foto: "/images/user.png",
     },
     {
       username: "sari",
       password: "abcd",
-      nama: "Sarimi Rasahmingkem",
+      nama: "Sarimi Angelmingkem",
       nip: "19804567 202212 2 003",
       kantor: "Kantor Cabang Bandung",
-      foto: "https://via.placeholder.com/100",
+      foto: "/images/user.png",
     },
   ];
 
@@ -35,7 +35,7 @@ export default function Login() {
 
     if (foundUser) {
       localStorage.setItem("user", JSON.stringify(foundUser));
-      navigate("/");
+      navigate("/home");
     } else {
       alert("Username atau Password salah!");
     }

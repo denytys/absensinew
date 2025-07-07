@@ -9,14 +9,14 @@ export default function Header({ time }) {
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user")) || {
       nama: "User",
-      foto: "https://via.placeholder.com/40",
+      foto: "/images/user.png",
     };
     setUser(data);
   }, []);
 
   const handleLogout = () => {
     setLoggedIn(false);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -44,7 +44,7 @@ export default function Header({ time }) {
           aria-labelledby="dropdownUser"
         >
           <li>
-            <button className="dropdown-item" onClick={() => navigate("/")}>
+            <button className="dropdown-item" onClick={() => navigate("/home")}>
               Home
             </button>
           </li>

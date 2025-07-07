@@ -17,16 +17,25 @@ export default function LocationCard({ location, onRefresh }) {
   }, [location]);
 
   return (
-    <div className="card shadow-sm p-3 mb-2">
+    <div className="glass-card p-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         {/* <h5 className="card-title mb-0">Lokasi Anda</h5> */}
         <button onClick={onRefresh} className="btn btn-outline-primary btn-m">
-          Refresh Lokasi
+          refresh lokasi
         </button>
       </div>
 
       {location.lat && location.lng ? (
         <>
+          <p
+            className={`text-center fw-semibold mt-2 ${
+              jarak <= 1000 ? "text-success" : "text-danger"
+            }`}
+          >
+            {jarak <= 200
+              ? "✅ Anda berada di radius absen."
+              : "❌ Anda di luar radius absen."}
+          </p>
           <MapContainer
             center={[location.lat, location.lng]}
             zoom={17}
@@ -49,15 +58,6 @@ export default function LocationCard({ location, onRefresh }) {
               }}
             />
           </MapContainer>
-          <p
-            className={`text-center fw-semibold mt-2 ${
-              jarak <= 1000 ? "text-success" : "text-danger"
-            }`}
-          >
-            {jarak <= 200
-              ? "✅ Anda berada di radius absen."
-              : "❌ Anda di luar radius absen."}
-          </p>
         </>
       ) : (
         <p className="text-muted">Memuat lokasi Anda...</p>

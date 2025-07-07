@@ -9,17 +9,16 @@ export default function ProfileCard() {
   };
 
   return (
-    <div className="card shadow-sm p-3 mb-2 d-flex flex-row align-items-center">
-      <img
+    <div className="glass-card p-3 mb-2 d-flex flex-row align-items-center">
+      {/* <img
         src={user.foto}
         alt="Foto Profil"
         className="rounded-circle"
         width="80"
         height="80"
-      />
+      /> */}
       <div className="ms-3 text-start">
         {" "}
-        {/* Tambahkan jarak dan rata kiri */}
         <h5 className="mb-0">{user.nama}</h5>
         <p className="mb-0 text-muted">{user.nip}</p>
         <p className="mb-0 text-muted">{user.kantor}</p>

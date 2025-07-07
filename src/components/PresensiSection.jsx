@@ -5,7 +5,7 @@ export default function PresensiSection({
   sudahPulang,
 }) {
   return (
-    <div className="card shadow-sm p-3 mb-2 glass-card">
+    <div className="glass-card p-3 mb-2 glass-card">
       <div className="d-flex mb-3">
         <button
           className="btn btn-success me-2"
