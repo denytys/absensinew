@@ -6,6 +6,8 @@ import Header from "./components/Header";
 import ProfileCard from "./components/ProfileCard";
 import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
+import { AntiFakeGps } from '@dhamaddam/anti-fake-gps';
+
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -30,20 +32,29 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
+  useEffect( () => {
     navigator.geolocation?.getCurrentPosition(
-      (pos) =>
+      async (pos) => {
         setLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           error: null,
-        }),
+        })
+        const result = await AntiFakeGps.getMock({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          timestamp: Date.now()
+        });
+
+        console.log('Is Fake Location?', result.results[0].isMock); // true / false
+      },
       (err) => setLocation((loc) => ({ ...loc, error: err.message }))
     );
   }, []);
-
   useEffect(() => {
     localStorage.setItem("presensiList", JSON.stringify(presensiList));
+    getMock()
   }, [presensiList]);
 
   // Filter presensi hanya milik user login
