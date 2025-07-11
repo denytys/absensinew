@@ -36,120 +36,77 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-      style={{
-        background: "rgba(240, 240, 255, 0.1)",
-        zIndex: 9999,
-      }}
-    >
-      <div
-        className="p-4 rounded-lg"
-        style={{
-          width: "100%",
-          maxWidth: "360px",
-          backgroundColor: "rgba(255, 255, 255, 0.45)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-          borderRadius: "20px",
-        }}
-      >
-        <div style={{ position: "relative" }}>
+    <div className="fixed inset-0 flex items-center justify-center bg-[rgba(240,240,255,0.1)] z-[9999]">
+      <div className="w-full max-w-sm p-6 bg-white/45 shadow-lg rounded-3xl backdrop-blur-md relative">
+        {/* Tooltip and Download Button */}
+        <div className="absolute top-[10px] right-[10px] z-10">
           <div
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            style={{
-              position: "absolute",
-              top: "-10px",
-              right: "-10px",
-              zIndex: 10,
-              cursor: "pointer",
-            }}
+            className="relative"
           >
             <a
               href="/manual-ePresensiOLD.pdf"
               download
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "20px",
-                height: "20px",
-                borderRadius: "50%",
-                backgroundColor: "rgba(242,108,79,0.9)",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                backdropFilter: "blur(4px)",
-                textDecoration: "none",
-                fontSize: "11px",
-                fontWeight: "lighter",
-                color: "#ffffff",
-              }}
+              className="w-7 h-7 flex items-center justify-center text-xs font-light text-white bg-[#f26c4f]/90 rounded-full shadow-md backdrop-blur cursor-pointer"
             >
               ▼
             </a>
-
             <div
-              style={{
-                position: "absolute",
-                top: "40px",
-                right: "0px",
-                background: "#fff",
-                padding: "8px 12px",
-                borderRadius: "12px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                transform: showTooltip ? "scale(1)" : "scale(0.8)",
-                opacity: showTooltip ? 1 : 0,
-                transformOrigin: "top right",
-                transition: "all 0.25s ease",
-                whiteSpace: "nowrap",
-                fontSize: "13px",
-              }}
+              className={`absolute top-10 right-0 bg-white px-3 py-2 rounded-xl shadow-md text-sm whitespace-nowrap transition-all duration-300 origin-top-right ${
+                showTooltip
+                  ? "scale-100 opacity-100"
+                  : "scale-95 opacity-0 pointer-events-none"
+              }`}
             >
               Unduh Manual Aplikasi
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-center">
+        {/* Logo and Title */}
+        <div className="flex flex-col items-center mb-4">
           <img
             src="logo-e-presensi.png"
             alt="logo"
             width="200"
             className="mb-3"
           />
-          <h5 className="fw-bold">Selamat Datang</h5>
-          <p className="text-muted mb-4">di Presensi Online BARANTIN</p>
+          <h5 className="font-bold text-lg">Selamat Datang</h5>
+          <p className="text-gray-600 text-sm">di Presensi Online BARANTIN</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Username"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-          <div className="mb-3">
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-          <button type="submit" className="btn btn-primary w-100 mb-2">
+          <button
+            type="submit"
+            className="w-full bg-blue-700 text-white py-2.5 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
+          >
             Login
           </button>
         </form>
 
-        <div className="text-center">
-          <small className="text-muted">Lupa password? Hubungi admin.</small>
+        {/* Footer */}
+        <div className="text-center mt-4">
+          <small className="text-gray-500">Lupa password? Hubungi admin.</small>
         </div>
       </div>
     </div>

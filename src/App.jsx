@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./Home";
 import FormPerizinan from "./components/FormPerizinan"; // ganti sesuai struktur kamu
 import EditProfile from "./EditProfile"; // import komponen baru
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 import Login from "./Login";
 
 export default function App() {

@@ -5,54 +5,48 @@ import axios from "axios";
 
 export default function FormPerizinan() {
   const user = JSON.parse(localStorage.getItem("user")) || { nama: "Anoman" };
-
   const [jenis, setJenis] = useState("Dinas Luar");
   const [tanggalAwal, setTanggalAwal] = useState(new Date());
   const [tanggalAkhir, setTanggalAkhir] = useState(new Date());
   const [perihal, setPerihal] = useState("");
   const [lampiran, setLampiran] = useState(null);
-  const [lampiranMode, setLampiranMode] = useState("file"); // Default mode adalah 'file'
+  const [lampiranMode, setLampiranMode] = useState("file");
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
   const [permissionPrompt, setPermissionPrompt] = useState(false);
 
-  // Refs untuk video dan canvas
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [perizinanList, setPerizinanList] = useState(
+  const [perizinanList] = useState(
     () => JSON.parse(sessionStorage.getItem("perizinanList")) || []
   );
 
-  // Handle file change (upload file)
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) setLampiran(file);
-    setIsCameraActive(false); // Menonaktifkan kamera jika file diupload
+    setIsCameraActive(false);
   };
 
-  // Handle camera activation
   const startCamera = () => {
     setIsCameraActive(true);
-    setPermissionPrompt(false); // Menghilangkan prompt permission
-
+    setPermissionPrompt(false);
     navigator.mediaDevices
       .getUserMedia({ video: true })
       .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          setCameraPermissionDenied(false); // Izin kamera diberikan
+          setCameraPermissionDenied(false);
         }
       })
       .catch((err) => {
-        console.error("Error accessing camera: ", err);
-        setCameraPermissionDenied(true); // Izin kamera ditolak
-        setPermissionPrompt(true); // Tampilkan prompt untuk meminta izin
+        console.error("Error accessing camera:", err);
+        setCameraPermissionDenied(true);
+        setPermissionPrompt(true);
       });
   };
 
-  // Capture photo from the camera
   const capturePhoto = () => {
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext("2d");
@@ -65,40 +59,30 @@ export default function FormPerizinan() {
         canvasRef.current.width,
         canvasRef.current.height
       );
-
-      // Get the image from canvas
       const imgURL = canvasRef.current.toDataURL("image/png");
       setImageData(imgURL);
-      setLampiran(imgURL); // Set image data as lampiran
-      setIsCameraActive(false); // Stop the camera
+      setLampiran(imgURL);
+      setIsCameraActive(false);
     }
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
-    formData.append("nomor", Date.now()); // atau generate lebih rapi
+    formData.append("nomor", Date.now());
     formData.append("perihal", perihal);
     formData.append("jenis_izin", jenis);
     formData.append("tgl_mulai", tanggalAwal.toISOString().slice(0, 10));
     formData.append("tgl_selesai", tanggalAkhir.toISOString().slice(0, 10));
-    formData.append("p_upt", "UPT Jakarta"); // opsional, bisa disesuaikan
+    formData.append("p_upt", "UPT Jakarta");
     formData.append("p_bagian", "Bagian Umum");
     formData.append("lampiran", lampiran);
     formData.append("user_input", user.nama);
 
     try {
-      const res = await axios.post(
-        "http://localhost/presensi/perizinan", // Ganti sesuai URL backend kamu
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post("http://localhost/presensi/perizinan", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       alert("Data berhasil disimpan ke backend");
     } catch (err) {
       console.error("Gagal simpan:", err);
@@ -108,31 +92,30 @@ export default function FormPerizinan() {
 
   useEffect(() => {
     return () => {
-      // Stop camera when the component is unmounted or camera is disabled
       const stream = videoRef.current?.srcObject;
       if (stream) {
-        const tracks = stream.getTracks();
-        tracks.forEach((track) => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
 
   useEffect(() => {
-    // Start camera automatically when the lampiranMode is set to "camera"
-    if (lampiranMode === "camera") {
-      startCamera();
-    }
+    if (lampiranMode === "camera") startCamera();
   }, [lampiranMode]);
 
   return (
-    <div className="container py-2">
-      <div className="bg-white bg-opacity-50 rounded-xl p-3 mb-4">
-        <h4>FORM INPUT PERIZINAN</h4>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Jenis Izin</label>
+    <div className="max-w-4xl mx-auto p-4">
+      {/* Form */}
+      <div className="bg-white shadow-md rounded-xl p-6 mb-6">
+        <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Jenis */}
+          <div>
+            <label className="block font-medium mb-1 text-left">
+              Jenis Izin
+            </label>
             <select
-              className="form-select"
+              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={jenis}
               onChange={(e) => setJenis(e.target.value)}
             >
@@ -143,52 +126,56 @@ export default function FormPerizinan() {
             </select>
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Tanggal</label>
-            <div className="d-flex gap-2">
+          {/* Tanggal */}
+          <div>
+            <label className="block font-medium mb-1 text-left">Tanggal</label>
+            <div className="flex gap-2">
               <DatePicker
                 selected={tanggalAwal}
                 onChange={(date) => setTanggalAwal(date)}
-                className="form-control"
+                className="w-full border border-gray-300 rounded-lg p-2"
               />
               <DatePicker
                 selected={tanggalAkhir}
                 onChange={(date) => setTanggalAkhir(date)}
-                className="form-control"
+                className="w-full border border-gray-300 rounded-lg p-2"
               />
             </div>
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Perihal</label>
+          {/* Perihal */}
+          <div>
+            <label className="block font-medium mb-1 text-left">Perihal</label>
             <textarea
-              className="form-control"
               value={perihal}
               onChange={(e) => setPerihal(e.target.value)}
-              rows={3}
+              rows="3"
+              className="w-full border border-gray-300 rounded-lg p-2 resize-none"
             ></textarea>
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Pegawai</label>
+          {/* Pegawai */}
+          <div>
+            <label className="block font-medium mb-1 text-left">Pegawai</label>
             <input
               type="text"
-              className="form-control"
               value={user.nama}
               disabled
+              className="w-full bg-gray-100 border border-gray-300 rounded-lg p-2"
             />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Lampiran</label>
+          {/* Lampiran */}
+          <div>
+            <label className="block font-medium mb-1 text-left">Lampiran</label>
             <select
-              className="form-select"
+              className="w-full border border-gray-300 rounded-lg p-2 mb-2"
               value={lampiranMode}
               onChange={(e) => {
                 setLampiranMode(e.target.value);
-                setImageData(null); // Clear the image data if mode changes
-                setLampiran(null); // Clear the lampiran if mode changes
-                setPermissionPrompt(false); // Reset permission prompt
+                setImageData(null);
+                setLampiran(null);
+                setPermissionPrompt(false);
               }}
             >
               <option value="kosong">---</option>
@@ -197,66 +184,66 @@ export default function FormPerizinan() {
             </select>
 
             {lampiranMode === "camera" && (
-              <div>
-                {/* Camera Preview */}
+              <div className="space-y-2">
                 {isCameraActive ? (
-                  <div>
+                  <div className="flex flex-col items-center">
                     <video
                       ref={videoRef}
                       autoPlay
                       playsInline
-                      width="100%"
-                      height="auto"
-                      style={{ borderRadius: "8px", marginBottom: "10px" }}
+                      className="rounded-lg border border-gray-300 w-full"
                     />
                     <button
                       type="button"
-                      className="btn btn-primary"
                       onClick={capturePhoto}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       Capture Photo
                     </button>
                   </div>
                 ) : (
-                  <p>kamera sedang dimuat...</p>
+                  <p className="text-sm text-gray-500">
+                    Kamera sedang dimuat...
+                  </p>
                 )}
               </div>
             )}
 
             {lampiranMode === "file" && (
-              <div>
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  className="form-control"
-                  onChange={handleFileChange}
-                />
-              </div>
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={handleFileChange}
+                className="w-full border border-gray-300 rounded-lg p-2"
+              />
             )}
 
             {lampiran && (
-              <div className="mt-3">
-                <h5>Preview Lampiran</h5>
+              <div className="mt-4">
+                <p className="font-semibold">Preview Lampiran:</p>
                 {imageData ? (
                   <img
                     src={imageData}
-                    alt="Captured"
-                    style={{ maxWidth: "100%" }}
+                    alt="Lampiran"
+                    className="max-w-full rounded-lg mt-2"
                   />
                 ) : (
-                  <p>{lampiran?.name}</p>
+                  <p className="text-sm mt-2">{lampiran.name}</p>
                 )}
               </div>
             )}
           </div>
 
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary">
+          {/* Buttons */}
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
               Submit
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
               onClick={() => {
                 setJenis("Dinas Luar");
                 setTanggalAwal(new Date());
@@ -264,8 +251,9 @@ export default function FormPerizinan() {
                 setPerihal("");
                 setLampiran(null);
                 setImageData(null);
-                setIsCameraActive(false); // Stop camera
+                setIsCameraActive(false);
               }}
+              className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
             >
               Cancel
             </button>
@@ -273,19 +261,19 @@ export default function FormPerizinan() {
         </form>
       </div>
 
-      {/* Pop-up permintaan izin kamera */}
+      {/* Permission Warning */}
       {permissionPrompt && (
-        <div className="alert alert-warning mt-3" role="alert">
-          Untuk menggunakan kamera, Anda harus memberikan izin. Harap aktifkan
-          izin kamera pada browser.
+        <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg mb-4">
+          Untuk menggunakan kamera, aktifkan izin kamera di browser Anda.
         </div>
       )}
 
-      <div className="bg-white bg-opacity-50 rounded-xl p-4">
-        <h5 className="mb-3">RIWAYAT PERIZINAN</h5>
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      {/* Riwayat Table */}
+      <div className="bg-white shadow-md rounded-xl p-6">
+        <h3 className="text-lg font-bold mb-4">Riwayat Perizinan</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-100">
               <tr>
                 <th className="p-2 text-center">Nama</th>
                 <th className="p-2 text-center">Jenis</th>
@@ -295,8 +283,8 @@ export default function FormPerizinan() {
               </tr>
             </thead>
             <tbody>
-              {perizinanList.map((p) => (
-                <tr key={p.id}>
+              {perizinanList.map((p, i) => (
+                <tr key={i} className="border-b">
                   <td className="p-2 text-center">{p.nama}</td>
                   <td className="p-2 text-center">{p.jenis}</td>
                   <td className="p-2 text-center">
