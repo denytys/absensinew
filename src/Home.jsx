@@ -176,9 +176,8 @@ export default function Home() {
   };
 
   return (
-    <div className="container py-2">
+    <div>
       <Header time={time} />
-
       {/* Baris 1: ProfileCard */}
       <div className="row g-4 mb-2">
         <div className="col-md-12">
