@@ -28,7 +28,7 @@ export default function Header({ time }) {
 
       <div className="dropdown">
         <img
-          src={user.foto}
+          src={user.foto || "/images/user.png"}
           alt="user"
           className="rounded-circle"
           role="button"
@@ -39,6 +39,7 @@ export default function Header({ time }) {
           height={40}
           style={{ cursor: "pointer" }}
         />
+
         <ul
           className="dropdown-menu dropdown-menu-end"
           aria-labelledby="dropdownUser"

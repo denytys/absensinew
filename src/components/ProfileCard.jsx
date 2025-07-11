@@ -1,27 +1,69 @@
-export default function ProfileCard() {
-  const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-  const user = {
-    nama: storedUser.nama || "Herman Sekunder",
-    nip: storedUser.nip || "199110122015031002",
-    kantor: storedUser.kantor || "Kantor Pusat",
-    foto: storedUser.foto || "https://via.placeholder.com/80",
-  };
+export default function ProfileCard() {
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+          setError("Token tidak ditemukan. Silakan login ulang.");
+          return;
+        }
+
+        // Pakai index.php sesuai default CI3 jika belum dihapus dengan .htaccess
+        const apiUrl = "http://localhost/absensi-be/index.php/auth/profile";
+
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const res = response.data;
+
+        if (res.status) {
+          setProfile(res.data);
+        } else {
+          setError(res.message || "Gagal mengambil data profile.");
+        }
+      } catch (err) {
+        console.error("Error ambil data profile:", err);
+        if (err.response) {
+          // Error dari server (misal 404, 401, 500)
+          setError(
+            err.response.data.message || `Error: ${err.response.status}`
+          );
+        } else if (err.request) {
+          // Request tidak terkirim / tidak ada response
+          setError("Tidak dapat terhubung ke server. Pastikan API berjalan.");
+        } else {
+          // Error lain
+          setError("Terjadi error: " + err.message);
+        }
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (error) {
+    return <div className="alert alert-danger">Error: {error}</div>;
+  }
+
+  if (!profile) {
+    return <div>Loading profile...</div>;
+  }
 
   return (
-    <div className="glass-card p-3 mb-2 d-flex flex-row align-items-center">
-      {/* <img
-        src={user.foto}
-        alt="Foto Profil"
-        className="rounded-circle"
-        width="80"
-        height="80"
-      /> */}
-      <div className="ms-3 text-start">
-        {" "}
-        <h5 className="mb-0">{user.nama}</h5>
-        <p className="mb-0 text-muted">{user.nip}</p>
-        <p className="mb-0 text-muted">{user.kantor}</p>
+    <div className="glass-card p-3">
+      <div className="card-body">
+        <h5 className="card-title">{profile.nama}</h5>
+        <p className="card-text">{profile.nip}</p>
+        <p className="card-text">UPT: {profile.upt_nama}</p>
       </div>
     </div>
   );

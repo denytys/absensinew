@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -7,37 +8,31 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const users = [
-    {
-      username: "budi",
-      password: "1234",
-      nama: "Budi Santoso",
-      nip: "19801234 202112 1 001",
-      kantor: "Kantor Pusat Jakarta",
-      foto: "/images/user.png",
-    },
-    {
-      username: "sari",
-      password: "abcd",
-      nama: "Sarimi Angelmingkem",
-      nip: "19804567 202212 2 003",
-      kantor: "Kantor Cabang Bandung",
-      foto: "/images/user.png",
-    },
-  ];
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const foundUser = users.find(
-      (u) => u.username === username && u.password === password
-    );
+    try {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("password", password);
 
-    if (foundUser) {
-      localStorage.setItem("user", JSON.stringify(foundUser));
-      navigate("/home");
-    } else {
-      alert("Username atau Password salah!");
+      const response = await axios.post(
+        "http://localhost/absensi-be/auth/login",
+        formData
+      );
+
+      const res = response.data;
+
+      if (res.status) {
+        sessionStorage.setItem("token", res.data.token);
+        sessionStorage.setItem("user", JSON.stringify(res.data.data));
+        navigate("/home");
+      } else {
+        alert(res.message || "Login gagal!");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.response?.data?.message || "Terjadi kesalahan saat login.");
     }
   };
 
@@ -45,8 +40,8 @@ export default function Login() {
     <div
       className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
       style={{
-        background: "rgba(240, 240, 255, 0.1)", // transparan soft
-        zIndex: 9999, // pastikan selalu di atas
+        background: "rgba(240, 240, 255, 0.1)",
+        zIndex: 9999,
       }}
     >
       <div
@@ -54,16 +49,12 @@ export default function Login() {
         style={{
           width: "100%",
           maxWidth: "360px",
-          backgroundColor: "rgba(255, 255, 255, 0.45)", // satu layer
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)", // soft shadow
+          backgroundColor: "rgba(255, 255, 255, 0.45)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
           borderRadius: "20px",
         }}
       >
-        <div
-          style={{
-            position: "relative",
-          }}
-        >
+        <div style={{ position: "relative" }}>
           <div
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
@@ -78,7 +69,6 @@ export default function Login() {
             <a
               href="/manual-ePresensiOLD.pdf"
               download
-              // title="Unduh Manual"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -98,7 +88,6 @@ export default function Login() {
               ▼
             </a>
 
-            {/* Tooltip */}
             <div
               style={{
                 position: "absolute",
@@ -121,7 +110,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="text-center mb-4">
+        <div className="justify-items-center">
           <img
             src="logo-e-presensi.png"
             alt="logo"
@@ -129,7 +118,7 @@ export default function Login() {
             className="mb-3"
           />
           <h5 className="fw-bold">Selamat Datang</h5>
-          <p className="text-muted mb-0">di Presensi Online BARANTIN</p>
+          <p className="text-muted mb-4">di Presensi Online BARANTIN</p>
         </div>
 
         <form onSubmit={handleSubmit}>
