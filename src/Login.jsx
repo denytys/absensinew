@@ -16,7 +16,7 @@ export default function Login() {
       formData.append("password", password);
 
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/auth/login",
+        import.meta.env.VITE_ABSEN_BE + "/auth/login",
         formData
       );
 
@@ -31,8 +31,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert(JSON.stringify(error))
-      // alert(error.response?.data?.message || "Terjadi kesalahan saat login.");
+      alert(error.response?.data?.message || "Terjadi kesalahan saat login.");
     }
   };
 
