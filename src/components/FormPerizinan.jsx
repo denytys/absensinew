@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 
 export default function FormPerizinan() {
-  const user = JSON.parse(sessionStorage.getItem("user")) || { nama: "Anoman" };
+  const user = JSON.parse(localStorage.getItem("user")) || { nama: "Anoman" };
 
   const [jenis, setJenis] = useState("Dinas Luar");
   const [tanggalAwal, setTanggalAwal] = useState(new Date());
@@ -74,31 +75,35 @@ export default function FormPerizinan() {
   };
 
   // Submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newData = {
-      id: Date.now(),
-      nama: user.nama,
-      jenis,
-      tanggalAwal,
-      tanggalAkhir,
-      perihal,
-      lampiran: lampiran?.name || imageData || null,
-    };
+    const formData = new FormData();
+    formData.append("nomor", Date.now()); // atau generate lebih rapi
+    formData.append("perihal", perihal);
+    formData.append("jenis_izin", jenis);
+    formData.append("tgl_mulai", tanggalAwal.toISOString().slice(0, 10));
+    formData.append("tgl_selesai", tanggalAkhir.toISOString().slice(0, 10));
+    formData.append("p_upt", "UPT Jakarta"); // opsional, bisa disesuaikan
+    formData.append("p_bagian", "Bagian Umum");
+    formData.append("lampiran", lampiran);
+    formData.append("user_input", user.nama);
 
-    const updatedList = [newData, ...perizinanList];
-    setPerizinanList(updatedList);
-    sessionStorage.setItem("perizinanList", JSON.stringify(updatedList));
-
-    // Reset form
-    setJenis("Dinas Luar");
-    setTanggalAwal(new Date());
-    setTanggalAkhir(new Date());
-    setPerihal("");
-    setLampiran(null);
-    setImageData(null);
-    setPermissionPrompt(false); // Reset permission prompt
+    try {
+      const res = await axios.post(
+        "http://localhost/presensi/perizinan", // Ganti sesuai URL backend kamu
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      alert("Data berhasil disimpan ke backend");
+    } catch (err) {
+      console.error("Gagal simpan:", err);
+      alert("Gagal menyimpan data ke server");
+    }
   };
 
   useEffect(() => {
