@@ -10,14 +10,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const formData = new FormData();
       formData.append("username", username);
       formData.append("password", password);
 
       const response = await axios.post(
-        "http://localhost/absensi-be/auth/login",
+        import.meta.env.VITE_API_URL + "/auth/login",
         formData
       );
 
@@ -32,7 +31,8 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert(error.response?.data?.message || "Terjadi kesalahan saat login.");
+      alert(JSON.stringify(error))
+      // alert(error.response?.data?.message || "Terjadi kesalahan saat login.");
     }
   };
 
