@@ -17,7 +17,7 @@ export default function LocationCard({ location, onRefresh }) {
   }, [location]);
 
   return (
-    <div className="glass-card p-3">
+    <div className="bg-white bg-opacity-50 rounded-xl p-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         {/* <h5 className="card-title mb-0">Lokasi Anda</h5> */}
         <button onClick={onRefresh} className="btn btn-outline-primary btn-m">

@@ -110,7 +110,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="justify-items-center">
+        <div className="flex flex-col items-center">
           <img
             src="logo-e-presensi.png"
             alt="logo"

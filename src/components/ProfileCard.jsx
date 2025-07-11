@@ -14,7 +14,6 @@ export default function ProfileCard() {
           return;
         }
 
-        // Pakai index.php sesuai default CI3 jika belum dihapus dengan .htaccess
         const apiUrl = "http://localhost/absensi-be/index.php/auth/profile";
 
         const response = await axios.get(apiUrl, {
@@ -59,11 +58,10 @@ export default function ProfileCard() {
   }
 
   return (
-    <div className="glass-card p-3">
-      <div className="card-body">
-        <h5 className="card-title">{profile.nama}</h5>
-        <p className="card-text">{profile.nip}</p>
-        <p className="card-text">UPT: {profile.upt_nama}</p>
+    <div className="bg-white bg-opacity-50 rounded-xl p-3 mb-3">
+      <div className="text-left md:text-center">
+        <h5>{profile.nama}</h5>
+        <p>{profile.nip}</p>
       </div>
     </div>
   );

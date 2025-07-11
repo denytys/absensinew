@@ -39,7 +39,7 @@ export default function EditProfile() {
 
   return (
     <div className="container">
-      <div className="glass-card p-4">
+      <div className="bg-white bg-opacity-50 rounded-xl p-4">
         <h3>Ganti Foto Profil</h3>
         <div className="mb-3">
           <label className="form-label">Foto Baru (max 5MB)</label>

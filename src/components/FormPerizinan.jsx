@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function FormPerizinan() {
-  const user = JSON.parse(localStorage.getItem("user")) || { nama: "Anonim" };
+  const user = JSON.parse(sessionStorage.getItem("user")) || { nama: "Anoman" };
 
   const [jenis, setJenis] = useState("Dinas Luar");
   const [tanggalAwal, setTanggalAwal] = useState(new Date());
@@ -21,7 +21,7 @@ export default function FormPerizinan() {
   const canvasRef = useRef(null);
 
   const [perizinanList, setPerizinanList] = useState(
-    () => JSON.parse(localStorage.getItem("perizinanList")) || []
+    () => JSON.parse(sessionStorage.getItem("perizinanList")) || []
   );
 
   // Handle file change (upload file)
@@ -89,7 +89,7 @@ export default function FormPerizinan() {
 
     const updatedList = [newData, ...perizinanList];
     setPerizinanList(updatedList);
-    localStorage.setItem("perizinanList", JSON.stringify(updatedList));
+    sessionStorage.setItem("perizinanList", JSON.stringify(updatedList));
 
     // Reset form
     setJenis("Dinas Luar");
@@ -121,7 +121,7 @@ export default function FormPerizinan() {
 
   return (
     <div className="container py-2">
-      <div className="glass-card p-3 mb-4">
+      <div className="bg-white bg-opacity-50 rounded-xl p-3 mb-4">
         <h4>FORM INPUT PERIZINAN</h4>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -181,26 +181,15 @@ export default function FormPerizinan() {
               value={lampiranMode}
               onChange={(e) => {
                 setLampiranMode(e.target.value);
-                setLampiran(null); // Clear the lampiran if mode changes
                 setImageData(null); // Clear the image data if mode changes
+                setLampiran(null); // Clear the lampiran if mode changes
                 setPermissionPrompt(false); // Reset permission prompt
               }}
             >
               <option value="kosong">---</option>
-              <option value="file">Unggah File</option>
               <option value="camera">Open Kamera</option>
+              <option value="file">Unggah File</option>
             </select>
-
-            {lampiranMode === "file" && (
-              <div>
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  className="form-control"
-                  onChange={handleFileChange}
-                />
-              </div>
-            )}
 
             {lampiranMode === "camera" && (
               <div>
@@ -226,6 +215,17 @@ export default function FormPerizinan() {
                 ) : (
                   <p>kamera sedang dimuat...</p>
                 )}
+              </div>
+            )}
+
+            {lampiranMode === "file" && (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="form-control"
+                  onChange={handleFileChange}
+                />
               </div>
             )}
 
@@ -276,33 +276,35 @@ export default function FormPerizinan() {
         </div>
       )}
 
-      <div className="glass-card p-4">
-        <h5>RIWAYAT PERIZINAN</h5>
-        <table className="table table-glass">
-          <thead>
-            <tr>
-              <th>Nama</th>
-              <th>Jenis</th>
-              <th>Tanggal</th>
-              <th>Perihal</th>
-              <th>Lampiran</th>
-            </tr>
-          </thead>
-          <tbody>
-            {perizinanList.map((p) => (
-              <tr key={p.id}>
-                <td>{p.nama}</td>
-                <td>{p.jenis}</td>
-                <td>
-                  {new Date(p.tanggalAwal).toLocaleDateString("id-ID")} -{" "}
-                  {new Date(p.tanggalAkhir).toLocaleDateString("id-ID")}
-                </td>
-                <td>{p.perihal}</td>
-                <td>{p.lampiran || "-"}</td>
+      <div className="bg-white bg-opacity-50 rounded-xl p-4">
+        <h5 className="mb-3">RIWAYAT PERIZINAN</h5>
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th className="p-2 text-center">Nama</th>
+                <th className="p-2 text-center">Jenis</th>
+                <th className="p-2 text-center">Tanggal</th>
+                <th className="p-2 text-center">Perihal</th>
+                <th className="p-2 text-center">Lampiran</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {perizinanList.map((p) => (
+                <tr key={p.id}>
+                  <td className="p-2 text-center">{p.nama}</td>
+                  <td className="p-2 text-center">{p.jenis}</td>
+                  <td className="p-2 text-center">
+                    {new Date(p.tanggalAwal).toLocaleDateString("id-ID")} -{" "}
+                    {new Date(p.tanggalAkhir).toLocaleDateString("id-ID")}
+                  </td>
+                  <td className="p-2 text-center">{p.perihal}</td>
+                  <td className="p-2 text-center">{p.lampiran || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
