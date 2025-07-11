@@ -14,7 +14,9 @@ export default function ProfileCard() {
           return;
         }
 
-        const apiUrl = "http://localhost/absensi-be/index.php/auth/profile";
+        // Pakai index.php sesuai default CI3 jika belum dihapus dengan .htaccess
+        const apiUrl =
+          import.meta.env.VITE_ABSEN_BE + "/index.php/auth/profile";
 
         const response = await axios.get(apiUrl, {
           headers: {

@@ -10,14 +10,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const formData = new FormData();
       formData.append("username", username);
       formData.append("password", password);
 
       const response = await axios.post(
-        "http://localhost/absensi-be/auth/login",
+        import.meta.env.VITE_ABSEN_BE + "/auth/login",
         formData
       );
 
