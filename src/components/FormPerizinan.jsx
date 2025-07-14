@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
+import Footer from "./Footer";
 
 export default function FormPerizinan() {
   const user = JSON.parse(localStorage.getItem("user")) || { nama: "Anoman" };
@@ -299,6 +299,7 @@ export default function FormPerizinan() {
           </table>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

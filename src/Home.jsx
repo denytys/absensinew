@@ -7,8 +7,6 @@ import ProfileCard from "./components/ProfileCard";
 import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
-import { SquarePen } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -214,14 +212,25 @@ export default function Home() {
       />
 
       {/* Floating Button Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-white border-t border-gray-200">
+      <footer
+        className="position-fixed bottom-0 start-0 end-0 p-2 text-center"
+        style={{ borderRadius: "0" }}
+      >
         <a
           href="/izin"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 transition mt-2"
+          className="btn btn-light rounded-circle shadow"
+          style={{
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto",
+          }}
         >
-          <SquarePen />
+          <i className="bi bi-pencil-square fs-4"></i>
         </a>
       </footer>
     </div>
