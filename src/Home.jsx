@@ -192,7 +192,6 @@ export default function Home() {
   return (
     <div className="cmax-w-screen-lg mx-auto px-4 py-4 relative min-h-screen pb-24">
       <Header time={time} />
-
       {/* Baris 1: ProfileCard */}
       <div className="grid gap-4 mb-4">
         <ProfileCard />
