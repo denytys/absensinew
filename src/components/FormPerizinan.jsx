@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Footer from "./Footer";
 
 export default function FormPerizinan() {
   const user = JSON.parse(localStorage.getItem("user")) || { nama: "Anonim" };
@@ -304,6 +305,7 @@ export default function FormPerizinan() {
           </tbody>
         </table>
       </div>
+      <Footer />
     </div>
   );
 }

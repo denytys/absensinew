@@ -7,6 +7,7 @@ import ProfileCard from "./components/ProfileCard";
 import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
+import Footer from "./components/Footer";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -17,19 +18,19 @@ export default function Home() {
     lng: null,
     error: null,
   });
-  let [previousTimestamp, setPreviousTimestamp] = useState(0)
+  let [previousTimestamp, setPreviousTimestamp] = useState(0);
   let [previousLocation, setPreviousLocation] = useState({
     latitude: "",
-    longitude: ""
-  })
+    longitude: "",
+  });
   let [cekGps, setCekGps] = useState({
     gpsSpeed: 0,
-    accelerationMagnitude: 0
-  })
+    accelerationMagnitude: 0,
+  });
   function startAccelerometer() {
     if (window.DeviceMotionEvent) {
       window.addEventListener("devicemotion", (event) => {
-        console.log(event)
+        console.log(event);
         // accelerationData = event.accelerationIncludingGravity;
       });
     } else {
@@ -51,12 +52,14 @@ export default function Home() {
     const dLon = toRad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c; // Jarak dalam meter
-  }
+  };
   const detectGPSSpoofing = (position) => {
     const { latitude, longitude } = position.coords;
     const timestamp = position.timestamp;
@@ -70,22 +73,22 @@ export default function Home() {
       );
 
       const timeElapsed = (timestamp - previousTimestamp) / 1000; // dalam detik
-      const gpsSpeed = timeElapsed > 0 ? (distance / timeElapsed) : 0; // m/s
+      const gpsSpeed = timeElapsed > 0 ? distance / timeElapsed : 0; // m/s
 
       // Cek apakah perubahan lokasi sesuai dengan sensor gerakan
       const accelerationMagnitude = Math.sqrt(
         accelerationData.x ** 2 +
-        accelerationData.y ** 2 +
-        accelerationData.z ** 2
+          accelerationData.y ** 2 +
+          accelerationData.z ** 2
       );
       if (gpsSpeed * 3.6 > 300 && accelerationMagnitude < 0.5) {
-        alert("Kemungkinan GPS/lokasi palsu terdeteksi")
+        alert("Kemungkinan GPS/lokasi palsu terdeteksi");
       }
-      setCekGps(value => ({
+      setCekGps((value) => ({
         ...value,
         gpsSpeed: gpsSpeed,
         accelerationMagnitude: accelerationMagnitude,
-      }))
+      }));
 
       // console.log(`Kecepatan GPS: ${(gpsSpeed * 3.6).toFixed(2)} km/jam`);
       // console.log(`Percepatan Sensor: ${accelerationMagnitude.toFixed(2)} m/s²`);
@@ -94,13 +97,13 @@ export default function Home() {
       // Deteksi anomali jika kecepatan GPS terlalu tinggi tetapi percepatan sensor rendah
     }
     // Perbarui lokasi sebelumnya
-    setPreviousLocation(value => ({
+    setPreviousLocation((value) => ({
       ...value,
       latitude: latitude,
-      longitude: longitude
-    }))
+      longitude: longitude,
+    }));
     setPreviousTimestamp(timestamp);
-  }
+  };
 
   const user = JSON.parse(localStorage.getItem("user")) || {
     nama: "Nama Default",
@@ -117,25 +120,27 @@ export default function Home() {
   const getLocation = () => {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        console.log("posisi", pos)
+        console.log("posisi", pos);
         setLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           akurasi: pos.coords.accuracy,
           dataLoc: pos,
           error: null,
-        })
+        });
         if (pos?.coords?.accuracy == 1) {
-          alert("Kemungkinan GPS/lokasi palsu terdeteksi")
+          alert("Kemungkinan GPS/lokasi palsu terdeteksi");
         }
         // detectGPSSpoofing(pos)
       },
       (err) => {
-        setLocation((loc) => ({ ...loc, error: err.message }))
-        if (err.message == 'Timeout expired') {
-          alert('Gagal mengambil lokasi, mohon refresh halaman')
+        setLocation((loc) => ({ ...loc, error: err.message }));
+        if (err.message == "Timeout expired") {
+          alert("Gagal mengambil lokasi, mohon refresh halaman");
         } else {
-          alert('Izin lokasi tidak diberikan, mohon allow izin lokasi sebelum menggunakan ePresensi')
+          alert(
+            "Izin lokasi tidak diberikan, mohon allow izin lokasi sebelum menggunakan ePresensi"
+          );
         }
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
@@ -144,7 +149,7 @@ export default function Home() {
 
   useEffect(() => {
     // startAccelerometer()
-    getLocation()
+    getLocation();
     localStorage.setItem("presensiList", JSON.stringify(presensiList));
   }, [presensiList]);
 
@@ -159,8 +164,8 @@ export default function Home() {
   const sudahPulang = presensiHariIni.some((p) => p.jenis === "pulang");
 
   const handlePresensi = (jenis) => {
-    setModalAbsen(true)
-    setJenisAbsen(jenis)
+    setModalAbsen(true);
+    setJenisAbsen(jenis);
     // if (!location.lat || !location.lng) return alert("Lokasi belum tersedia");
 
     // const newPresensi = {
@@ -200,30 +205,14 @@ export default function Home() {
           <LocationCard location={location} onRefresh={getLocation} />
         </div>
       </div>
-      <AbsenModal modalAbsen={modalAbsen} setModalAbsen={setModalAbsen} jenisAbsen={jenisAbsen} />
+      <AbsenModal
+        modalAbsen={modalAbsen}
+        setModalAbsen={setModalAbsen}
+        jenisAbsen={jenisAbsen}
+      />
 
       {/* Floating Button Footer */}
-      <footer
-        className="position-fixed bottom-0 start-0 end-0 p-2 text-center"
-        style={{ borderRadius: "0" }}
-      >
-        <a
-          href="/izin"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-light rounded-circle shadow"
-          style={{
-            width: "50px",
-            height: "50px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto",
-          }}
-        >
-          <i className="bi bi-pencil-square fs-4"></i>
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }

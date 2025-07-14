@@ -64,6 +64,24 @@ export default function EditProfile() {
             </div>
           )}
         </div>
+        <div className="mb-3">
+          <label className="form-label">Username</label>
+          <input
+            type="text"
+            className="form-control"
+            accept=""
+            onChange={handleFileChange}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Jenis Kelamin</label>
+          <input
+            type="text"
+            className="form-control"
+            accept=""
+            onChange={handleFileChange}
+          />
+        </div>
         <button className="btn btn-primary me-2" onClick={handleSave}>
           Simpan
         </button>
