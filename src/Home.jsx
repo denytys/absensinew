@@ -7,6 +7,9 @@ import ProfileCard from "./components/ProfileCard";
 import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
+import Footer from "./components/Footer";
+import { SquarePen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -188,7 +191,7 @@ export default function Home() {
     }
   }, []);
   return (
-    <div className="cmax-w-screen-lg mx-auto px-4 py-4 relative min-h-screen pb-24">
+    <div className="container py-2">
       <Header time={time} />
       {/* Baris 1: ProfileCard */}
       <div className="grid gap-4 mb-4">
@@ -210,29 +213,18 @@ export default function Home() {
         setModalAbsen={setModalAbsen}
         jenisAbsen={jenisAbsen}
       />
-
+      <Footer />
       {/* Floating Button Footer */}
-      <footer
-        className="position-fixed bottom-0 start-0 end-0 p-2 text-center"
-        style={{ borderRadius: "0" }}
-      >
+      {/* <footer className="fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-white border-t border-gray-200">
         <a
           href="/izin"
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-light rounded-circle shadow"
-          style={{
-            width: "50px",
-            height: "50px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto",
-          }}
+          className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 transition mt-2"
         >
-          <i className="bi bi-pencil-square fs-4"></i>
+          <SquarePen />
         </a>
-      </footer>
+      </footer> */}
     </div>
   );
 }

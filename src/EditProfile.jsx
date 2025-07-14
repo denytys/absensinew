@@ -73,7 +73,7 @@ export default function EditProfile() {
           </div>
         )}
 
-        <div className="flex mt-6 gap-3">
+        <div className="flex flex-row-reverse mt-6 gap-3">
           <button
             onClick={handleSave}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"

@@ -25,9 +25,10 @@ export default function ProfileCard() {
 
   return (
     <div className="bg-white/45 rounded-xl p-3 mb-2">
-      <div className="text-left md:text-center">
-        <h5>{profile.nama}</h5>
-        <p>{profile.nip}</p>
+      <div className="text-center">
+        <p className="text-lg">{profile.nama}</p>
+        <p className="text-sm">{profile.nip}</p>
+        {/* <p>{profile.alamat}</p> */}
       </div>
     </div>
   );
