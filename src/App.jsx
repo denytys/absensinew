@@ -5,7 +5,7 @@ import RiwayatAbsen from "./components/RiwayatAbsen";
 import FormPerizinan from "./components/FormPerizinan"; // ganti sesuai struktur kamu
 import EditProfile from "./EditProfile"; // import komponen baru
 import LaporanWfa from "./components/LaporanWfa";
-import "bootstrap/dist/css/bootstrap.min.css";
+
 import Login from "./Login";
 
 export default function App() {
