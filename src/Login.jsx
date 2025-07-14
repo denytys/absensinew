@@ -37,9 +37,9 @@ export default function Login() {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-[rgba(240,240,255,0.1)] z-[9999]">
-      <div className="w-full max-w-sm p-6 bg-white/45 shadow-lg rounded-3xl backdrop-blur-md relative">
+      <div className="w-xs md:w-full max-w-sm p-8 bg-white/45 shadow-lg rounded-3xl backdrop-blur-md relative">
         {/* Tooltip and Download Button */}
-        <div className="absolute top-[10px] right-[10px] z-10">
+        <div className="absolute top-[15px] md:top-[10px] right-[15px] md:right-[10px] z-10">
           <div
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
@@ -84,7 +84,7 @@ export default function Login() {
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-3xs md:w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <input
@@ -93,12 +93,12 @@ export default function Login() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-3xs md:w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-700 text-white py-2.5 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
+            className="w-3xs md:w-full bg-blue-700 text-white py-2.5 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
           >
             Login
           </button>

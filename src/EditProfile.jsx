@@ -3,6 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 export default function EditProfile() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      alert("Silakan login terlebih dahulu.");
+      navigate("/");
+    }
+  }, []);
   const [foto, setFoto] = useState("");
 
   useEffect(() => {

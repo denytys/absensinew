@@ -8,6 +8,7 @@ import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
 import { SquarePen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -179,7 +180,15 @@ export default function Home() {
 
     // setPresensiList((prev) => [newPresensi, ...prev]);
   };
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      alert("Silakan login terlebih dahulu.");
+      navigate("/");
+    }
+  }, []);
   return (
     <div className="cmax-w-screen-lg mx-auto px-4 py-4 relative min-h-screen pb-24">
       <Header time={time} />
