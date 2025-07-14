@@ -14,9 +14,7 @@ export default function ProfileCard() {
           return;
         }
 
-        // Pakai index.php sesuai default CI3 jika belum dihapus dengan .htaccess
-        const apiUrl = import.meta.env.VITE_ABSEN_BE + "/index.php/auth/profile";
-
+        const apiUrl = import.meta.env.VITE_ABSEN_BE + "/auth/profile";
         const response = await axios.get(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -28,21 +26,16 @@ export default function ProfileCard() {
         if (res.status) {
           setProfile(res.data);
         } else {
-          setError(res.message || "Gagal mengambil data profile.");
+          setError(res.message || "Gagal mengambil data profil.");
         }
       } catch (err) {
         console.error("Error ambil data profile:", err);
         if (err.response) {
-          // Error dari server (misal 404, 401, 500)
           setError(
             err.response.data.message || `Error: ${err.response.status}`
           );
-        } else if (err.request) {
-          // Request tidak terkirim / tidak ada response
-          setError("Tidak dapat terhubung ke server. Pastikan API berjalan.");
         } else {
-          // Error lain
-          setError("Terjadi error: " + err.message);
+          setError("Tidak dapat menghubungi server.");
         }
       }
     };
@@ -51,19 +44,18 @@ export default function ProfileCard() {
   }, []);
 
   if (error) {
-    return <div className="alert alert-danger">Error: {error}</div>;
+    return <div className="text-red-500 bg-red-100 p-2 rounded">{error}</div>;
   }
 
   if (!profile) {
-    return <div>Loading profile...</div>;
+    return <div>Memuat profil...</div>;
   }
 
   return (
-    <div className="glass-card p-3">
-      <div className="card-body">
-        <h5 className="card-title">{profile.nama}</h5>
-        <p className="card-text">{profile.nip}</p>
-        <p className="card-text">UPT: {profile.upt_nama}</p>
+    <div className="bg-white bg-opacity-50 rounded-xl p-3 mb-3">
+      <div className="text-left md:text-center">
+        <h5>{profile.nama}</h5>
+        <p>{profile.nip}</p>
       </div>
     </div>
   );

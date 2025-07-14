@@ -5,17 +5,17 @@ export default function PresensiSection({
   sudahPulang,
 }) {
   return (
-    <div className="glass-card p-3 mb-2 glass-card">
-      <div className="d-flex mb-3">
+    <div className="bg-white/45 rounded-xl p-3 mb-2">
+      <div className="flex gap-1 mb-2">
         <button
-          className="btn btn-success me-2"
+          className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
           onClick={() => handlePresensi("masuk")}
           //   disabled={sudahMasuk}
         >
           Masuk
         </button>
         <button
-          className="btn btn-danger"
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           onClick={() => handlePresensi("pulang")}
           //   disabled={!sudahMasuk || sudahPulang}
         >

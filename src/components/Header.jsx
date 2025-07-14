@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Header({ time }) {
   const navigate = useNavigate();
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState({ nama: "", foto: "" });
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user")) || {
@@ -14,58 +15,73 @@ export default function Header({ time }) {
     setUser(data);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
-    setLoggedIn(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
   return (
-    <div className="d-flex justify-content-between align-items-center mb-0">
-      <div className="ms-2 text-start">
-        <h2 className="mb-0">Presensi App</h2>
-        <p className="text-muted">{time.toLocaleString("id-ID")}</p>
+    <div className="flex justify-between items-center mb-4 px-2">
+      {/* Title and Time */}
+      <div className="text-left">
+        <h2 className="text-xl font-semibold text-gray-800">Presensi App</h2>
+        <p className="text-sm text-gray-500">{time.toLocaleString("id-ID")}</p>
       </div>
 
-      <div className="dropdown">
+      {/* User Dropdown */}
+      <div className="relative" ref={dropdownRef}>
         <img
           src={user.foto || "/images/user.png"}
-          alt="user"
-          className="rounded-circle"
-          role="button"
-          id="dropdownUser"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          width={40}
-          height={40}
-          style={{ cursor: "pointer" }}
+          alt="User"
+          className="w-10 h-10 rounded-full cursor-pointer object-cover"
+          onClick={() => setDropdownOpen((prev) => !prev)}
         />
 
-        <ul
-          className="dropdown-menu dropdown-menu-end"
-          aria-labelledby="dropdownUser"
+        {/* Dropdown with transition */}
+        <div
+          className={`absolute right-0 mt-2 w-44 bg-white/80 backdrop-blur-md shadow-xl rounded-xl z-50 text-sm text-gray-800 transform transition-all duration-200 ease-out origin-top-right ${
+            dropdownOpen
+              ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+          }`}
         >
-          <li>
-            <button className="dropdown-item" onClick={() => navigate("/home")}>
-              Home
-            </button>
-          </li>
-          <li>
-            <button
-              className="dropdown-item"
-              onClick={() => navigate("/edit-profile")}
-            >
-              Edit Profil
-            </button>
-          </li>
-          <li>
-            <hr className="dropdown-divider" />
-          </li>
-          <li>
-            <button className="dropdown-item" onClick={handleLogout}>
-              Logout
-            </button>
-          </li>
-        </ul>
+          <button
+            onClick={() => {
+              navigate("/home");
+              setDropdownOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => {
+              navigate("/edit-profile");
+              setDropdownOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+          >
+            Edit Profil
+          </button>
+          <hr className="my-1 border-gray-200" />
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 transition"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );

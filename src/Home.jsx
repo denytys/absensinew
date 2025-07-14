@@ -1,13 +1,12 @@
 // Home.jsx
 import { useEffect, useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 
 import Header from "./components/Header";
 import ProfileCard from "./components/ProfileCard";
 import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
-import Footer from "./components/Footer";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -179,31 +178,32 @@ export default function Home() {
 
     // setPresensiList((prev) => [newPresensi, ...prev]);
   };
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      alert("Silakan login terlebih dahulu.");
+      navigate("/");
+    }
+  }, []);
   return (
-    <div className="container py-2">
+    <div className="cmax-w-screen-lg mx-auto px-4 py-4 relative min-h-screen pb-24">
       <Header time={time} />
-
       {/* Baris 1: ProfileCard */}
-      <div className="row g-4 mb-2">
-        <div className="col-md-12">
-          <ProfileCard />
-        </div>
+      <div className="grid gap-4 mb-4">
+        <ProfileCard />
       </div>
 
       {/* Baris 2: PresensiSection dan LocationCard sejajar */}
-      <div className="row g-4">
-        <div className="col-md-6">
-          <PresensiSection
-            presensiList={presensiUser}
-            sudahMasuk={sudahMasuk}
-            sudahPulang={sudahPulang}
-            handlePresensi={handlePresensi}
-          />
-        </div>
-        <div className="col-md-6">
-          <LocationCard location={location} onRefresh={getLocation} />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <PresensiSection
+          presensiList={presensiUser}
+          sudahMasuk={sudahMasuk}
+          sudahPulang={sudahPulang}
+          handlePresensi={handlePresensi}
+        />
+        <LocationCard location={location} onRefresh={getLocation} />
       </div>
       <AbsenModal
         modalAbsen={modalAbsen}
@@ -212,7 +212,27 @@ export default function Home() {
       />
 
       {/* Floating Button Footer */}
-      <Footer />
+      <footer
+        className="position-fixed bottom-0 start-0 end-0 p-2 text-center"
+        style={{ borderRadius: "0" }}
+      >
+        <a
+          href="/izin"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-light rounded-circle shadow"
+          style={{
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto",
+          }}
+        >
+          <i className="bi bi-pencil-square fs-4"></i>
+        </a>
+      </footer>
     </div>
   );
 }
