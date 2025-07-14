@@ -7,28 +7,28 @@ export default function Footer() {
           className="bg-white text-gray-800 rounded-full shadow w-12 h-12 flex items-center justify-center"
           title="Home"
         >
-          <i className="bi bi-house text-xl"></i>
+          <img src="/images/home.svg" alt="" className="w-6 h-6" />
         </a>
         <a
           href="/riwayat"
           className="bg-white text-gray-800 rounded-full shadow w-12 h-12 flex items-center justify-center"
           title="Riwayat Absen"
         >
-          <i className="bi bi-clock-history text-xl"></i>
+          <img src="/images/absen.svg" alt="" className="w-6 h-6" />
         </a>
         <a
           href="/izin"
           className="bg-white text-gray-800 rounded-full shadow w-12 h-12 flex items-center justify-center"
           title="Input Perijinan"
         >
-          <i className="bi bi-pencil-square text-xl"></i>
+          <img src="/images/ijin.svg" alt="" className="w-6 h-6" />
         </a>
         <a
           href="/wfa"
           className="bg-white text-gray-800 rounded-full shadow w-12 h-12 flex items-center justify-center"
           title="Laporan WFA"
         >
-          <i className="bi bi-journal-text text-xl"></i>
+          <img src="/images/wfa.svg" alt="" className="w-6 h-6" />
         </a>
       </div>
     </footer>
