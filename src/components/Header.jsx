@@ -50,7 +50,7 @@ export default function Header({ time }) {
 
         {/* Dropdown with transition */}
         <div
-          className={`absolute right-0 mt-2 w-44 bg-white/80 backdrop-blur-md shadow-xl rounded-xl z-50 text-sm text-gray-800 transform transition-all duration-200 ease-out origin-top-right ${
+          className={`absolute right-0 mt-2 w-44 bg-white/30 backdrop-blur-md shadow-xl rounded-xl z-50 text-sm text-gray-800 transform transition-all duration-200 ease-out origin-top-right ${
             dropdownOpen
               ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
               : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
@@ -61,7 +61,7 @@ export default function Header({ time }) {
               navigate("/home");
               setDropdownOpen(false);
             }}
-            className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+            className="w-full text-left px-4 py-2 hover:bg-blue-300/20 transition"
           >
             Home
           </button>
@@ -70,14 +70,14 @@ export default function Header({ time }) {
               navigate("/edit-profile");
               setDropdownOpen(false);
             }}
-            className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+            className="w-full text-left px-4 py-2 hover:bg-blue-300/20 transition"
           >
             Edit Profil
           </button>
           <hr className="my-1 border-gray-200" />
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 transition"
+            className="w-full text-left px-4 py-2 text-red-500 hover:bg-blue-300/20 transition"
           >
             Logout
           </button>
