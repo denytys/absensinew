@@ -1,46 +1,18 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 export default function ProfileCard() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = sessionStorage.getItem("token");
-        if (!token) {
-          setError("Token tidak ditemukan. Silakan login ulang.");
-          return;
-        }
+    const user = JSON.parse(sessionStorage.getItem("user")); // Ambil user dari sessionStorage
 
-        const apiUrl = import.meta.env.VITE_ABSEN_BE + "/auth/profile";
-        const response = await axios.get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    if (!user) {
+      setError("Token tidak ditemukan. Silakan login ulang.");
+      return;
+    }
 
-        const res = response.data;
-
-        if (res.status) {
-          setProfile(res.data);
-        } else {
-          setError(res.message || "Gagal mengambil data profil.");
-        }
-      } catch (err) {
-        console.error("Error ambil data profile:", err);
-        if (err.response) {
-          setError(
-            err.response.data.message || `Error: ${err.response.status}`
-          );
-        } else {
-          setError("Tidak dapat menghubungi server.");
-        }
-      }
-    };
-
-    fetchProfile();
+    setProfile(user); // Set profile dengan data user yang ada di sessionStorage
   }, []);
 
   if (error) {
@@ -52,10 +24,11 @@ export default function ProfileCard() {
   }
 
   return (
-    <div className="bg-white bg-opacity-50 rounded-xl p-3 mb-3">
-      <div className="text-left md:text-center">
-        <h5>{profile.nama}</h5>
-        <p>{profile.nip}</p>
+    <div className="bg-white/45 rounded-xl p-3 mb-2">
+      <div className="text-center">
+        <p className="text-lg">{profile.nama}</p>
+        <p className="text-sm">{profile.nip}</p>
+        {/* <p>{profile.alamat}</p> */}
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-// Home.jsx
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -8,6 +7,8 @@ import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
 import Footer from "./components/Footer";
+import { SquarePen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
@@ -18,6 +19,7 @@ export default function Home() {
     lng: null,
     error: null,
   });
+  const [accuracy, setAccuracy] = useState(null);
   let [previousTimestamp, setPreviousTimestamp] = useState(0);
   let [previousLocation, setPreviousLocation] = useState({
     latitude: "",
@@ -128,14 +130,17 @@ export default function Home() {
           dataLoc: pos,
           error: null,
         });
-        if (pos?.coords?.accuracy == 1) {
-          alert("Kemungkinan GPS/lokasi palsu terdeteksi");
+
+        setAccuracy(pos.coords.accuracy);
+        if (pos.coords.accuracy <= 1) {
+          alert("⚠️ Kemungkinan GPS/lokasi palsu terdeteksi");
         }
-        // detectGPSSpoofing(pos)
+
+        // detectGPSSpoofing(pos); // opsional
       },
       (err) => {
         setLocation((loc) => ({ ...loc, error: err.message }));
-        if (err.message == "Timeout expired") {
+        if (err.message === "Timeout expired") {
           alert("Gagal mengambil lokasi, mohon refresh halaman");
         } else {
           alert(
@@ -143,7 +148,11 @@ export default function Home() {
           );
         }
       },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      }
     );
   };
 
@@ -202,7 +211,11 @@ export default function Home() {
           />
         </div>
         <div className="col-md-6">
-          <LocationCard location={location} onRefresh={getLocation} />
+          <LocationCard
+            location={location}
+            accuracy={accuracy}
+            onRefresh={getLocation}
+          />
         </div>
       </div>
       <AbsenModal
@@ -210,7 +223,7 @@ export default function Home() {
         setModalAbsen={setModalAbsen}
         jenisAbsen={jenisAbsen}
       />
-
+      <Footer />
       {/* Floating Button Footer */}
       <Footer />
     </div>

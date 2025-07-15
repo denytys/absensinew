@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { CircleFadingArrowUp } from "lucide-react";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -51,12 +52,15 @@ export default function EditProfile() {
 
         <div className="mb-4">
           <label className="block mb-1 font-medium">Foto Baru (max 5MB)</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="flex flex-row gap-2">
+            <CircleFadingArrowUp />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         </div>
 
         {foto && (
@@ -69,7 +73,7 @@ export default function EditProfile() {
           </div>
         )}
 
-        <div className="flex mt-6 gap-3">
+        <div className="flex flex-row-reverse mt-6 gap-3">
           <button
             onClick={handleSave}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
