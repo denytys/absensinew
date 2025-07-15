@@ -7,6 +7,7 @@ import axios from "axios";
 export default function FormPerizinan() {
   const user = JSON.parse(sessionStorage.getItem("user"));
   const [jenis, setJenis] = useState("Dinas Luar");
+  const [nomor, setNomor] = useState("");
   const [tanggalAwal, setTanggalAwal] = useState(new Date());
   const [tanggalAkhir, setTanggalAkhir] = useState(new Date());
   const [perihal, setPerihal] = useState("");
@@ -17,13 +18,26 @@ export default function FormPerizinan() {
   const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
   const [permissionPrompt, setPermissionPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [perizinanList] = useState(
+  const [perizinanList, setPerizinanList] = useState(
     () => JSON.parse(sessionStorage.getItem("perizinanList")) || []
   );
+
+  const handleEdit = (index) => {
+    const perizinan = perizinanList[index];
+    setEditIndex(index); // Menyimpan index item yang sedang diedit
+    setNomor(perizinan.nomor || "");
+    setJenis(perizinan.jenis);
+    setTanggalAwal(new Date(perizinan.tanggalAwal));
+    setTanggalAkhir(new Date(perizinan.tanggalAkhir));
+    setPerihal(perizinan.perihal);
+    setLampiran(perizinan.lampiran);
+    setLampiranMode("file"); // Sesuaikan jika lampiran berupa file atau kamera
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -73,7 +87,7 @@ export default function FormPerizinan() {
     setIsLoading(true); // mulai loading
 
     const formData = new FormData();
-    formData.append("nomor", Date.now());
+    formData.append("nomor", nomor);
     formData.append("perihal", perihal);
     formData.append("jenis_izin", jenis);
     formData.append("tgl_mulai", tanggalAwal.toISOString().slice(0, 10));
@@ -89,12 +103,63 @@ export default function FormPerizinan() {
       await axios.post(import.meta.env.VITE_ABSEN_BE + "/perizinan", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Data berhasil disimpan");
+
+      if (editIndex !== null) {
+        const updatedPerizinanList = [...perizinanList];
+        updatedPerizinanList[editIndex] = {
+          ...updatedPerizinanList[editIndex],
+          nama: user.nama,
+          nomor,
+          jenis,
+          tanggalAwal,
+          tanggalAkhir,
+          perihal,
+          lampiran: lampiran ? lampiran.name || lampiran : "-",
+        };
+
+        setPerizinanList(updatedPerizinanList);
+        sessionStorage.setItem(
+          "perizinanList",
+          JSON.stringify(updatedPerizinanList)
+        );
+
+        alert("Data berhasil diperbarui");
+      } else {
+        // Jika form masih baru (bukan edit)
+        const newPerizinan = {
+          nama: user.nama,
+          nomor,
+          jenis,
+          tanggalAwal,
+          tanggalAkhir,
+          perihal,
+          lampiran: lampiran ? lampiran.name || lampiran : "-",
+        };
+
+        const updatedPerizinanList = [...perizinanList, newPerizinan];
+        setPerizinanList(updatedPerizinanList);
+        sessionStorage.setItem(
+          "perizinanList",
+          JSON.stringify(updatedPerizinanList)
+        );
+
+        alert("Data berhasil disimpan");
+      }
     } catch (err) {
       console.error("Gagal simpan:", err.response?.data || err.message);
       alert("Gagal menyimpan data");
     } finally {
       setIsLoading(false); // selesai loading
+      setEditIndex(null); // Reset edit mode
+
+      // Reset form setelah submit/edit berhasil
+      setJenis("Dinas Luar");
+      setTanggalAwal(new Date());
+      setTanggalAkhir(new Date());
+      setPerihal("");
+      setLampiran(null);
+      setLampiranMode("file");
+      setNomor("");
     }
   };
 
@@ -114,7 +179,7 @@ export default function FormPerizinan() {
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* Form */}
-      <div className="bg-white shadow-md rounded-xl p-6 mb-6">
+      <div className="bg-white/85 shadow-md rounded-xl p-6 mb-6">
         <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Jenis */}
@@ -123,7 +188,7 @@ export default function FormPerizinan() {
               Jenis Izin
             </label>
             <select
-              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               value={jenis}
               onChange={(e) => setJenis(e.target.value)}
             >
@@ -134,6 +199,18 @@ export default function FormPerizinan() {
             </select>
           </div>
 
+          {/* Nomor */}
+          <div>
+            <label className="block font-medium mb-1 text-left">Nomor</label>
+            <input
+              type="text"
+              value={nomor}
+              onChange={(e) => setNomor(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Masukkan nomor surat atau referensi"
+            />
+          </div>
+
           {/* Tanggal */}
           <div>
             <label className="block font-medium mb-1 text-left">Tanggal</label>
@@ -141,12 +218,12 @@ export default function FormPerizinan() {
               <DatePicker
                 selected={tanggalAwal}
                 onChange={(date) => setTanggalAwal(date)}
-                className="w-full border border-gray-300 rounded-lg p-2"
+                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <DatePicker
                 selected={tanggalAkhir}
                 onChange={(date) => setTanggalAkhir(date)}
-                className="w-full border border-gray-300 rounded-lg p-2"
+                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -158,7 +235,7 @@ export default function FormPerizinan() {
               value={perihal}
               onChange={(e) => setPerihal(e.target.value)}
               rows="3"
-              className="w-full border border-gray-300 rounded-lg p-2 resize-none"
+              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
             ></textarea>
           </div>
 
@@ -177,7 +254,7 @@ export default function FormPerizinan() {
           <div>
             <label className="block font-medium mb-1 text-left">Lampiran</label>
             <select
-              className="w-full border border-gray-300 rounded-lg p-2 mb-2"
+              className="w-full border border-gray-300 rounded-lg p-2 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               value={lampiranMode}
               onChange={(e) => {
                 setLampiranMode(e.target.value);
@@ -226,7 +303,7 @@ export default function FormPerizinan() {
               />
             )}
 
-            {lampiran && (
+            {/* {lampiran && (
               <div className="mt-4">
                 <p className="font-semibold">Preview Lampiran:</p>
                 {imageData ? (
@@ -239,7 +316,7 @@ export default function FormPerizinan() {
                   <p className="text-sm mt-2">{lampiran.name}</p>
                 )}
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Buttons */}
@@ -304,23 +381,26 @@ export default function FormPerizinan() {
       )}
 
       {/* Riwayat Table */}
-      <div className="bg-white shadow-md rounded-xl p-6">
+      <div className="bg-white/85 shadow-md rounded-xl p-6">
         <h3 className="text-lg font-bold mb-4">Riwayat Perizinan</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-700 uppercase bg-gray-100">
               <tr>
-                <th className="p-2 text-center">Nama</th>
+                {/* <th className="p-2 text-center">Nama</th> */}
+                <th className="p-2 text-center">Nomor</th>
                 <th className="p-2 text-center">Jenis</th>
                 <th className="p-2 text-center">Tanggal</th>
                 <th className="p-2 text-center">Perihal</th>
                 <th className="p-2 text-center">Lampiran</th>
+                <th className="p-2 text-center">Act</th>
               </tr>
             </thead>
             <tbody>
               {perizinanList.map((p, i) => (
                 <tr key={i} className="border-b">
-                  <td className="p-2 text-center">{p.nama}</td>
+                  {/* <td className="p-2 text-center">{p.nama}</td> */}
+                  <td className="p-2 text-center">{p.nomor}</td>
                   <td className="p-2 text-center">{p.jenis}</td>
                   <td className="p-2 text-center">
                     {new Date(p.tanggalAwal).toLocaleDateString("id-ID")} -{" "}
@@ -328,6 +408,14 @@ export default function FormPerizinan() {
                   </td>
                   <td className="p-2 text-center">{p.perihal}</td>
                   <td className="p-2 text-center">{p.lampiran || "-"}</td>
+                  <td className="p-2 text-center">
+                    <button
+                      onClick={() => handleEdit(i)} // Menyertakan index saat tombol edit diklik
+                      className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600"
+                    >
+                      Edit
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
