@@ -59,14 +59,6 @@ export default function LocationCard({ location, accuracy, onRefresh }) {
   }, [location]);
 
   return (
-    <div className="bg-white/45 rounded-xl p-4">
-      <div className="d-flex justify-content-between align-items-center mb-2">
-        {/* <h5 className="card-title mb-0">Lokasi Anda</h5> */}
-        <button
-          onClick={onRefresh}
-          className="bg-blue-50 text-gray-700 px-4 py-2 rounded-lg hover:bg-blue-300"
-        >
-          refresh lokasi
     <div className="bg-white/80 backdrop-blur-md shadow-md rounded-xl p-4 w-full max-w-md mx-auto">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold text-gray-700">Lokasi Anda</h2>
