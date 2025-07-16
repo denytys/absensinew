@@ -7,7 +7,7 @@ export default function Footer() {
           className="bg-white text-gray-800 rounded-full shadow w-12 h-12 flex items-center justify-center"
           title="Home"
         >
-          <img src="/images/home.svg" alt="" className="w-6 h-6" />
+       
           <img src="/images/home.svg" alt="" className="w-6 h-6" />
         </a>
         <a
@@ -16,7 +16,7 @@ export default function Footer() {
           title="Riwayat Absen"
         >
           <img src="/images/absen.svg" alt="" className="w-6 h-6" />
-          <img src="/images/absen.svg" alt="" className="w-6 h-6" />
+         
         </a>
         <a
           href="/izin"
