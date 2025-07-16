@@ -1,6 +1,5 @@
-// Home.jsx
 import { useEffect, useState } from "react";
-// import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import Header from "./components/Header";
 import ProfileCard from "./components/ProfileCard";
@@ -20,6 +19,7 @@ export default function Home() {
     lng: null,
     error: null,
   });
+  const [accuracy, setAccuracy] = useState(null);
   let [previousTimestamp, setPreviousTimestamp] = useState(0);
   let [previousLocation, setPreviousLocation] = useState({
     latitude: "",
@@ -130,14 +130,17 @@ export default function Home() {
           dataLoc: pos,
           error: null,
         });
-        if (pos?.coords?.accuracy == 1) {
-          alert("Kemungkinan GPS/lokasi palsu terdeteksi");
+
+        setAccuracy(pos.coords.accuracy);
+        if (pos.coords.accuracy <= 1) {
+          alert("⚠️ Kemungkinan GPS/lokasi palsu terdeteksi");
         }
-        // detectGPSSpoofing(pos)
+
+        // detectGPSSpoofing(pos); // opsional
       },
       (err) => {
         setLocation((loc) => ({ ...loc, error: err.message }));
-        if (err.message == "Timeout expired") {
+        if (err.message === "Timeout expired") {
           alert("Gagal mengambil lokasi, mohon refresh halaman");
         } else {
           alert(
@@ -145,7 +148,11 @@ export default function Home() {
           );
         }
       },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      }
     );
   };
 
@@ -181,32 +188,35 @@ export default function Home() {
 
     // setPresensiList((prev) => [newPresensi, ...prev]);
   };
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      alert("Silakan login terlebih dahulu.");
-      navigate("/");
-    }
-  }, []);
   return (
     <div className="container py-2">
       <Header time={time} />
+
       {/* Baris 1: ProfileCard */}
-      <div className="grid gap-4 mb-4">
-        <ProfileCard />
+      <div className="row g-4 mb-2">
+        <div className="col-md-12">
+          <ProfileCard />
+        </div>
       </div>
 
       {/* Baris 2: PresensiSection dan LocationCard sejajar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <PresensiSection
-          presensiList={presensiUser}
-          sudahMasuk={sudahMasuk}
-          sudahPulang={sudahPulang}
-          handlePresensi={handlePresensi}
-        />
-        <LocationCard location={location} onRefresh={getLocation} />
+      <div className="row g-4">
+        <div className="col-md-6">
+          <PresensiSection
+            presensiList={presensiUser}
+            sudahMasuk={sudahMasuk}
+            sudahPulang={sudahPulang}
+            handlePresensi={handlePresensi}
+          />
+        </div>
+        <div className="col-md-6">
+          <LocationCard
+            location={location}
+            accuracy={accuracy}
+            onRefresh={getLocation}
+          />
+        </div>
       </div>
       <AbsenModal
         modalAbsen={modalAbsen}
@@ -215,16 +225,7 @@ export default function Home() {
       />
       <Footer />
       {/* Floating Button Footer */}
-      {/* <footer className="fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-white border-t border-gray-200">
-        <a
-          href="/izin"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 transition mt-2"
-        >
-          <SquarePen />
-        </a>
-      </footer> */}
+      <Footer />
     </div>
   );
 }
