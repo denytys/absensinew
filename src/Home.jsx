@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useEffect, useState } from "react";
 
 import Header from "./components/Header";
 import ProfileCard from "./components/ProfileCard";

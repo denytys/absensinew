@@ -41,11 +41,13 @@ export default function Header({ time }) {
   };
 
   return (
-    <div className="flex justify-between items-center mb-4 px-2">
+    <div className="flex justify-between items-center mb-2 px-2">
       {/* Title and Time */}
       <div className="text-left">
-        <h2 className="text-xl font-semibold text-gray-800">Presensi App</h2>
-        <p className="text-sm text-gray-500">{hari + ", " + tanggal}</p>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Presensi BARANTIN
+        </h2>
+        <p className="text-sm text-gray-500">{time.toLocaleString("id-ID")}</p>
       </div>
 
       {/* User Dropdown */}
