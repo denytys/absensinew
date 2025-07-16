@@ -17,10 +17,13 @@ export default function LocationCard({ location, onRefresh }) {
   }, [location]);
 
   return (
-    <div className="bg-white/45 rounded-xl p-3">
-      <div className="d-flex justify-content-between align-items-center mb-3">
+    <div className="bg-white/45 rounded-xl p-4">
+      <div className="d-flex justify-content-between align-items-center mb-2">
         {/* <h5 className="card-title mb-0">Lokasi Anda</h5> */}
-        <button onClick={onRefresh} className="btn btn-outline-primary btn-m">
+        <button
+          onClick={onRefresh}
+          className="bg-blue-50 text-gray-700 px-4 py-2 rounded-lg hover:bg-blue-300"
+        >
           refresh lokasi
         </button>
       </div>
@@ -28,7 +31,7 @@ export default function LocationCard({ location, onRefresh }) {
       {location.lat && location.lng ? (
         <>
           <p
-            className={`text-center fw-semibold mt-2 ${
+            className={`text-center text-sm mb-2 ${
               jarak <= 1000 ? "text-success" : "text-danger"
             }`}
           >
@@ -40,7 +43,7 @@ export default function LocationCard({ location, onRefresh }) {
             center={[location.lat, location.lng]}
             zoom={17}
             scrollWheelZoom={false}
-            style={{ height: "165px", width: "100%" }}
+            style={{ height: "145px", width: "100%" }}
             className="rounded"
           >
             <TileLayer
