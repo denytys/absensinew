@@ -6,8 +6,6 @@ import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
 import Footer from "./components/Footer";
-import { SquarePen } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { decodeCookies } from "./helper/parsingCookies";
 import { hitungJarak } from "./helper/hitungJarak";
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
