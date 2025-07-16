@@ -3,9 +3,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Footer from "./Footer";
 import axios from "axios";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function FormPerizinan() {
-  const user = JSON.parse(sessionStorage.getItem("user"));
+  const user = decodeCookies("user");
   const [jenis, setJenis] = useState("Dinas Luar");
   const [nomor, setNomor] = useState("");
   const [tanggalAwal, setTanggalAwal] = useState(new Date());

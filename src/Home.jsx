@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import Header from "./components/Header";
@@ -9,9 +9,27 @@ import AbsenModal from "./components/AbsenModal";
 import Footer from "./components/Footer";
 import { SquarePen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { decodeCookies } from "./helper/parsingCookies";
+import { hitungJarak } from "./helper/hitungJarak";
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371000; // Radius bumi dalam meter
+  const toRad = (angle) => (angle * Math.PI) / 180;
 
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Jarak dalam meter
+};
 export default function Home() {
   const [time, setTime] = useState(new Date());
+  const [lokasiTerdekat, setLokasiTerdekat] = useState(false);
   const [modalAbsen, setModalAbsen] = useState(false);
   const [jenisAbsen, setJenisAbsen] = useState("");
   const [location, setLocation] = useState({
@@ -29,40 +47,7 @@ export default function Home() {
     gpsSpeed: 0,
     accelerationMagnitude: 0,
   });
-  function startAccelerometer() {
-    if (window.DeviceMotionEvent) {
-      window.addEventListener("devicemotion", (event) => {
-        console.log(event);
-        // accelerationData = event.accelerationIncludingGravity;
-      });
-    } else {
-      // Swal.fire({
-      //   icon: 'warning',
-      //   text: 'Accelerometer tidak didukung di perangkat ini'
-      // })
-      // console.error("Accelerometer tidak didukung di perangkat ini.");
-    }
-  }
-  const [presensiList, setPresensiList] = useState(
-    () => JSON.parse(localStorage.getItem("presensiList")) || []
-  );
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371000; // Radius bumi dalam meter
-    const toRad = (angle) => (angle * Math.PI) / 180;
-
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; // Jarak dalam meter
-  };
-  const detectGPSSpoofing = (position) => {
+  const detectGPSSpoofing = (position, accelerationData) => {
     const { latitude, longitude } = position.coords;
     const timestamp = position.timestamp;
 
@@ -79,12 +64,15 @@ export default function Home() {
 
       // Cek apakah perubahan lokasi sesuai dengan sensor gerakan
       const accelerationMagnitude = Math.sqrt(
-        accelerationData.x ** 2 +
-          accelerationData.y ** 2 +
-          accelerationData.z ** 2
+        accelerationData?.x ** 2 +
+        accelerationData?.y ** 2 +
+        accelerationData?.z ** 2
       );
       if (gpsSpeed * 3.6 > 300 && accelerationMagnitude < 0.5) {
-        alert("Kemungkinan GPS/lokasi palsu terdeteksi");
+        setCekGps((value) => ({
+          ...value,
+          gpsPalsu: "Kemungkinan GPS/lokasi palsu terdeteksi",
+        }));
       }
       setCekGps((value) => ({
         ...value,
@@ -92,11 +80,6 @@ export default function Home() {
         accelerationMagnitude: accelerationMagnitude,
       }));
 
-      // console.log(`Kecepatan GPS: ${(gpsSpeed * 3.6).toFixed(2)} km/jam`);
-      // console.log(`Percepatan Sensor: ${accelerationMagnitude.toFixed(2)} m/s²`);
-      // console.log(`Rotasi Gyroscope: Alpha ${gyroData.alpha}, Beta ${gyroData.beta}, Gamma ${gyroData.gamma}`);
-
-      // Deteksi anomali jika kecepatan GPS terlalu tinggi tetapi percepatan sensor rendah
     }
     // Perbarui lokasi sebelumnya
     setPreviousLocation((value) => ({
@@ -106,6 +89,31 @@ export default function Home() {
     }));
     setPreviousTimestamp(timestamp);
   };
+  function startAccelerometer(position) {
+    if (window.DeviceMotionEvent) {
+      window.addEventListener("devicemotion", (event) => {
+        console.log(event);
+        setCekGps((value) => ({
+          ...value,
+          accelerationData: event.accelerationIncludingGravity,
+        }));
+        detectGPSSpoofing(position, event.accelerationIncludingGravity)
+      });
+    } else {
+      setCekGps((value) => ({
+        ...value,
+        accelerationData: false
+      }));
+      // Swal.fire({
+      //   icon: 'warning',
+      //   text: 'Accelerometer tidak didukung di perangkat ini'
+      // })
+      // console.error("Accelerometer tidak didukung di perangkat ini.");
+    }
+  }
+  const [presensiList, setPresensiList] = useState(
+    () => JSON.parse(localStorage.getItem("presensiList")) || []
+  );
 
   const user = JSON.parse(localStorage.getItem("user")) || {
     nama: "Nama Default",
@@ -119,10 +127,42 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  const funcLokasiTerdekat = (locLat, locLong) => {
+    const lokasi_kantor = decodeCookies("lokasi_kantor")
+    const setting = decodeCookies("setting_presensi")
+    let dekatKantor = []
+    lokasi_kantor?.map(item => {
+      let jarak = hitungJarak(item.lat, item.long, locLat, locLong);
+      // let jarak = getDistance(item.lat, item.long, geolocation.coords.latitude, geolocation.coords.longitude);
+      jarak = jarak * 1000;
+      item['jarak'] = jarak
+      dekatKantor.push(jarak)
+    })
+    let radius = parseInt(setting.radius_nilai)
+    if (setting.radius_satuan == "km") {
+      radius = radius * 1000
+    }
+    dekatKantor.sort(function (a, b) { return a - b })
+    let lokKantorTerdekat = lokasi_kantor.filter(item => item.jarak == dekatKantor[0])
+    setLokasiTerdekat(lokKantorTerdekat[0])
+    if (radius > dekatKantor[0]) {
+      setLokasiTerdekat((value) => ({
+        ...value,
+        cekRadius: true,
+        radius: radius
+      }));
+    } else {
+      setLokasiTerdekat((value) => ({
+        ...value,
+        cekRadius: false,
+        radius
+      }));
+    }
+  }
+
   const getLocation = () => {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        console.log("posisi", pos);
         setLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
@@ -130,13 +170,13 @@ export default function Home() {
           dataLoc: pos,
           error: null,
         });
+        funcLokasiTerdekat(pos.coords.latitude, pos.coords.longitude)
 
         setAccuracy(pos.coords.accuracy);
         if (pos.coords.accuracy <= 1) {
           alert("⚠️ Kemungkinan GPS/lokasi palsu terdeteksi");
         }
-
-        // detectGPSSpoofing(pos); // opsional
+        startAccelerometer(pos)
       },
       (err) => {
         setLocation((loc) => ({ ...loc, error: err.message }));
@@ -157,7 +197,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // startAccelerometer()
+    startAccelerometer()
     getLocation();
     localStorage.setItem("presensiList", JSON.stringify(presensiList));
   }, [presensiList]);
@@ -215,6 +255,7 @@ export default function Home() {
             location={location}
             accuracy={accuracy}
             onRefresh={getLocation}
+            lokasiTerdekat={lokasiTerdekat}
           />
         </div>
       </div>
@@ -222,6 +263,8 @@ export default function Home() {
         modalAbsen={modalAbsen}
         setModalAbsen={setModalAbsen}
         jenisAbsen={jenisAbsen}
+        time={time}
+        location={location}
       />
       <Footer />
       {/* Floating Button Footer */}

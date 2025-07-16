@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CircleFadingArrowUp } from "lucide-react";
+import { decodeCookies } from "./helper/parsingCookies";
 
 export default function EditProfile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = decodeCookies("token");
     if (!token) {
       alert("Silakan login terlebih dahulu.");
       navigate("/");
@@ -15,7 +16,7 @@ export default function EditProfile() {
   const [foto, setFoto] = useState("");
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user")) || {
+    const userData = decodeCookies("user") || {
       foto: "",
     };
     setFoto(userData.foto || "");
