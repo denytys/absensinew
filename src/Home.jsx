@@ -231,7 +231,7 @@ export default function Home() {
       <Header time={time} />
 
       {/* Baris 1: ProfileCard */}
-      <div className="row g-4 mb-2">
+      <div className="row g-4 mb-4">
         <div className="col-md-12">
           <ProfileCard />
         </div>
