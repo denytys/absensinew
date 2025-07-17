@@ -6,6 +6,15 @@ export default function Header({ time }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState({ nama: "", foto: "" });
   const dropdownRef = useRef(null);
+  const hari = time.toLocaleDateString("id-ID", { weekday: 'long' })
+  const tanggal = time.toLocaleDateString("id-ID", {
+    day: '2-digit',
+    year: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user")) || {

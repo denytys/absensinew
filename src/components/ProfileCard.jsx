@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function ProfileCard() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem("user")); // Ambil user dari sessionStorage
+    const user = decodeCookies("user"); // Ambil user dari sessionStorage
 
     if (!user) {
       setError("Token tidak ditemukan. Silakan login ulang.");

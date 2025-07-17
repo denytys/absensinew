@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
+import { decodeCookies } from "../helper/parsingCookies";
 
 // ✅ Custom icon hijau untuk user
 const greenIcon = new L.Icon({
@@ -32,10 +33,10 @@ function FitBounds({ location, kantor }) {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!done && location.lat && location.lng) {
+    if (!done && location?.lat && location?.lng) {
       const bounds = L.latLngBounds([
-        [location.lat, location.lng],
-        [kantor.lat, kantor.lng],
+        [location?.lat, location?.lng],
+        [kantor?.lat, kantor?.long],
       ]);
       map.fitBounds(bounds, { padding: [30, 30] });
       setDone(true);
@@ -44,20 +45,9 @@ function FitBounds({ location, kantor }) {
 
   return null;
 }
+const lokasiKantor = decodeCookies("lokasi_kantor")
 
-export default function LocationCard({ location, accuracy, onRefresh }) {
-  const kantor = { lat: -6.184903418133703, lng: 106.82268779760271 }; // Lokasi kantor Thamrin manual
-  const [jarak, setJarak] = useState(null);
-
-  useEffect(() => {
-    if (location.lat && location.lng) {
-      const from = L.latLng(location.lat, location.lng);
-      const to = L.latLng(kantor.lat, kantor.lng);
-      const distance = from.distanceTo(to); // meter
-      setJarak(distance);
-    }
-  }, [location]);
-
+export default function LocationCard({ location, accuracy, onRefresh, lokasiTerdekat }) {
   return (
     <div className="bg-white/80 backdrop-blur-md shadow-md rounded-xl p-4 w-full max-w-md mx-auto">
       <div className="flex items-center justify-between mb-3">
@@ -74,12 +64,12 @@ export default function LocationCard({ location, accuracy, onRefresh }) {
         <>
           <p
             className={`text-center font-medium ${
-              jarak <= 100 ? "text-green-600" : "text-red-600"
+              lokasiTerdekat?.cekRadius ? "text-green-600" : "text-red-600"
             }`}
           >
-            {jarak <= 100
-              ? "✅ Anda berada di radius absen (100m)."
-              : "❌ Anda di luar radius absen (100m)."}
+            {lokasiTerdekat?.cekRadius
+              ? "✅ Anda berada di radius absen"
+              : "❌ Anda di luar radius absen"}
           </p>
 
           <p className="text-center text-sm text-gray-600 mb-2">
@@ -87,7 +77,7 @@ export default function LocationCard({ location, accuracy, onRefresh }) {
           </p>
           <div className="mt-2 rounded overflow-hidden border border-gray-200">
             <MapContainer
-              center={[kantor.lat, kantor.lng]}
+              center={[location.lat, location.lng]}
               zoom={18}
               scrollWheelZoom={true}
               dragging={true}
@@ -103,20 +93,25 @@ export default function LocationCard({ location, accuracy, onRefresh }) {
                 position={[location.lat, location.lng]}
                 icon={greenIcon}
               />
-              <Marker position={[kantor.lat, kantor.lng]} icon={blueIcon} />
+              {lokasiKantor?.map((item, index) => (
+                <span key={index}>
+                  <Marker position={[item.lat, item.long]} icon={blueIcon} />
 
-              <Circle
-                center={[kantor.lat, kantor.lng]}
-                radius={100}
-                pathOptions={{
-                  fillColor: "blue",
-                  fillOpacity: 0.2,
-                  color: "blue",
-                  weight: 1,
-                }}
-              />
-
-              <FitBounds location={location} kantor={kantor} />
+                  <Circle
+                    center={[item.lat, item.long]}
+                    radius={lokasiTerdekat.radius}
+                    pathOptions={{
+                      fillColor: "blue",
+                      fillOpacity: 0.2,
+                      color: "blue",
+                      weight: 1,
+                    }}
+                  />
+                </span>
+              ))}
+              {location && lokasiTerdekat ?
+              <FitBounds location={location} kantor={lokasiTerdekat} />
+              : ""}
             </MapContainer>
           </div>
         </>

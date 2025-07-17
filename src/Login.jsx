@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { encodeCookies } from "./helper/parsingCookies";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,9 +26,31 @@ export default function Login() {
       const res = response.data;
 
       if (res.status) {
-        sessionStorage.setItem("token", res.data.token);
-        sessionStorage.setItem("user", JSON.stringify(res.data.data));
-        navigate("/home");
+        encodeCookies("token", res.data.token)
+        encodeCookies("user", res.data.data);
+        encodeCookies("role", res.data.role);
+        encodeCookies("lokasi_kantor", res.data.lokasi_kantor);
+        
+        let config = {
+          method: 'get',
+          maxBodyLength: Infinity,
+          url: import.meta.env.VITE_ABSEN_BE + '/presensi/setting',
+          headers: {
+            'Authorization': `Bearer ${res.data.token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+        const responseSett = axios.request(config)
+        responseSett.then((response) => {
+          if (response.data.status) {
+            encodeCookies("setting_presensi", response.data.data);
+            navigate("/home");
+          } else {
+            alert("Gagal load setting presensi");
+          }
+        }).catch((error) => {
+          alert(error.response?.data?.message || "Gagal load setting presensi");
+        })
       } else {
         alert(res.message || "Login gagal!");
       }
