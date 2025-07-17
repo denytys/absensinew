@@ -45,13 +45,18 @@ function FitBounds({ location, kantor }) {
 
   return null;
 }
-const lokasiKantor = decodeCookies("lokasi_kantor")
+const lokasiKantor = decodeCookies("lokasi_kantor");
 
-export default function LocationCard({ location, accuracy, onRefresh, lokasiTerdekat }) {
+export default function LocationCard({
+  location,
+  accuracy,
+  onRefresh,
+  lokasiTerdekat,
+}) {
   return (
-    <div className="bg-white/80 backdrop-blur-md shadow-md rounded-xl p-4 w-full max-w-md mx-auto">
+    <div className="bg-white/50 backdrop-blur-md rounded-xl p-4 max-w-md md:max-w-[600px] mx-auto md:mx-0">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-gray-700">Lokasi Anda</h2>
+        <h2 className="text-lg font-semibold">Lokasi Anda</h2>
         <button
           onClick={onRefresh}
           className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
@@ -109,9 +114,11 @@ export default function LocationCard({ location, accuracy, onRefresh, lokasiTerd
                   />
                 </span>
               ))}
-              {location && lokasiTerdekat ?
-              <FitBounds location={location} kantor={lokasiTerdekat} />
-              : ""}
+              {location && lokasiTerdekat ? (
+                <FitBounds location={location} kantor={lokasiTerdekat} />
+              ) : (
+                ""
+              )}
             </MapContainer>
           </div>
         </>

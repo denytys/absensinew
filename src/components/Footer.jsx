@@ -14,7 +14,7 @@ export default function Footer() {
           className="hover:text-black rounded-full w-12 h-12 flex flex-col items-center justify-center"
           title="Home"
         >
-          <HomeOutlined className="hover:mb-2 text-lg transition-transform duration-500 hover:scale-165 cursor-pointer" />
+          <HomeOutlined className="text-lg transition-transform duration-400 hover:scale-165 cursor-pointer" />
           <p className="text-xs mt-1">home</p>
         </a>
         <a
@@ -22,7 +22,7 @@ export default function Footer() {
           className="hover:text-black rounded-full w-12 h-12 flex flex-col items-center justify-center"
           title="Riwayat Absen"
         >
-          <HistoryOutlined className="hover:mb-2 text-lg transition-transform duration-500 hover:scale-165 cursor-pointer" />
+          <HistoryOutlined className="text-lg transition-transform duration-400 hover:scale-165 cursor-pointer" />
           <p className="text-xs mt-1">riwayat</p>
         </a>
         <a
@@ -30,7 +30,7 @@ export default function Footer() {
           className="hover:text-black rounded-full w-12 h-12 flex flex-col items-center justify-center"
           title="Input Perijinan"
         >
-          <FormOutlined className="hover:mb-2 text-lg transition-transform duration-500 hover:scale-165 cursor-pointer" />
+          <FormOutlined className="text-lg transition-transform duration-400 hover:scale-165 cursor-pointer" />
           <p className="text-xs mt-1">perizinan</p>
         </a>
         <a
@@ -38,7 +38,7 @@ export default function Footer() {
           className="hover:text-black rounded-full w-12 h-12 flex flex-col items-center justify-center"
           title="Laporan WFA"
         >
-          <FileTextOutlined className="hover:mb-2 text-lg transition-transform duration-500 hover:scale-165 cursor-pointer" />
+          <FileTextOutlined className="text-lg transition-transform duration-400 hover:scale-165 cursor-pointer" />
           <p className="text-xs mt-1">lap wfa</p>
         </a>
       </div>

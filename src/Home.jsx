@@ -8,6 +8,7 @@ import AbsenModal from "./components/AbsenModal";
 import Footer from "./components/Footer";
 import { decodeCookies } from "./helper/parsingCookies";
 import { hitungJarak } from "./helper/hitungJarak";
+import InformasiUpdate from "./components/InformasiUpdate";
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371000; // Radius bumi dalam meter
   const toRad = (angle) => (angle * Math.PI) / 180;
@@ -17,9 +18,9 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
-    Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c; // Jarak dalam meter
@@ -62,8 +63,8 @@ export default function Home() {
       // Cek apakah perubahan lokasi sesuai dengan sensor gerakan
       const accelerationMagnitude = Math.sqrt(
         accelerationData?.x ** 2 +
-        accelerationData?.y ** 2 +
-        accelerationData?.z ** 2
+          accelerationData?.y ** 2 +
+          accelerationData?.z ** 2
       );
       if (gpsSpeed * 3.6 > 300 && accelerationMagnitude < 0.5) {
         setCekGps((value) => ({
@@ -76,7 +77,6 @@ export default function Home() {
         gpsSpeed: gpsSpeed,
         accelerationMagnitude: accelerationMagnitude,
       }));
-
     }
     // Perbarui lokasi sebelumnya
     setPreviousLocation((value) => ({
@@ -94,12 +94,12 @@ export default function Home() {
           ...value,
           accelerationData: event.accelerationIncludingGravity,
         }));
-        detectGPSSpoofing(position, event.accelerationIncludingGravity)
+        detectGPSSpoofing(position, event.accelerationIncludingGravity);
       });
     } else {
       setCekGps((value) => ({
         ...value,
-        accelerationData: false
+        accelerationData: false,
       }));
       // Swal.fire({
       //   icon: 'warning',
@@ -125,37 +125,41 @@ export default function Home() {
   }, []);
 
   const funcLokasiTerdekat = (locLat, locLong) => {
-    const lokasi_kantor = decodeCookies("lokasi_kantor")
-    const setting = decodeCookies("setting_presensi")
-    let dekatKantor = []
-    lokasi_kantor?.map(item => {
+    const lokasi_kantor = decodeCookies("lokasi_kantor");
+    const setting = decodeCookies("setting_presensi");
+    let dekatKantor = [];
+    lokasi_kantor?.map((item) => {
       let jarak = hitungJarak(item.lat, item.long, locLat, locLong);
       // let jarak = getDistance(item.lat, item.long, geolocation.coords.latitude, geolocation.coords.longitude);
       jarak = jarak * 1000;
-      item['jarak'] = jarak
-      dekatKantor.push(jarak)
-    })
-    let radius = parseInt(setting.radius_nilai)
+      item["jarak"] = jarak;
+      dekatKantor.push(jarak);
+    });
+    let radius = parseInt(setting.radius_nilai);
     if (setting.radius_satuan == "km") {
-      radius = radius * 1000
+      radius = radius * 1000;
     }
-    dekatKantor.sort(function (a, b) { return a - b })
-    let lokKantorTerdekat = lokasi_kantor.filter(item => item.jarak == dekatKantor[0])
-    setLokasiTerdekat(lokKantorTerdekat[0])
+    dekatKantor.sort(function (a, b) {
+      return a - b;
+    });
+    let lokKantorTerdekat = lokasi_kantor.filter(
+      (item) => item.jarak == dekatKantor[0]
+    );
+    setLokasiTerdekat(lokKantorTerdekat[0]);
     if (radius > dekatKantor[0]) {
       setLokasiTerdekat((value) => ({
         ...value,
         cekRadius: true,
-        radius: radius
+        radius: radius,
       }));
     } else {
       setLokasiTerdekat((value) => ({
         ...value,
         cekRadius: false,
-        radius
+        radius,
       }));
     }
-  }
+  };
 
   const getLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -167,13 +171,13 @@ export default function Home() {
           dataLoc: pos,
           error: null,
         });
-        funcLokasiTerdekat(pos.coords.latitude, pos.coords.longitude)
+        funcLokasiTerdekat(pos.coords.latitude, pos.coords.longitude);
 
         setAccuracy(pos.coords.accuracy);
         if (pos.coords.accuracy <= 1) {
           alert("⚠️ Kemungkinan GPS/lokasi palsu terdeteksi");
         }
-        startAccelerometer(pos)
+        startAccelerometer(pos);
       },
       (err) => {
         setLocation((loc) => ({ ...loc, error: err.message }));
@@ -194,7 +198,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    startAccelerometer()
+    startAccelerometer();
     getLocation();
     localStorage.setItem("presensiList", JSON.stringify(presensiList));
   }, [presensiList]);
@@ -227,27 +231,26 @@ export default function Home() {
   };
 
   return (
-    <div className="container py-2">
+    <div className="cmax-w-screen-lg mx-auto px-2 relative min-h-screen">
       <Header time={time} />
 
       {/* Baris 1: ProfileCard */}
-      <div className="row g-4 mb-4">
-        <div className="col-md-12">
-          <ProfileCard />
-        </div>
+      <div className="grid gap-4 mb-2">
+        <ProfileCard />
       </div>
 
       {/* Baris 2: PresensiSection dan LocationCard sejajar */}
-      <div className="row g-4">
-        <div className="col-md-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
           <PresensiSection
             presensiList={presensiUser}
             sudahMasuk={sudahMasuk}
             sudahPulang={sudahPulang}
             handlePresensi={handlePresensi}
           />
+          <InformasiUpdate />
         </div>
-        <div className="col-md-6">
+        <div>
           <LocationCard
             location={location}
             accuracy={accuracy}
@@ -256,6 +259,7 @@ export default function Home() {
           />
         </div>
       </div>
+
       <AbsenModal
         modalAbsen={modalAbsen}
         setModalAbsen={setModalAbsen}
