@@ -2,8 +2,10 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import { decodeCookies } from '../helper/parsingCookies'
+import Swal from 'sweetalert2'
+import { protectPostPut } from '../helper/axiosHelper'
 
-export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time, location }) {
+export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time, location, lokasiTerdekat }) {
     const hari = time.toLocaleDateString("id-ID", { weekday: 'long' })
     const tanggal = time.toLocaleDateString("id-ID", {
         day: '2-digit',
@@ -14,23 +16,50 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
         second: '2-digit'
     })
     let [jenisWf, setJenisWf] = useState('wfo')
+    let [isLoading, setIsLoading] = useState(false)
     let [ipaddress, setIpaddress] = useState("0.0.0.0")
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
         const user = decodeCookies("user")
-        console.log(user)
+        const waktu = decodeCookies("waktu")
+        Swal.fire("sedang menyimpan..")
+        Swal.showLoading()
         const values = {
             id_user: user?.id_user,
             zona: user?.zona_waktu,
             jenis_presensi: jenisAbsen,
-            waktu_presensi_id: null,
+            waktu_presensi_id: waktu[0]?.id_setting_waktu_presensi,
             latitude: location?.lat,
-            longitude: location?.long,
+            longitude: location?.lng,
             raw_lokasi: location?.dataLoc,
-            lokasi_kantor_id: user?.id_user,
+            lokasi_kantor_id: lokasiTerdekat?.id,
             bagian_id: user?.bagian_id,
             cek_wfo: jenisWf,
             ipaddress: ipaddress
+        }
+        setIsLoading(true)
+        try {
+            const response = await protectPostPut("post", "/presensi", values)
+            // const response = await axios.post(import.meta.env.VITE_ABSEN_BE + "/presensi", values, {
+            //     headers: { "Content-Type": "multipart/json", 'Authorization': `Bearer ${token}` },
+            // });
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil simpan",
+                text: response?.data?.message ?? "Gagal menyimpan data"
+            });
+        } catch (err) {
+            if (import.meta.env.MODE === "development") {
+                console.error("Gagal simpan:", err);
+            }
+            Swal.fire({
+                icon: "error",
+                title: "Terjadi kesalahan",
+                text: err.response?.data?.message ?? "Gagal menyimpan data"
+            });
+        } finally {
+            setModalAbsen(!modalAbsen)
+            setIsLoading(false)
         }
     }
 
@@ -67,7 +96,7 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
                         <div className="bg-white px-4 sm:p-6 sm:pb-4">
                             <div className="flex sm:items-start">
                                 <div className="field-sizing-fixed w-full mt-3 sm:text-left">
-                                    <DialogTitle as="h3" className="text-center font-semibold text-gray-900">
+                                    <DialogTitle className="text-2xl text-center font-semibold text-gray-900">
                                         Absensi {jenisAbsen}
                                     </DialogTitle>
                                     <hr className='mb-1' />
@@ -85,9 +114,10 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
                                                 onChange={(e) => setJenisWf(e.target.value)}
                                                 id="wfo"
                                                 name="jenisWf"
+                                                checked={jenisWf == "wfo" ? true : false}
                                                 type="radio"
                                                 className="relative size-4"
-                                            />
+                                                />
                                             <label htmlFor="wfo" className="block text-sm/6 font-medium text-gray-900">
                                                 WFO
                                             </label>
@@ -98,6 +128,7 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
                                                 onChange={(e) => setJenisWf(e.target.value)}
                                                 id="wfa"
                                                 name="jenisWf"
+                                                checked={jenisWf == "wfa" ? true : false}
                                                 type="radio"
                                                 className="relative size-4"
                                             // className="relative size-4  rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
@@ -110,7 +141,9 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
                                     <div className="my-6 flex items-center gap-x-6">
                                         <button
                                             type="button"
-                                            className="rounded-xl w-full mx-4 bg-emerald-800 py-2 font-semibold text-white"
+                                            disabled={isLoading}
+                                            onClick={() => onSubmit()}
+                                            className="rounded-xl w-full mx-4 bg-emerald-800 py-2 font-semibold text-white disabled:bg-emerald-950"
                                         >
                                             Submit
                                         </button>

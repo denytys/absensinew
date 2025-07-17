@@ -29,6 +29,7 @@ export default function Login() {
         encodeCookies("token", res.data.token)
         encodeCookies("user", res.data.data);
         encodeCookies("role", res.data.role);
+        encodeCookies("waktu", res.data.setting_waktu);
         encodeCookies("lokasi_kantor", res.data.lokasi_kantor);
         
         let config = {

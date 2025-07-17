@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Header from "./components/Header";
 import ProfileCard from "./components/ProfileCard";
@@ -8,6 +8,7 @@ import AbsenModal from "./components/AbsenModal";
 import Footer from "./components/Footer";
 import { decodeCookies } from "./helper/parsingCookies";
 import { hitungJarak } from "./helper/hitungJarak";
+import Swal from "sweetalert2";
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371000; // Radius bumi dalam meter
   const toRad = (angle) => (angle * Math.PI) / 180;
@@ -86,7 +87,7 @@ export default function Home() {
     }));
     setPreviousTimestamp(timestamp);
   };
-  function startAccelerometer(position) {
+  const startAccelerometer = useCallback((position) => {
     if (window.DeviceMotionEvent) {
       window.addEventListener("devicemotion", (event) => {
         console.log(event);
@@ -107,7 +108,7 @@ export default function Home() {
       // })
       // console.error("Accelerometer tidak didukung di perangkat ini.");
     }
-  }
+  }, [])
   const [presensiList, setPresensiList] = useState(
     () => JSON.parse(localStorage.getItem("presensiList")) || []
   );
@@ -171,7 +172,11 @@ export default function Home() {
 
         setAccuracy(pos.coords.accuracy);
         if (pos.coords.accuracy <= 1) {
-          alert("⚠️ Kemungkinan GPS/lokasi palsu terdeteksi");
+          Swal.fire({
+            icon: "warning",
+            title: "Warning!",
+            text:"Kemungkinan GPS/lokasi palsu terdeteksi"
+          });
         }
         startAccelerometer(pos)
       },
@@ -194,10 +199,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // startAccelerometer()
     getLocation();
     localStorage.setItem("presensiList", JSON.stringify(presensiList));
-  }, [presensiList]);
+  }, [presensiList, startAccelerometer]);
 
   // Filter presensi hanya milik user login
   const presensiUser = presensiList.filter((p) => p.nama === user.nama);
@@ -210,6 +214,22 @@ export default function Home() {
   const sudahPulang = presensiHariIni.some((p) => p.jenis === "pulang");
 
   const handlePresensi = (jenis) => {
+    if (cekGps?.gpsSpeed * 3.6 > 300 && cekGps?.accelerationMagnitude < 0.5) {
+      Swal.fire({
+        icon: 'error',
+        title: "Perhatian",
+        text: "Kemungkinan GPS/lokasi palsu terdeteksi"
+      })
+      return
+    }
+    if (accuracy <= 1) {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning!",
+        text: "Kemungkinan GPS/lokasi palsu terdeteksi"
+      });
+      return
+    }
     setModalAbsen(true);
     setJenisAbsen(jenis);
     // if (!location.lat || !location.lng) return alert("Lokasi belum tersedia");
@@ -262,6 +282,7 @@ export default function Home() {
         jenisAbsen={jenisAbsen}
         time={time}
         location={location}
+        lokasiTerdekat={lokasiTerdekat}
       />
       <Footer />
       {/* Floating Button Footer */}
