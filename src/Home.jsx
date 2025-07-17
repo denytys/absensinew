@@ -198,7 +198,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    startAccelerometer();
+    // startAccelerometer()
     getLocation();
     localStorage.setItem("presensiList", JSON.stringify(presensiList));
   }, [presensiList]);
