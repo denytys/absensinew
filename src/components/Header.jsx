@@ -6,15 +6,15 @@ export default function Header({ time }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState({ nama: "", foto: "" });
   const dropdownRef = useRef(null);
-  const hari = time.toLocaleDateString("id-ID", { weekday: 'long' })
+  const hari = time.toLocaleDateString("id-ID", { weekday: "long" });
   const tanggal = time.toLocaleDateString("id-ID", {
-    day: '2-digit',
-    year: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
+    day: "2-digit",
+    year: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user")) || {
@@ -41,7 +41,7 @@ export default function Header({ time }) {
   };
 
   return (
-    <div className="flex justify-between items-center mb-2 px-2">
+    <div className="flex justify-between items-center mb-4 px-2">
       {/* Title and Time */}
       <div className="text-left">
         <h2 className="text-xl font-semibold text-gray-800">

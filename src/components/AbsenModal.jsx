@@ -63,29 +63,31 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
         }
     }
 
-    const getIpAddress = useCallback(() => {
-        const response = axios.get("https://api.ipify.org/?format=json");
-        response.then((response) => {
-            if (import.meta.env.MODE === "development") {
-                console.log("lokasi", response?.data?.ip)
-            }
-            setIpaddress(response?.data?.ip)
-        }).catch((err) => {
-            if (import.meta.env.MODE === "development") {
-                console.log("ip", err)
-            }
-        })
-    }, [])
+  const getIpAddress = useCallback(() => {
+    const response = axios.get("https://api.ipify.org/?format=json");
+    response
+      .then((response) => {
+        if (import.meta.env.MODE === "development") {
+          console.log("lokasi", response?.data?.ip);
+        }
+        setIpaddress(response?.data?.ip);
+      })
+      .catch((err) => {
+        if (import.meta.env.MODE === "development") {
+          console.log("ip", err);
+        }
+      });
+  }, []);
 
-    useEffect(() => {
-        getIpAddress()
-    }, [getIpAddress])
-    return (
-        <Dialog open={modalAbsen} onClose={setModalAbsen} className="relative z-10">
-            <DialogBackdrop
-                transition
-                className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
-            />
+  useEffect(() => {
+    getIpAddress();
+  }, [getIpAddress]);
+  return (
+    <Dialog open={modalAbsen} onClose={setModalAbsen} className="relative z-10">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+      />
 
             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                 <div className="flex min-h-full justify-center p-4 text-center items-center sm:p-0">

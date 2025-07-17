@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import { decodeCookies } from "../helper/parsingCookies";
+import { EnvironmentOutlined, ReloadOutlined } from "@ant-design/icons";
 
 // ✅ Custom icon hijau untuk user
 const greenIcon = new L.Icon({
@@ -45,25 +46,31 @@ function FitBounds({ location, kantor }) {
 
   return null;
 }
-const lokasiKantor = decodeCookies("lokasi_kantor")
+const lokasiKantor = decodeCookies("lokasi_kantor");
 
-export default function LocationCard({ location, accuracy, onRefresh, lokasiTerdekat }) {
+export default function LocationCard({
+  location,
+  accuracy,
+  onRefresh,
+  lokasiTerdekat,
+}) {
   return (
-    <div className="bg-white/80 backdrop-blur-md shadow-md rounded-xl m-2 p-4 w-full max-w-md mx-auto">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-gray-700">Lokasi Anda</h2>
-        <button
+    <div className="bg-white/50 text-gray-700 backdrop-blur-md rounded-xl pt-2 mb-12 max-w-md md:max-w-[600px] mx-auto md:mx-0">
+      <div className="flex flex-row-reverse mb-0 mr-2">
+        {/* <div className="flex flex-row gap-1 md:gap-2">
+          <EnvironmentOutlined className="text-xl" />
+          <p className="text-sm md:text-base font-semibold">Lokasi Anda</p>
+        </div> */}
+        <ReloadOutlined
           onClick={onRefresh}
-          className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
-        >
-          Refresh Lokasi
-        </button>
+          className="px-3 py-1 text-sm text-blue-600 bg-white/70 hover:bg-blue-300 rounded-lg"
+        />
       </div>
 
       {location.lat && location.lng ? (
         <>
           <p
-            className={`text-center font-medium ${
+            className={`text-center font-medium text-sm ${
               lokasiTerdekat?.cekRadius ? "text-green-600" : "text-red-600"
             }`}
           >
@@ -72,7 +79,7 @@ export default function LocationCard({ location, accuracy, onRefresh, lokasiTerd
               : "❌ Anda di luar radius absen"}
           </p>
 
-          <p className="text-center text-sm text-gray-600 mb-2">
+          <p className="text-center text-xs text-gray-600 mb-2">
             Akurasi GPS: ± {accuracy ? `${accuracy.toFixed(1)} meter` : "-"}
           </p>
           <div className="mt-2 rounded overflow-hidden border border-gray-200">
@@ -82,7 +89,7 @@ export default function LocationCard({ location, accuracy, onRefresh, lokasiTerd
               scrollWheelZoom={true}
               dragging={true}
               style={{ height: "220px", width: "100%" }}
-              className="rounded"
+              className="rounded-lg"
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -109,9 +116,11 @@ export default function LocationCard({ location, accuracy, onRefresh, lokasiTerd
                   />
                 </span>
               ))}
-              {location && lokasiTerdekat ?
-              <FitBounds location={location} kantor={lokasiTerdekat} />
-              : ""}
+              {location && lokasiTerdekat ? (
+                <FitBounds location={location} kantor={lokasiTerdekat} />
+              ) : (
+                ""
+              )}
             </MapContainer>
           </div>
         </>
