@@ -49,7 +49,7 @@ const lokasiKantor = decodeCookies("lokasi_kantor")
 
 export default function LocationCard({ location, accuracy, onRefresh, lokasiTerdekat }) {
   return (
-    <div className="bg-white/80 backdrop-blur-md shadow-md rounded-xl p-4 w-full max-w-md mx-auto">
+    <div className="bg-white/80 backdrop-blur-md shadow-md rounded-xl m-2 p-4 w-full max-w-md mx-auto">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold text-gray-700">Lokasi Anda</h2>
         <button
