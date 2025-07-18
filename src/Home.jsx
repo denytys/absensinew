@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 
-import Header from "./components/Header";
 import ProfileCard from "./components/ProfileCard";
 import LocationCard from "./components/LocationCard";
 import PresensiSection from "./components/PresensiSection";
 import AbsenModal from "./components/AbsenModal";
-import Footer from "./components/Footer";
 import { decodeCookies } from "./helper/parsingCookies";
 import { hitungJarak } from "./helper/hitungJarak";
 import InformasiUpdate from "./components/InformasiUpdate";
@@ -90,7 +88,6 @@ export default function Home() {
   const startAccelerometer = useCallback((position) => {
     if (window.DeviceMotionEvent) {
       window.addEventListener("devicemotion", (event) => {
-        console.log(event);
         setCekGps((value) => ({
           ...value,
           accelerationData: event.accelerationIncludingGravity,
@@ -119,11 +116,6 @@ export default function Home() {
     kantor: "Kantor Pusat",
     foto: "https://via.placeholder.com/80",
   };
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const funcLokasiTerdekat = (locLat, locLong) => {
     const lokasi_kantor = decodeCookies("lokasi_kantor");
@@ -251,46 +243,40 @@ export default function Home() {
   };
 
   return (
-    <div className="cmax-w-screen-lg mx-auto px-2 relative min-h-screen">
-      <Header time={time} />
-
-      {/* Baris 1: ProfileCard */}
-      <div className="grid gap-4 mb-2">
-        <ProfileCard />
-      </div>
-
-      {/* Baris 2: PresensiSection dan LocationCard sejajar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <PresensiSection
-            presensiList={presensiUser}
-            sudahMasuk={sudahMasuk}
-            sudahPulang={sudahPulang}
-            handlePresensi={handlePresensi}
-          />
-          <InformasiUpdate />
+      <>
+        {/* Baris 1: ProfileCard */}
+        <div className="grid gap-4 mb-2">
+          <ProfileCard />
         </div>
-        <div>
-          <LocationCard
-            location={location}
-            accuracy={accuracy}
-            onRefresh={getLocation}
-            lokasiTerdekat={lokasiTerdekat}
-          />
-        </div>
-      </div>
 
-      <AbsenModal
-        modalAbsen={modalAbsen}
-        setModalAbsen={setModalAbsen}
-        jenisAbsen={jenisAbsen}
-        time={time}
-        location={location}
-        lokasiTerdekat={lokasiTerdekat}
-      />
-      <Footer />
-      {/* Floating Button Footer */}
-      <Footer />
-    </div>
+        {/* Baris 2: PresensiSection dan LocationCard sejajar */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <PresensiSection
+              presensiList={presensiUser}
+              sudahMasuk={sudahMasuk}
+              sudahPulang={sudahPulang}
+              handlePresensi={handlePresensi}
+            />
+            <InformasiUpdate />
+          </div>
+          <div>
+            <LocationCard
+              location={location}
+              accuracy={accuracy}
+              onRefresh={getLocation}
+              lokasiTerdekat={lokasiTerdekat}
+            />
+          </div>
+        </div>
+
+        <AbsenModal
+          modalAbsen={modalAbsen}
+          setModalAbsen={setModalAbsen}
+          jenisAbsen={jenisAbsen}
+          location={location}
+          lokasiTerdekat={lokasiTerdekat}
+        />
+      </>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { encodeCookies } from "./helper/parsingCookies";
+import { protectGet } from "./helper/axiosHelper";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,29 +28,23 @@ export default function Login() {
 
       if (res.status) {
         encodeCookies("token", res.data.token)
+        encodeCookies("expired", res.data.expired)
         encodeCookies("user", res.data.data);
         encodeCookies("role", res.data.role);
         encodeCookies("waktu", res.data.setting_waktu);
         encodeCookies("lokasi_kantor", res.data.lokasi_kantor);
         
-        let config = {
-          method: 'get',
-          maxBodyLength: Infinity,
-          url: import.meta.env.VITE_ABSEN_BE + '/presensi/setting',
-          headers: {
-            'Authorization': `Bearer ${res.data.token}`,
-            'Content-Type': 'application/json',
-          }
-        }
-        const responseSett = axios.request(config)
+        const responseSett = protectGet('/presensi/setting')
         responseSett.then((response) => {
+          // alert(JSON.stringify(response.data))
           if (response.data.status) {
             encodeCookies("setting_presensi", response.data.data);
-            navigate("/home");
+            navigate("/");
           } else {
             alert("Gagal load setting presensi");
           }
         }).catch((error) => {
+          console.log("error set", error)
           alert(error.response?.data?.message || "Gagal load setting presensi");
         })
       } else {
@@ -64,7 +59,7 @@ export default function Login() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[rgba(240,240,255,0.1)] z-[9999]">
+    <div className="fixed inset-0 flex items-center justify-center bg-[rgba(240,240,255,0.1)]">
       <div className="w-xs md:w-full max-w-sm p-8 bg-white/45 shadow-lg rounded-3xl backdrop-blur-md relative">
         {/* Tooltip and Download Button */}
         <div className="absolute top-[15px] md:top-[10px] right-[15px] md:right-[10px] z-10">

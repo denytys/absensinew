@@ -4,17 +4,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { decodeCookies } from '../helper/parsingCookies'
 import Swal from 'sweetalert2'
 import { protectPostPut } from '../helper/axiosHelper'
+import DigitalClock from './DigitalClock'
 
-export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time, location, lokasiTerdekat }) {
-    const hari = time.toLocaleDateString("id-ID", { weekday: 'long' })
-    const tanggal = time.toLocaleDateString("id-ID", {
-        day: '2-digit',
-        year: 'numeric',
-        month: 'long',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    })
+export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, location, lokasiTerdekat }) {
     let [jenisWf, setJenisWf] = useState('wfo')
     let [isLoading, setIsLoading] = useState(false)
     let [ipaddress, setIpaddress] = useState("0.0.0.0")
@@ -102,9 +94,7 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, time
                                         Absensi {jenisAbsen}
                                     </DialogTitle>
                                     <hr className='mb-1' />
-                                    <div className="text-center mb-4">
-                                        {hari + ", " + tanggal}
-                                    </div>
+                                    <DigitalClock/>
                                     {/* <p className="text-sm text-gray-500">
                                         Are you sure you want to deactivate your account? All of your data will be permanently removed.
                                         This action cannot be undone.
