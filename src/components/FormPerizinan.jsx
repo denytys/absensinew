@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Footer from "./Footer";
 import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
 
@@ -423,7 +422,6 @@ export default function FormPerizinan() {
           </table>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

@@ -93,14 +93,14 @@ export default function LocationCard({
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="&copy; OpenStreetMap"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
 
               <Marker
                 position={[location.lat, location.lng]}
                 icon={greenIcon}
               />
-              {lokasiKantor?.map((item, index) => (
+              {lokasiKantor ? lokasiKantor?.map((item, index) => (
                 <span key={index}>
                   <Marker position={[item.lat, item.long]} icon={blueIcon} />
 
@@ -115,7 +115,7 @@ export default function LocationCard({
                     }}
                   />
                 </span>
-              ))}
+              )) : ""}
               {location && lokasiTerdekat ? (
                 <FitBounds location={location} kantor={lokasiTerdekat} />
               ) : (

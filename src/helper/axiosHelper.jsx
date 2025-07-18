@@ -21,6 +21,7 @@ export function protectPostPut(method, endpoint, data) {
         url: import.meta.env.VITE_ABSEN_BE + endpoint,
         headers: {
             'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
         },
         data: data
     }
@@ -34,6 +35,19 @@ export function protectDelete(endpoint, data) {
         url: import.meta.env.VITE_ABSEN_BE + endpoint,
         headers: {
             'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        data: data
+    }
+    return axios.request(config)
+}
+
+export function freePost(endpoint, data) {
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: import.meta.env.VITE_ABSEN_BE + endpoint,
+        headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         data: data

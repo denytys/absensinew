@@ -1,20 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import DigitalClock from "./DigitalClock";
+import { removeSession } from "../helper/funcLogout";
+import Swal from "sweetalert2";
 
-export default function Header({ time }) {
+export default function Header() {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState({ nama: "", foto: "" });
   const dropdownRef = useRef(null);
-  const hari = time.toLocaleDateString("id-ID", { weekday: "long" });
-  const tanggal = time.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    year: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user")) || {
@@ -35,9 +29,14 @@ export default function Header({ time }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
+    removeSession()
+    Swal.fire({
+      icon: "success",
+      title: "Berhasil",
+      text: "Logout sukses",
+      timer: 1500 
+    })
+    navigate("/login");
   };
 
   return (
@@ -47,7 +46,7 @@ export default function Header({ time }) {
         <h2 className="text-xl font-semibold text-gray-800">
           Presensi BARANTIN
         </h2>
-        <p className="text-sm text-gray-500">{time.toLocaleString("id-ID")}</p>
+        <p className="text-sm text-gray-500"><DigitalClock/></p>
       </div>
 
       {/* User Dropdown */}

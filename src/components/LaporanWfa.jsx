@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Footer from "./Footer";
 
 export default function LaporanWfa() {
   const [judul, setJudul] = useState("");
@@ -118,8 +117,6 @@ export default function LaporanWfa() {
           </tbody>
         </table>
       </div>
-
-      <Footer />
     </div>
   );
 }

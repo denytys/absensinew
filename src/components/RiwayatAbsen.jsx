@@ -3,7 +3,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import Footer from "./Footer";
 
 export default function RiwayatAbsen() {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -135,7 +134,6 @@ export default function RiwayatAbsen() {
           </div>
         )}
       </div>
-      <Footer />
     </div>
   );
 }
