@@ -1,3 +1,10 @@
+// token
+// expired
+// user
+// role
+// waktu
+// lokasi_kantor
+// setting_presensi
 export function encodeCookies(name, data) {
     sessionStorage.setItem(name, btoa("YzJGc2RFbHVhVEl4TXc" + btoa(JSON.stringify(data)) + "bXJpZHdhblRhbmduYTIwMDlwdWphaWkwOTA5=="));
 }

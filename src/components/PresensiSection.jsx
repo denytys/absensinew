@@ -1,9 +1,39 @@
+import { useCallback, useEffect, useState } from "react";
+import { protectPostPut } from "../helper/axiosHelper";
+import { decodeCookies } from "../helper/parsingCookies";
+
 export default function PresensiSection({
   presensiList,
   handlePresensi,
   sudahMasuk,
   sudahPulang,
 }) {
+
+  const [history, setHistory] = useState("")
+  const getHistory = useCallback( async() => {
+    const user = decodeCookies('user')
+    const waktuabsen = decodeCookies('waktu')
+    const shiftId = waktuabsen?.map(item => {
+      return item.id_setting_waktu_presensi
+    })
+    try {
+      const datenow = new Date
+      const data = {
+        id_user: user?.id_user,
+        tanggal: datenow.toISOString().split('T')[0],
+        shifting: user?.shifting,
+        shift_id: shiftId
+      }
+      const response = await protectPostPut('post', '/presensi/history', data)
+      setHistory(response?.data?.data)
+    } catch (error) {
+      setHistory("")
+    }
+  }, [])
+
+  useEffect(() => {
+    getHistory()
+  }, [getHistory])
   return (
     // <div className="bg-white/45 rounded-xl p-3 mb-2">
     <div className="flex gap-4">
@@ -18,8 +48,8 @@ export default function PresensiSection({
         >
           Masuk
         </button>
-        <p className="text-sm">sudah absen</p>
-        <p className="mb-4 text-sm">07:12</p>
+        <p className={(history?.presensi_masuk ? "" : "text-red-700 ") + "text-sm"}>{history?.presensi_masuk ? "Sudah absen" : "Belum absen"}</p>
+        <p className="mb-4 text-sm">{history?.presensi_masuk ? history?.presensi_masuk : "-"}</p>
       </div>
       <div className="bg-white/45 rounded-xl w-72 h-28 md:h-auto">
         {/* <a>
@@ -36,8 +66,8 @@ export default function PresensiSection({
         >
           Pulang
         </button>
-        <p className="text-red-700 text-sm">belum absen</p>
-        <p className="mb-4 text-sm">-</p>
+        <p className={(history?.presensi_pulang ? "" : "text-red-700 ") + "text-sm"}>{history?.presensi_pulang ? "Sudah absen" : "Belum absen"}</p>
+        <p className="mb-4 text-sm">{history?.presensi_pulang ? history?.presensi_pulang : "-"}</p>
       </div>
     </div>
   );

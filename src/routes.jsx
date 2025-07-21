@@ -9,6 +9,7 @@ import LaporanWfa from "./components/LaporanWfa";
 import EditProfile from "./EditProfile";
 import FormPerizinan from "./components/FormPerizinan";
 import ErrorPage from "./pages/ErrorPage";
+import Rekap from "./Rekap";
 
 export const router = createBrowserRouter([
     {
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
             { path: "riwayat", element: <RiwayatAbsen />, errorElement: <ErrorPage /> },
             { path: "izin", element: <FormPerizinan />, errorElement: <ErrorPage /> },
             { path: "wfa", element: <LaporanWfa />, errorElement: <ErrorPage /> },
+            { path: "rekap", element: <Rekap />, errorElement: <ErrorPage /> },
             { path: "edit-profile", element: <EditProfile />, errorElement: <ErrorPage /> },
         ],
     },

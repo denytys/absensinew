@@ -155,8 +155,11 @@ export default function Home() {
   };
 
   const getLocation = () => {
+    Swal.fire("Mengambil lokasi GPS..")
+    Swal.showLoading()
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        Swal.close()
         setLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
@@ -179,10 +182,18 @@ export default function Home() {
       (err) => {
         setLocation((loc) => ({ ...loc, error: err.message }));
         if (err.message === "Timeout expired") {
-          alert("Gagal mengambil lokasi, mohon refresh halaman");
+          Swal.fire({
+            icon: "error",
+            title: "Terjadi kesalahan",
+            text: "Gagal mengambil lokasi, mohon refresh halaman"
+          })
         } else {
+          Swal.fire({
+            icon: "warning",
+            title: "Izin lokasi tidak diberikan",
+            text: "mohon allow izin lokasi sebelum menggunakan ePresensi"
+          })
           alert(
-            "Izin lokasi tidak diberikan, mohon allow izin lokasi sebelum menggunakan ePresensi"
           );
         }
       },

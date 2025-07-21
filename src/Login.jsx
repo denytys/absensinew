@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { encodeCookies } from "./helper/parsingCookies";
 import { protectGet } from "./helper/axiosHelper";
 
 export default function Login() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -34,12 +34,13 @@ export default function Login() {
         encodeCookies("waktu", res.data.setting_waktu);
         encodeCookies("lokasi_kantor", res.data.lokasi_kantor);
         
-        const responseSett = protectGet('/presensi/setting')
+        const responseSett = protectGet('/presensi/setting', res.data.token)
         responseSett.then((response) => {
           // alert(JSON.stringify(response.data))
           if (response.data.status) {
             encodeCookies("setting_presensi", response.data.data);
-            navigate("/");
+            // navigate("/");
+            window.location.replace("/")
           } else {
             alert("Gagal load setting presensi");
           }

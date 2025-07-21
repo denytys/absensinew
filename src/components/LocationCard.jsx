@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Circle, useMap, Tooltip, Popup } from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import { decodeCookies } from "../helper/parsingCookies";
@@ -61,10 +61,12 @@ export default function LocationCard({
           <EnvironmentOutlined className="text-xl" />
           <p className="text-sm md:text-base font-semibold">Lokasi Anda</p>
         </div> */}
+        {accuracy > 50 ?
         <ReloadOutlined
           onClick={onRefresh}
           className="px-3 py-1 text-sm text-blue-600 bg-white/70 hover:bg-blue-300 rounded-lg"
         />
+        : ""}
       </div>
 
       {location.lat && location.lng ? (
@@ -99,10 +101,16 @@ export default function LocationCard({
               <Marker
                 position={[location.lat, location.lng]}
                 icon={greenIcon}
-              />
+              >
+                <Popup>Posisi anda</Popup>
+              </Marker>
               {lokasiKantor ? lokasiKantor?.map((item, index) => (
                 <span key={index}>
-                  <Marker position={[item.lat, item.long]} icon={blueIcon} />
+                  <Marker position={[item.lat, item.long]} icon={blueIcon}>
+                    <Tooltip direction="auto" opacity={1} permanent>
+                      {item.nama_lokasi}
+                    </Tooltip>
+                  </Marker>
 
                   <Circle
                     center={[item.lat, item.long]}

@@ -5,6 +5,7 @@ import { decodeCookies } from '../helper/parsingCookies'
 import Swal from 'sweetalert2'
 import { protectPostPut } from '../helper/axiosHelper'
 import DigitalClock from './DigitalClock'
+import { LoadingOutlined } from '@ant-design/icons'
 
 export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, location, lokasiTerdekat }) {
     let [jenisWf, setJenisWf] = useState('wfo')
@@ -14,8 +15,8 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, loca
     const onSubmit = async () => {
         const user = decodeCookies("user")
         const waktu = decodeCookies("waktu")
-        Swal.fire("sedang menyimpan..")
-        Swal.showLoading()
+        // Swal.fire("sedang menyimpan..")
+        // Swal.showLoading()
         const values = {
             id_user: user?.id_user,
             zona: user?.zona_waktu,
@@ -32,13 +33,10 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, loca
         setIsLoading(true)
         try {
             const response = await protectPostPut("post", "/presensi", values)
-            // const response = await axios.post(import.meta.env.VITE_ABSEN_BE + "/presensi", values, {
-            //     headers: { "Content-Type": "multipart/json", 'Authorization': `Bearer ${token}` },
-            // });
             Swal.fire({
                 icon: "success",
                 title: "Berhasil simpan",
-                text: response?.data?.message ?? "Gagal menyimpan data"
+                text: response?.data?.message ?? "Berhasil menyimpan data"
             });
         } catch (err) {
             if (import.meta.env.MODE === "development") {
@@ -135,8 +133,11 @@ export default function AbsenModal({ modalAbsen, setModalAbsen, jenisAbsen, loca
                                             type="button"
                                             disabled={isLoading}
                                             onClick={() => onSubmit()}
-                                            className="rounded-xl w-full mx-4 bg-emerald-800 py-2 font-semibold text-white disabled:bg-emerald-950"
+                                            className="rounded-xl w-full mx-4 bg-emerald-800 py-2 font-semibold text-white disabled:bg-emerald-950 disabled:text-gray-500"
                                         >
+                                          {isLoading ?
+                                          <LoadingOutlined className='me-2' />
+                                          : ""}
                                             Submit
                                         </button>
                                     </div>

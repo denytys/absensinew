@@ -2,13 +2,13 @@ import axios from "axios"
 import { decodeCookies } from "./parsingCookies"
 
 const token = decodeCookies("token")
-export function protectGet(endpoint) {
+export function protectGet(endpoint, tokens = false) {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
         url: import.meta.env.VITE_ABSEN_BE + endpoint,
         headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${tokens ? tokens : token}`,
             'Content-Type': 'application/json',
         }
     }
