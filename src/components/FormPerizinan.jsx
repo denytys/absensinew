@@ -1,8 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+
+function dataURLtoFile(dataurl, filename) {
+  const arr = dataurl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new File([u8arr], filename, { type: mime });
+}
 
 export default function FormPerizinan() {
   const user = decodeCookies("user");
@@ -19,24 +30,34 @@ export default function FormPerizinan() {
   const [permissionPrompt, setPermissionPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const [perizinanList, setPerizinanList] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [pendingEditIndex, setPendingEditIndex] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [perizinanList, setPerizinanList] = useState(
-    () => JSON.parse(sessionStorage.getItem("perizinanList")) || []
-  );
-
-  const handleEdit = (index) => {
+  const confirmEdit = () => {
+    const index = pendingEditIndex;
+    if (index === null) return;
     const perizinan = perizinanList[index];
-    setEditIndex(index); // Menyimpan index item yang sedang diedit
+    setEditIndex(index);
     setNomor(perizinan.nomor || "");
-    setJenis(perizinan.jenis);
-    setTanggalAwal(new Date(perizinan.tanggalAwal));
-    setTanggalAkhir(new Date(perizinan.tanggalAkhir));
+    setJenis(perizinan.jenis_izin);
+    setTanggalAwal(new Date(perizinan.tgl_mulai));
+    setTanggalAkhir(new Date(perizinan.tgl_selesai));
     setPerihal(perizinan.perihal);
     setLampiran(perizinan.lampiran);
-    setLampiranMode("file"); // Sesuaikan jika lampiran berupa file atau kamera
+    setLampiranMode("file");
+    setShowEditModal(false);
+    setPendingEditIndex(null);
+  };
+
+  const handleEdit = (index) => {
+    setPendingEditIndex(index);
+    setShowEditModal(true);
   };
 
   const handleFileChange = (e) => {
@@ -46,6 +67,7 @@ export default function FormPerizinan() {
   };
 
   const startCamera = () => {
+    // console.log("Memulai kamera...");
     setIsCameraActive(true);
     setPermissionPrompt(false);
     navigator.mediaDevices
@@ -54,6 +76,7 @@ export default function FormPerizinan() {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           setCameraPermissionDenied(false);
+          // console.log("Kamera berhasil aktif.");
         }
       })
       .catch((err) => {
@@ -76,108 +99,130 @@ export default function FormPerizinan() {
         canvasRef.current.height
       );
       const imgURL = canvasRef.current.toDataURL("image/png");
+      console.log("Captured Image URL:", imgURL);
       setImageData(imgURL);
       setLampiran(imgURL);
       setIsCameraActive(false);
+      if (videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
     }
   };
 
+  const fetchPerizinan = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_ABSEN_BE}/perizinan?nip=${user.nip}`
+      );
+      setPerizinanList(res.data.data);
+    } catch (err) {
+      console.error("Gagal mengambil data perizinan:", err);
+    }
+  }, [user.nip]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // mulai loading
+    setIsLoading(true);
+
+    const payload = {
+      nomor,
+      perihal,
+      jenis_izin: jenis,
+      tgl_mulai: tanggalAwal.toISOString().slice(0, 10),
+      tgl_selesai: tanggalAkhir.toISOString().slice(0, 10),
+      p_upt: user.upt_id,
+      p_bagian: user.bagian_id,
+      user_input: user.nama,
+      nip: user.nip,
+    };
 
     const formData = new FormData();
-    formData.append("nomor", nomor);
-    formData.append("perihal", perihal);
-    formData.append("jenis_izin", jenis);
-    formData.append("tgl_mulai", tanggalAwal.toISOString().slice(0, 10));
-    formData.append("tgl_selesai", tanggalAkhir.toISOString().slice(0, 10));
-    formData.append("p_upt", user.upt_id);
-    formData.append("p_bagian", "Bagian Umum");
-    formData.append("lampiran", lampiran);
-    formData.append("user_input", user.nama);
-    formData.append("nip", user.nip);
-    formData.append("p_bagian", user.bagian_id);
+    Object.entries(payload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    if (lampiran) {
+      if (typeof lampiran === "string") {
+        const file = dataURLtoFile(lampiran, "capture.png");
+        formData.append("lampiran", file);
+      } else {
+        formData.append("lampiran", lampiran);
+      }
+    }
 
     try {
-      await axios.post(import.meta.env.VITE_ABSEN_BE + "/perizinan", formData, {
+      await axios.post(`${import.meta.env.VITE_ABSEN_BE}/perizinan`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (editIndex !== null) {
-        const updatedPerizinanList = [...perizinanList];
-        updatedPerizinanList[editIndex] = {
-          ...updatedPerizinanList[editIndex],
-          nama: user.nama,
-          nomor,
-          jenis,
-          tanggalAwal,
-          tanggalAkhir,
-          perihal,
-          lampiran: lampiran ? lampiran.name || lampiran : "-",
-        };
-
-        setPerizinanList(updatedPerizinanList);
-        sessionStorage.setItem(
-          "perizinanList",
-          JSON.stringify(updatedPerizinanList)
-        );
-
-        alert("Data berhasil diperbarui");
-      } else {
-        // Jika form masih baru (bukan edit)
-        const newPerizinan = {
-          nama: user.nama,
-          nomor,
-          jenis,
-          tanggalAwal,
-          tanggalAkhir,
-          perihal,
-          lampiran: lampiran ? lampiran.name || lampiran : "-",
-        };
-
-        const updatedPerizinanList = [...perizinanList, newPerizinan];
-        setPerizinanList(updatedPerizinanList);
-        sessionStorage.setItem(
-          "perizinanList",
-          JSON.stringify(updatedPerizinanList)
-        );
-
-        alert("Data berhasil disimpan");
-      }
+      alert(
+        editIndex !== null
+          ? "Data berhasil diperbarui"
+          : "Data berhasil disimpan"
+      );
+      await fetchPerizinan();
     } catch (err) {
       console.error("Gagal simpan:", err.response?.data || err.message);
       alert("Gagal menyimpan data");
     } finally {
-      setIsLoading(false); // selesai loading
-      setEditIndex(null); // Reset edit mode
-
-      // Reset form setelah submit/edit berhasil
+      setIsLoading(false);
+      setEditIndex(null);
+      setNomor("");
       setJenis("Dinas Luar");
       setTanggalAwal(new Date());
       setTanggalAkhir(new Date());
       setPerihal("");
       setLampiran(null);
+      setImageData(null);
       setLampiranMode("file");
-      setNomor("");
     }
   };
 
   useEffect(() => {
     return () => {
       const stream = videoRef.current?.srcObject;
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
+      if (stream) stream.getTracks().forEach((track) => track.stop());
     };
   }, []);
 
   useEffect(() => {
     if (lampiranMode === "camera") startCamera();
-  }, [lampiranMode]);
+    fetchPerizinan();
+  }, [lampiranMode, fetchPerizinan]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = perizinanList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(perizinanList.length / itemsPerPage);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-2">
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl p-5 max-w-sm shadow-lg">
+            <p className="text-lg font-semibold mb-4">konfirmasi</p>
+            {/* <p className="mb-4">Apakah Anda yakin ingin mengedit data ini?</p> */}
+            <p className="mb-4">Tombol ini belum bisa digunakan.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                // onClick={confirmEdit}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
+                OK
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setPendingEditIndex(null);
+                }}
+                className="bg-gray-300 px-4 py-2 rounded-lg"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Form */}
       <div className="bg-white/85 shadow-md rounded-xl p-6 mb-6">
         <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>
@@ -280,7 +325,10 @@ export default function FormPerizinan() {
                     />
                     <button
                       type="button"
-                      onClick={capturePhoto}
+                      onClick={() => {
+                        // console.log("Capture button clicked");
+                        capturePhoto();
+                      }}
                       className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       Capture Photo
@@ -303,7 +351,7 @@ export default function FormPerizinan() {
               />
             )}
 
-            {/* {lampiran && (
+            {lampiran && (
               <div className="mt-4">
                 <p className="font-semibold">Preview Lampiran:</p>
                 {imageData ? (
@@ -316,7 +364,7 @@ export default function FormPerizinan() {
                   <p className="text-sm mt-2">{lampiran.name}</p>
                 )}
               </div>
-            )} */}
+            )}
           </div>
 
           {/* Buttons */}
@@ -371,6 +419,7 @@ export default function FormPerizinan() {
             </button>
           </div>
         </form>
+        <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
       </div>
 
       {/* Permission Warning */}
@@ -397,17 +446,33 @@ export default function FormPerizinan() {
               </tr>
             </thead>
             <tbody>
-              {perizinanList.map((p, i) => (
+              {currentItems.map((p, i) => (
                 <tr key={i} className="border-b">
                   {/* <td className="p-2 text-center">{p.nama}</td> */}
                   <td className="p-2 text-center">{p.nomor}</td>
-                  <td className="p-2 text-center">{p.jenis}</td>
+                  <td className="p-2 text-center">{p.jenis_izin}</td>
                   <td className="p-2 text-center">
-                    {new Date(p.tanggalAwal).toLocaleDateString("id-ID")} -{" "}
-                    {new Date(p.tanggalAkhir).toLocaleDateString("id-ID")}
+                    {new Date(p.tgl_mulai).toLocaleDateString("id-ID")} -{" "}
+                    {new Date(p.tgl_selesai).toLocaleDateString("id-ID")}
                   </td>
                   <td className="p-2 text-center">{p.perihal}</td>
-                  <td className="p-2 text-center">{p.lampiran || "-"}</td>
+                  <td className="p-2 text-center">
+                    {p.lampiran ? (
+                      <a
+                        href={`${import.meta.env.VITE_ABSEN_BE}/uploads/${
+                          p.lampiran
+                        }`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        {p.lampiran}
+                      </a>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
                   <td className="p-2 text-center">
                     <button
                       onClick={() => handleEdit(i)} // Menyertakan index saat tombol edit diklik
@@ -420,6 +485,47 @@ export default function FormPerizinan() {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-center mt-8 space-x-2 items-center mb-8">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded-md text-gray-500 disabled:opacity-0 hover:text-black"
+            >
+              <LeftOutlined />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((page) => {
+                if (totalPages <= 3) return true;
+                if (currentPage <= 2) return page <= 3;
+                if (currentPage >= totalPages - 1)
+                  return page >= totalPages - 2;
+                return Math.abs(page - currentPage) <= 1;
+              })
+              .map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 rounded-full shadow-sm text-xs ${
+                    currentPage === page
+                      ? "bg-gray-500 text-white"
+                      : "bg-white hover:bg-gray-300 text-gray-500 hover:text-black"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 text-xs rounded-md text-gray-500 disabled:opacity-0 hover:text-black"
+            >
+              <RightOutlined />
+            </button>
+          </div>
         </div>
       </div>
     </div>
