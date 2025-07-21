@@ -13,6 +13,8 @@
     "@ant-design/icons": "^5.6.1",
     "@headlessui/react": "^2.2.4",
     "@tailwindcss/vite": "^4.1.11",
+    "ag-grid-enterprise": "^34.0.2",
+    "ag-grid-react": "^34.0.2",
     "axios": "^1.10.0",
     "flowbite": "^3.1.2",
     "leaflet": "^1.9.4",
