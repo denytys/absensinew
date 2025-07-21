@@ -36,13 +36,11 @@ export default function RiwayatAbsen() {
       });
   }, []);
 
-  // Filter berdasarkan tanggal
   const filtered = dataAbsen.filter((item) => {
     const date = new Date(item.tanggal);
     return (!startDate || date >= startDate) && (!endDate || date <= endDate);
   });
 
-  // Grouping per tanggal
   const grouped = {};
   filtered.forEach((item) => {
     const key = format(new Date(item.tanggal), "yyyy-MM-dd");
