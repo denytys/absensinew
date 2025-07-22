@@ -1,11 +1,19 @@
-import { DownloadOutlined, EyeOutlined } from "@ant-design/icons";
-import React, { useCallback, useEffect, useState } from "react";
-import ReactSelect from "react-select";
-import cekRoles from "../helper/cekRoles";
-import { protectGet, protectPostPut } from "../helper/axiosHelper";
-import { decodeCookies } from "../helper/parsingCookies";
+import { DownloadOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import ReactSelect from 'react-select';
+import cekRoles from '../helper/cekRoles';
+import { protectGet, protectPostPut } from '../helper/axiosHelper';
+import { decodeCookies } from '../helper/parsingCookies';
 import Swal from "sweetalert2";
-import { cekGanjil, getDaysInMonth } from "../helper/formHelper";
+import { getDaysInMonth } from '../helper/formHelper';
+import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { AllEnterpriseModule } from 'ag-grid-enterprise';
+import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
+import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
+const pagination = true;
+const paginationPageSize = 10;
+const paginationPageSizeSelector = [10, 20, 50, 100];
 const customSelect = {
   control: (provided, state) => ({
     ...provided,
@@ -58,87 +66,27 @@ function tahun() {
   return results;
 }
 
-function uiLap(data) {
-  let balik = {};
-  switch (data) {
-    case "tam":
-      balik = {
-        text: "TAM",
-        css: "bg-red-500",
-      };
-      break;
-    case "tam_psw":
-      balik = {
-        text: "TAM,PSW",
-        css: "bg-red-500",
-      };
-      break;
-    case "tap":
-      balik = {
-        text: "TAP",
-        css: "bg-red-500",
-      };
-      break;
-    case "tl_tap":
-      balik = {
-        text: "TL,TAP",
-        css: "bg-red-500",
-      };
-      break;
-    case "tam_tap":
-      balik = {
-        text: "TAM,TAP",
-        css: "bg-red-500",
-      };
-      break;
-    case "tw":
-      balik = {
-        text: "v",
-        css: "bg-green-400",
-      };
-      break;
-    case "tl":
-      balik = {
-        text: "TL",
-        css: "bg-red-500",
-      };
-      break;
-    case "psw":
-      balik = {
-        text: "PSW",
-        css: "bg-amber-600",
-      };
-      break;
-    case "tl_psw":
-      balik = {
-        text: "TL,PSW",
-        css: "bg-amber-600",
-      };
-      break;
-    case undefined:
-      balik = {
-        text: "TA",
-        css: "bg-red-500",
-      };
-      break;
-    default:
-      balik = {
-        text: data,
-        css: "bg-blue-400",
-      };
-  }
-  return balik;
-}
-
+ModuleRegistry.registerModules([AllEnterpriseModule]);
 export default function RekapLaporan() {
-  const d = new Date();
-  const user = decodeCookies("user");
-  const [pegawaiSelect, setPegawaiSelect] = useState([]);
-  const [bagianSelect, setBagianSelect] = useState([]);
-  const [tanggalan, setTanggalan] = useState(
-    getDaysInMonth(d.getMonth(), d.getFullYear())
-  );
-  let [datatabel, setDatatabel] = useState(false);
+  const d = new Date()
+  const user = decodeCookies("user")
+  let [filterText, setFilterText] = useState("");
+  const statusBar = useMemo(() => {
+    return {
+      statusPanels: [
+        { statusPanel: 'agTotalAndFilteredRowCountComponent' },
+        { statusPanel: 'agTotalRowCountComponent' },
+        { statusPanel: 'agFilteredRowCountComponent' },
+        { statusPanel: 'agSelectedRowCountComponent' },
+        { statusPanel: 'agAggregationComponent' }
+      ]
+    };
+  }, []);
+  const [pegawaiSelect, setPegawaiSelect] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [bagianSelect, setBagianSelect] = useState([])
+  const [tanggalan, setTanggalan] = useState(getDaysInMonth(d.getMonth(), d.getFullYear()))
+  let [datatabel, setDatatabel] = useState(false)
   let [valueSelect, setValueSelect] = useState({
     upt: user?.upt_id ?? "1000",
     bagian: "all",
@@ -163,8 +111,9 @@ export default function RekapLaporan() {
   }
 
   const getPegawai = useCallback(async (bag) => {
-    Swal.fire("Loading pegawai..");
-    Swal.showLoading();
+    Swal.fire("Loading pegawai..")
+    Swal.showLoading()
+    setLoading(true)
     try {
       const cari = {
         upt: cekRoles("admin") ? "all" : user?.upt_id,
@@ -193,7 +142,8 @@ export default function RekapLaporan() {
       }
       setPegawaiSelect([]);
     } finally {
-      Swal.close();
+      Swal.close()
+      setLoading(false)
     }
   }, []);
   const getBagian = useCallback(async () => {
@@ -221,20 +171,59 @@ export default function RekapLaporan() {
     } finally {
       Swal.close();
     }
-  }, []);
+  }, [])
+
+  const [colDefs, setColDefs] = useState([
+    { field: 'unit_kerja', headerName: "UNIT KERJA" },
+    { field: 'nama', headerName: "NAMA" },
+    { field: 'tanggal', headerName: "TANGGAL", width: 120 },
+    {
+      field: 'waktu_presensi_masuk', headerName: "MASUK", width: 105, cellStyle: params => {
+        return {
+          color: params?.data?.waktu_presensi_masuk > params?.data?.batas_waktu_presensi_masuk ? 'red' : 'black',
+          // fontWeight: params.value === 'Terlambat' ? 'bold' : 'normal',
+        };
+      }
+    },
+    {
+      field: 'waktu_presensi_pulang', headerName: "PULANG", width: 110, cellStyle: params => {
+        return {
+          color: params?.data?.waktu_presensi_pulang < params?.data?.batas_waktu_presensi_pulang ? 'red' : 'black',
+          // fontWeight: params.value === 'Terlambat' ? 'bold' : 'normal',
+        };
+      }
+    },
+    { field: 'jenis_absen_masuk', headerName: "WFA/WFO", width: 70, cellRenderer: params => {
+      return params.data.jenis_absen_masuk ?? params.data.jenis_absen_pulang
+    } 
+  },
+    {
+      field: 'status', headerName: "STATUS", cellRenderer: params => {
+        const pulang = new Date(`1970-01-01T${params.data.waktu_presensi_pulang}Z`);
+        const bataspulang = new Date(`1970-01-01T${params.data.batas_waktu_presensi_pulang}Z`);
+        const pulanglebih = pulang - bataspulang
+        const masuk = new Date(`1970-01-01T${params.data.waktu_presensi_masuk}Z`);
+        const batasmasuk = new Date(`1970-01-01T${params.data.batas_waktu_presensi_masuk}Z`);
+        const masuklebih = masuk - batasmasuk
+        return <>
+          <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? 'text-red-600' : ''}>{params.data.status}</div>
+          <span class={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? '(FWA OK)' : "")}</span>
+        </>
+      }
+    },
+  ]);
 
   const getRekapLaporan = async (data) => {
-    Swal.fire("Mohon tunggu..");
-    Swal.showLoading();
-    valueSelect["jesni"] = data;
+    Swal.fire("Mohon tunggu..")
+    Swal.showLoading()
+    if (!data) {
+      data = 'view'
+    }
+    valueSelect['jenis'] = data
     try {
-      const response = await protectPostPut(
-        "post",
-        "/laporan/rekap",
-        valueSelect
-      );
-      const tbl = Object.entries(response.data.data);
-      setDatatabel(tbl);
+      const response = await protectPostPut("post", "/laporan", valueSelect)
+      const tbl = response.data.data
+      setDatatabel(tbl)
       if (import.meta.env.MODE === "development") {
         console.log("tbl", tbl);
       }
@@ -260,7 +249,7 @@ export default function RekapLaporan() {
     }
   }, [getPegawai, getBagian]);
   return (
-    <div className="mb-8">
+    <div className='mb-24'>
       <div className="border-b border-gray-200 dark:border-gray-700 mb-2 max-w-4xl mx-auto">
         <h2 className="text-lg font-bold">Rekap Absen</h2>
         <div className="mb-2">
@@ -329,111 +318,37 @@ export default function RekapLaporan() {
       </div>
 
       <div
-        className="relative overflow-x-auto shadow-md rounded-xl"
-        style={{ display: datatabel ? "block" : "none" }}
+        className="ag-theme-quartz" // applying the Data Grid theme
+        style={{ height: 500, display: datatabel ? "block" : "none" }} // the Data Grid will fill the size of the parent container
       >
-        <p className="whitespace-nowrap">
-          *Keterangan: V = Tepat Waktu, TL = Terlambat Masuk, PSW = Pulang
-          Sebelum Waktunya, TAM: Tidak Absen Masuk, TAP: Tidak Absen Pulang
-        </p>
-        <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-black font-bold uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" rowSpan={2} className="py-4 px-2 border-1">
-                No
-              </th>
-              <th scope="col" rowSpan={2} className="py-4 px-2 border-1">
-                Nama
-              </th>
-              <th
-                scope="col"
-                colSpan={tanggalan?.length}
-                className="py-2 px-2 border-1"
-              >
-                {valueSelect.bulanView + " " + valueSelect.tahun}
-              </th>
-            </tr>
-            <tr>
-              {tanggalan
-                ? tanggalan?.map((item) => (
-                    <th
-                      scope="col"
-                      key={item}
-                      className={
-                        "py-2 px-2 w-11 border-1 text-center " +
-                        (cekGanjil(item) ? "bg-gray-100" : "")
-                      }
-                    >
-                      {item}
-                    </th>
-                  ))
-                : ""}
-            </tr>
-          </thead>
-          <tbody>
-            {datatabel
-              ? datatabel?.map((tab, index) => (
-                  <tr
-                    key={index}
-                    className={
-                      cekGanjil(index)
-                        ? "odd:bg-white odd:dark:bg-gray-900 text-black even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200"
-                        : "odd:bg-white odd:dark:bg-gray-900 text-black even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200"
-                    }
-                  >
-                    <td className="border-1">{index + 1}</td>
-                    <td
-                      className={
-                        "text-left px-1 py-1 font-medium border-1 text-gray-900 whitespace-nowrap" +
-                        (cekGanjil(index) ? " bg-gray-100" : "")
-                      }
-                    >
-                      {(pegawaiSelect
-                        ? pegawaiSelect?.find((e) => e.nip == tab[0])?.label
-                        : user?.nama
-                      )?.toUpperCase()}
-                    </td>
-                    {/* <td className={'text-left px-1 py-1 font-medium border-1 text-gray-900 whitespace-nowrap' + (cekGanjil(index) ? " bg-gray-100" : "")}>{tab[0]}</td> */}
-                    {tanggalan
-                      ? tanggalan?.map((item) => (
-                          <td
-                            key={item}
-                            className={
-                              "px-1 text-center py-1 border-1 whitespace-nowrap " +
-                              (!(
-                                new Date(
-                                  valueSelect.tahun +
-                                    "-" +
-                                    valueSelect.bulan +
-                                    "-" +
-                                    ("0" + item).substring(-2)
-                                ).getDay() % 6
-                              )
-                                ? " bg-gray-300"
-                                : uiLap(tab[1][item])?.css)
-                            }
-                          >
-                            {tab[1][item]
-                              ? uiLap(tab[1][item])?.text
-                              : !(
-                                  new Date(
-                                    valueSelect.tahun +
-                                      "-" +
-                                      valueSelect.bulan +
-                                      "-" +
-                                      ("0" + item).substring(-2)
-                                  ).getDay() % 6
-                                )
-                              ? ""
-                              : "TA"}
-                          </td>
-                        ))
-                      : ""}
-                  </tr>
-                ))
-              : ""}
-          </tbody>
-        </table>
+        <label htmlFor="search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+        <div className="relative mb-1">
+          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+            </svg>
+          </div>
+          <input type="search" id="search" className="block p-1 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search"
+            value={filterText}
+            onChange={e => setFilterText(e.target.value)}
+          />
+        </div>
+        <AgGridReact
+          quickFilterText={filterText}
+          loading={loading}
+          enableCellTextSelection={true}
+          ensureDomOrder={true}
+          // animateRows={true}
+          pagination={pagination}
+          paginationPageSize={paginationPageSize}
+          paginationPageSizeSelector={paginationPageSizeSelector}
+          defaultColDef={{ filter: true, sortable: true, autoHeight: true, autoHeaderHeight: true, cellStyle: { textAlign: 'left' } }}
+          rowData={datatabel}
+          statusBar={statusBar}
+          columnDefs={colDefs}
+          onGridReady={getRekapLaporan}
+          debug
+        />
       </div>
     </div>
   );
