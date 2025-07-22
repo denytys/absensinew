@@ -10,7 +10,7 @@ export default function InformasiUpdate() {
   return (
     <div className="bg-white/50 backdrop-blur-md rounded-xl mt-4">
       <div className="bg-none md:bg-white/40 rounded-xl flex items-center justify-center gap-25 py-2 text-gray-700">
-        <div className="flex flex-row md:flex-col items-center gap-2">
+        <div className="flex flex-row md:flex-col items-center gap-1">
           <ExclamationCircleOutlined className="text-xl text-red-600" />
           <p className="text-base px-2 rounded">Informasi Update</p>
         </div>

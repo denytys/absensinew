@@ -1,4 +1,12 @@
-import { MapContainer, TileLayer, Marker, Circle, useMap, Tooltip, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Circle,
+  useMap,
+  Tooltip,
+  Popup,
+} from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import { decodeCookies } from "../helper/parsingCookies";
@@ -61,12 +69,14 @@ export default function LocationCard({
           <EnvironmentOutlined className="text-xl" />
           <p className="text-sm md:text-base font-semibold">Lokasi Anda</p>
         </div> */}
-        {accuracy > 50 ?
-        <ReloadOutlined
-          onClick={onRefresh}
-          className="px-3 py-1 text-sm text-blue-600 bg-white/70 hover:bg-blue-300 rounded-lg"
-        />
-        : ""}
+        {accuracy > 50 ? (
+          <ReloadOutlined
+            onClick={onRefresh}
+            className="px-3 py-1 text-sm text-blue-600 bg-white/70 hover:bg-blue-300 rounded-lg"
+          />
+        ) : (
+          ""
+        )}
       </div>
 
       {location.lat && location.lng ? (
@@ -84,13 +94,13 @@ export default function LocationCard({
           <p className="text-center text-xs text-gray-600 mb-2">
             Akurasi GPS: ± {accuracy ? `${accuracy.toFixed(1)} meter` : "-"}
           </p>
-          <div className="mt-2 rounded overflow-hidden border border-gray-200">
+          <div className="mt-2 mb-15 rounded overflow-hidden border border-gray-200">
             <MapContainer
               center={[location.lat, location.lng]}
               zoom={18}
               scrollWheelZoom={true}
               dragging={true}
-              style={{ height: "220px", width: "100%" }}
+              style={{ height: "242px", width: "100%" }}
               className="rounded-lg"
             >
               <TileLayer
@@ -98,32 +108,31 @@ export default function LocationCard({
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
 
-              <Marker
-                position={[location.lat, location.lng]}
-                icon={greenIcon}
-              >
+              <Marker position={[location.lat, location.lng]} icon={greenIcon}>
                 <Popup>Posisi anda</Popup>
               </Marker>
-              {lokasiKantor ? lokasiKantor?.map((item, index) => (
-                <span key={index}>
-                  <Marker position={[item.lat, item.long]} icon={blueIcon}>
-                    <Tooltip direction="auto" opacity={1} permanent>
-                      {item.nama_lokasi}
-                    </Tooltip>
-                  </Marker>
+              {lokasiKantor
+                ? lokasiKantor?.map((item, index) => (
+                    <span key={index}>
+                      <Marker position={[item.lat, item.long]} icon={blueIcon}>
+                        <Tooltip direction="auto" opacity={1} permanent>
+                          {item.nama_lokasi}
+                        </Tooltip>
+                      </Marker>
 
-                  <Circle
-                    center={[item.lat, item.long]}
-                    radius={lokasiTerdekat.radius}
-                    pathOptions={{
-                      fillColor: "blue",
-                      fillOpacity: 0.2,
-                      color: "blue",
-                      weight: 1,
-                    }}
-                  />
-                </span>
-              )) : ""}
+                      <Circle
+                        center={[item.lat, item.long]}
+                        radius={lokasiTerdekat.radius}
+                        pathOptions={{
+                          fillColor: "blue",
+                          fillOpacity: 0.2,
+                          color: "blue",
+                          weight: 1,
+                        }}
+                      />
+                    </span>
+                  ))
+                : ""}
               {location && lokasiTerdekat ? (
                 <FitBounds location={location} kantor={lokasiTerdekat} />
               ) : (
