@@ -5,6 +5,7 @@ import {
   RightOutlined,
   UploadOutlined,
   CameraOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
@@ -38,6 +39,8 @@ export default function FormPerizinan() {
   const [isLoading, setIsLoading] = useState(false);
   const [perizinanList, setPerizinanList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState("");
+  const [filterTanggal, setFilterTanggal] = useState(null); // [start, end]
   const itemsPerPage = 5;
 
   const videoRef = useRef(null);
@@ -155,10 +158,28 @@ export default function FormPerizinan() {
     fetchPerizinan();
   }, [fetchPerizinan]);
 
+  const filteredItems = perizinanList.filter((item) => {
+    const searchLower = searchText.toLowerCase();
+    const matchSearch =
+      item.nomor?.toLowerCase().includes(searchLower) ||
+      item.perihal?.toLowerCase().includes(searchLower);
+
+    let matchTanggal = true;
+    if (filterTanggal && filterTanggal.length === 2) {
+      const itemStart = new Date(item.tgl_mulai);
+      const itemEnd = new Date(item.tgl_selesai);
+      matchTanggal =
+        itemStart >= filterTanggal[0].startOf("day").toDate() &&
+        itemEnd <= filterTanggal[1].endOf("day").toDate();
+    }
+
+    return matchSearch && matchTanggal;
+  });
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = perizinanList.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(perizinanList.length / itemsPerPage);
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className="container mx-auto p-4">
@@ -322,11 +343,36 @@ export default function FormPerizinan() {
       <div className="bg-white/85 shadow-md rounded-xl p-6">
         <h3 className="text-lg font-bold mb-4">Riwayat Perizinan</h3>
         <div className="overflow-x-auto">
+          <div className="w-32 md:w-40 mb-4">
+            <Input
+              placeholder="Cari Apa?"
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setCurrentPage(1);
+              }}
+              allowClear
+              prefix={<SearchOutlined className="mr-2" />}
+              className="w-full sm:w-1/2"
+            />
+          </div>
+          {/* <div className="w-40 mb-4">
+            <DatePicker.RangePicker
+              size="small"
+              onChange={(dates) => {
+                setFilterTanggal(dates);
+                setCurrentPage(1);
+              }}
+              className="mt-1 w-full"
+              allowClear
+            />
+          </div> */}
+
           <table className="min-w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-700 uppercase bg-gray-100">
               <tr>
-                {/* <th className="p-2 text-center">Nama</th> */}
-                <th className="p-2 text-center">Nomor</th>
+                <th className="p-2 text-center">No</th>
+                <th className="p-2 text-start">Nomor Doc</th>
                 <th className="p-2 text-center">Jenis</th>
                 <th className="p-2 text-center">Tanggal</th>
                 <th className="p-2 text-center">Perihal</th>
@@ -334,11 +380,14 @@ export default function FormPerizinan() {
                 <th className="p-2 text-center">Act</th>
               </tr>
             </thead>
+
             <tbody>
               {currentItems.map((p, i) => (
                 <tr key={i} className="border-b">
-                  {/* <td className="p-2 text-center">{p.nama}</td> */}
-                  <td className="p-2 text-center">{p.nomor}</td>
+                  <td className="p-2 text-center">
+                    {(currentPage - 1) * itemsPerPage + i + 1}
+                  </td>
+                  <td className="p-2 text-start">{p.nomor}</td>
                   <td className="p-2 text-center">{p.jenis_izin}</td>
                   <td className="p-2 text-center">
                     {new Date(p.tgl_mulai).toLocaleDateString("id-ID")} -{" "}
@@ -361,10 +410,9 @@ export default function FormPerizinan() {
                       "-"
                     )}
                   </td>
-
                   <td className="p-2 text-center">
                     <button
-                      onClick={() => handleEdit(i)} // Menyertakan index saat tombol edit diklik
+                      onClick={() => handleEdit(i)}
                       className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600"
                     >
                       Edit
