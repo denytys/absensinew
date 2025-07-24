@@ -10,26 +10,26 @@ import LaporanSummary from './LaporanSummary';
 import LaporanDetail from './LaporanDetail';
 
 const bulan = [
-  { value: '01', label: 'Januari' },
-  { value: '02', label: 'Februari' },
-  { value: '03', label: 'Maret' },
-  { value: '04', label: 'April' },
-  { value: '05', label: 'Mei' },
-  { value: '06', label: 'Juni' },
-  { value: '07', label: 'Juli' },
-  { value: '08', label: 'Agustus' },
-  { value: '09', label: 'September' },
-  { value: '10', label: 'Oktober' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'Desember' }
-]
+  { value: "01", label: "Januari" },
+  { value: "02", label: "Februari" },
+  { value: "03", label: "Maret" },
+  { value: "04", label: "April" },
+  { value: "05", label: "Mei" },
+  { value: "06", label: "Juni" },
+  { value: "07", label: "Juli" },
+  { value: "08", label: "Agustus" },
+  { value: "09", label: "September" },
+  { value: "10", label: "Oktober" },
+  { value: "11", label: "November" },
+  { value: "12", label: "Desember" },
+];
 function tahun() {
   const start_year = new Date().getFullYear();
-  const results = []
+  const results = [];
   for (var i = start_year; i >= 2023; i--) {
     results.push({ value: i, label: i });
   }
-  return results
+  return results;
 }
 
 export default function RekapLaporan() {
@@ -69,13 +69,18 @@ export default function RekapLaporan() {
     try {
       const cari = {
         upt: cekRoles("admin") ? "all" : user?.upt_id,
-        bagian: cekRoles("admin") || cekRoles("adm-peg") ? (bag ? bag : "all") : user?.bagian_id
+        bagian:
+          cekRoles("admin") || cekRoles("adm-peg")
+            ? bag
+              ? bag
+              : "all"
+            : user?.bagian_id,
+      };
+      const pegawai = await protectPostPut("post", "/pegawai/getBy", cari);
+      if (import.meta.env.MODE == "development") {
+        console.log(pegawai);
       }
-      const pegawai = await protectPostPut("post", "/pegawai/getBy", cari)
-      if (import.meta.env.MODE == 'development') {
-        console.log(pegawai)
-      }
-      const sel = pegawai.data.data?.map(item => {
+      const sel = pegawai.data.data?.map((item) => {
         return {
           value: item.id_user,
           label: item.nama,
@@ -85,24 +90,26 @@ export default function RekapLaporan() {
       sel.unshift({ value: "all", label: "-Semua-", nip: "" })
       setPegawaiSelect(sel)
     } catch (error) {
-      if (import.meta.env.MODE == 'development') {
-        console.log(error)
+      if (import.meta.env.MODE == "development") {
+        console.log(error);
       }
-      setPegawaiSelect([])
+      setPegawaiSelect([]);
     } finally {
       Swal.close()
       setLoading(false)
     }
-  }, [])
+  }, []);
   const getBagian = useCallback(async () => {
-    Swal.fire("Loading bagian..")
-    Swal.showLoading()
+    Swal.fire("Loading bagian..");
+    Swal.showLoading();
     try {
-      const bagian = await protectGet("/bagian/getBy?jenis=" + (user?.upt_id == "1000" ? "1000" : "upt"))
-      if (import.meta.env.MODE == 'development') {
-        console.log(bagian)
+      const bagian = await protectGet(
+        "/bagian/getBy?jenis=" + (user?.upt_id == "1000" ? "1000" : "upt")
+      );
+      if (import.meta.env.MODE == "development") {
+        console.log(bagian);
       }
-      const sel = bagian.data.data?.map(item => {
+      const sel = bagian.data.data?.map((item) => {
         return {
           value: item.id,
           label: item.nama
@@ -111,12 +118,12 @@ export default function RekapLaporan() {
       sel.unshift({ value: "all", label: "-Semua-" })
       setBagianSelect(sel)
     } catch (error) {
-      if (import.meta.env.MODE == 'development') {
-        console.log(error)
+      if (import.meta.env.MODE == "development") {
+        console.log(error);
       }
-      setBagianSelect([])
+      setBagianSelect([]);
     } finally {
-      Swal.close()
+      Swal.close();
     }
   }, [])
 
@@ -148,17 +155,20 @@ export default function RekapLaporan() {
       if (import.meta.env.MODE === "development") {
         console.log("tbl", JSON.stringify(tbl))
       }
-      const tgl = getDaysInMonth(parseInt(valueSelect.bulan), valueSelect.tahun)
-      setTanggalan(tgl)
+      const tgl = getDaysInMonth(
+        parseInt(valueSelect.bulan),
+        valueSelect.tahun
+      );
+      setTanggalan(tgl);
     } catch (error) {
-      setDatatabel([])
+      setDatatabel([]);
       if (import.meta.env.MODE === "development") {
-        console.log("err get laporan", error)
+        console.log("err get laporan", error);
       }
     } finally {
-      Swal.close()
+      Swal.close();
     }
-  }
+  };
 
   useEffect(() => {
     if (cekRoles("admin") || cekRoles("adm-peg") || cekRoles("adm-tu")) {
@@ -174,7 +184,7 @@ export default function RekapLaporan() {
         ])
       }
     }
-  }, [getPegawai, getBagian])
+  }, [getPegawai, getBagian]);
   return (
     <div className='mb-24'>
       <div className="border-b border-gray-200 dark:border-gray-700 mb-2 max-w-4xl mx-auto">
@@ -273,5 +283,5 @@ export default function RekapLaporan() {
         <LaporanDetail datatabel={datatabel} loading={loading} />
         : ""}
     </div>
-  )
+  );
 }

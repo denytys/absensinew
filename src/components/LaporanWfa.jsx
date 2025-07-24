@@ -55,36 +55,46 @@ export default function LaporanWfa() {
       alert("Terjadi error saat mengirim data.");
     }
   };
+
   return (
-    <div className="container py-2">
-      <div className="glass-card p-3 mb-4">
-        <h4>FORM INPUT LAPORAN KEGIATAN WFA</h4>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Judul</label>
+    <div className="max-w-5xl mx-auto p-4">
+      <div className="bg-white/30 shadow rounded-lg p-6 mb-6 border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          Form Input Laporan WFA
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Judul
+            </label>
             <textarea
-              className="form-control"
+              className="w-full mt-1 border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={judul}
               onChange={(e) => setJudul(e.target.value)}
               rows={2}
             ></textarea>
           </div>
-          <div className="mb-3">
-            <label className="form-label">Uraian Kegiatan</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Uraian Kegiatan
+            </label>
             <textarea
-              className="form-control"
+              className="w-full mt-1 border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={kegiatan}
               onChange={(e) => setKegiatan(e.target.value)}
               rows={3}
             ></textarea>
           </div>
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary">
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
               Submit
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
               onClick={() => {
                 setJudul("");
                 setKegiatan("");
@@ -96,26 +106,38 @@ export default function LaporanWfa() {
         </form>
       </div>
 
-      <div className="glass-card p-4">
-        <h5>RIWAYAT LAPORAN WFA</h5>
-        <table className="table table-glass">
-          <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>Judul</th>
-              <th>Uraian Kegiatan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {perizinanList.map((p, index) => (
-              <tr key={index}>
-                <td>{p.tanggal_lap}</td>
-                <td>{p.judul}</td>
-                <td>{p.uraian}</td>
+      <div className="bg-white/30 shadow rounded-lg p-6 border border-gray-200">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">
+          Riwayat Laporan WFA
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-100 text-sm">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="px-4 py-2 font-medium">Tanggal</th>
+                <th className="px-4 py-2 font-medium">Judul</th>
+                <th className="px-4 py-2 font-medium">Uraian Kegiatan</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="min-w-full divide-y divide-gray-100">
+              {perizinanList.length > 0 ? (
+                perizinanList.map((p, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">{p.tanggal_lap}</td>
+                    <td className="px-4 py-2">{p.judul}</td>
+                    <td className="px-4 py-2">{p.uraian}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="text-center py-4 text-gray-500">
+                    Tidak ada data laporan
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

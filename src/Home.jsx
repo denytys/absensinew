@@ -105,7 +105,7 @@ export default function Home() {
       // })
       // console.error("Accelerometer tidak didukung di perangkat ini.");
     }
-  }, [])
+  }, []);
   const [presensiList, setPresensiList] = useState(
     () => JSON.parse(localStorage.getItem("presensiList")) || []
   );
@@ -155,11 +155,11 @@ export default function Home() {
   };
 
   const getLocation = () => {
-    Swal.fire("Mengambil lokasi GPS..")
-    Swal.showLoading()
+    Swal.fire("Mengambil lokasi GPS..");
+    Swal.showLoading();
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        Swal.close()
+        Swal.close();
         setLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
@@ -174,7 +174,7 @@ export default function Home() {
           Swal.fire({
             icon: "warning",
             title: "Warning!",
-            text:"Kemungkinan GPS/lokasi palsu terdeteksi"
+            text: "Kemungkinan GPS/lokasi palsu terdeteksi",
           });
         }
         startAccelerometer(pos);
@@ -185,16 +185,15 @@ export default function Home() {
           Swal.fire({
             icon: "error",
             title: "Terjadi kesalahan",
-            text: "Gagal mengambil lokasi, mohon refresh halaman"
-          })
+            text: "Gagal mengambil lokasi, mohon refresh halaman",
+          });
         } else {
           Swal.fire({
             icon: "warning",
             title: "Izin lokasi tidak diberikan",
-            text: "mohon allow izin lokasi sebelum menggunakan ePresensi"
-          })
-          alert(
-          );
+            text: "mohon allow izin lokasi sebelum menggunakan ePresensi",
+          });
+          alert();
         }
       },
       {
@@ -223,19 +222,19 @@ export default function Home() {
   const handlePresensi = (jenis) => {
     if (cekGps?.gpsSpeed * 3.6 > 300 && cekGps?.accelerationMagnitude < 0.5) {
       Swal.fire({
-        icon: 'error',
+        icon: "error",
         title: "Perhatian",
-        text: "Kemungkinan GPS/lokasi palsu terdeteksi"
-      })
-      return
+        text: "Kemungkinan GPS/lokasi palsu terdeteksi",
+      });
+      return;
     }
     if (accuracy <= 1) {
       Swal.fire({
         icon: "warning",
         title: "Warning!",
-        text: "Kemungkinan GPS/lokasi palsu terdeteksi"
+        text: "Kemungkinan GPS/lokasi palsu terdeteksi",
       });
-      return
+      return;
     }
     setModalAbsen(true);
     setJenisAbsen(jenis);
@@ -254,40 +253,40 @@ export default function Home() {
   };
 
   return (
-      <>
-        {/* Baris 1: ProfileCard */}
-        <div className="grid gap-4 mb-2">
-          <ProfileCard />
-        </div>
+    <>
+      {/* Baris 1: ProfileCard */}
+      <div className="grid gap-4 mb-2">
+        <ProfileCard />
+      </div>
 
-        {/* Baris 2: PresensiSection dan LocationCard sejajar */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <PresensiSection
-              presensiList={presensiUser}
-              sudahMasuk={sudahMasuk}
-              sudahPulang={sudahPulang}
-              handlePresensi={handlePresensi}
-            />
-            <InformasiUpdate />
-          </div>
-          <div>
-            <LocationCard
-              location={location}
-              accuracy={accuracy}
-              onRefresh={getLocation}
-              lokasiTerdekat={lokasiTerdekat}
-            />
-          </div>
+      {/* Baris 2: PresensiSection dan LocationCard sejajar */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <PresensiSection
+            presensiList={presensiUser}
+            sudahMasuk={sudahMasuk}
+            sudahPulang={sudahPulang}
+            handlePresensi={handlePresensi}
+          />
+          <InformasiUpdate />
         </div>
+        <div>
+          <LocationCard
+            location={location}
+            accuracy={accuracy}
+            onRefresh={getLocation}
+            lokasiTerdekat={lokasiTerdekat}
+          />
+        </div>
+      </div>
 
-        <AbsenModal
-          modalAbsen={modalAbsen}
-          setModalAbsen={setModalAbsen}
-          jenisAbsen={jenisAbsen}
-          location={location}
-          lokasiTerdekat={lokasiTerdekat}
-        />
-      </>
+      <AbsenModal
+        modalAbsen={modalAbsen}
+        setModalAbsen={setModalAbsen}
+        jenisAbsen={jenisAbsen}
+        location={location}
+        lokasiTerdekat={lokasiTerdekat}
+      />
+    </>
   );
 }
