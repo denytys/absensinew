@@ -45,7 +45,9 @@ export default function Login() {
             alert("Gagal load setting presensi");
           }
         }).catch((error) => {
-          console.log("error set", error)
+          if (import.meta.env.MODE === "development") {
+            console.log("error set", error)
+          }
           alert(error.response?.data?.message || "Gagal load setting presensi");
         })
       } else {

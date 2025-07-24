@@ -55,7 +55,8 @@ export default function Footer() {
           <p className="text-xs mt-1">Lap wfa</p>
         </Link>
         <Link to="/rekap"
-          className={`hover:text-black ${location.pathname == '/rekap' ? "bg-blue-200" : ""} rounded-full w-24 h-12 flex flex-col items-center justify-center`}
+          className={`hover:text-black ${location.pathname == '/rekap' ? "bg-blue-200/60" : ""} 
+          rounded-full w-16 h-16 flex flex-col items-center justify-center`}
           title="Rekap"
         >
           <FilePdfOutlined className="text-lg transition-transform duration-400 hover:scale-165 cursor-pointer" />
