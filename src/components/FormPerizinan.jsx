@@ -6,6 +6,8 @@ import {
   UploadOutlined,
   CameraOutlined,
   SearchOutlined,
+  DeleteOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
@@ -182,10 +184,11 @@ export default function FormPerizinan() {
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto p-1">
       <Toaster position="top-right" reverseOrder={false} />
       {/* Form */}
-      <div className="bg-white/85 shadow-md rounded-xl p-6 mb-6">
+      <div className="bg-white/70 shadow-md rounded-xl p-6 mb-6">
+        {/* backdrop-blur-md  */}
         <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>
         <Form
           form={form}
@@ -212,22 +215,32 @@ export default function FormPerizinan() {
               value={nomor}
               onChange={(e) => setNomor(e.target.value)}
               placeholder="Masukkan nomor surat"
+              // style={{
+              //   backgroundColor: "rgba(255, 255, 255, 0.8)",
+              //   borderColor: "white",
+              // }}
             />
           </Form.Item>
 
           <Form.Item
             label="Tanggal"
             name="tanggal"
-            rules={[{ required: true }]}
+            rules={[{ required: false }]}
           >
-            <DatePicker.RangePicker
-              value={[tanggalAwal, tanggalAkhir]}
-              onChange={(dates) => {
-                setTanggalAwal(dates ? dates[0] : null);
-                setTanggalAkhir(dates ? dates[1] : null);
-              }}
-              style={{ width: "100%" }}
-            />
+            <div className="flex flex-row gap-2 md:gap-4">
+              <DatePicker
+                placeholder="tgl mulai"
+                selected={tanggalAwal}
+                onChange={(date) => setTanggalAwal(date)}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <DatePicker
+                placeholder="tgl selesai"
+                selected={tanggalAkhir}
+                onChange={(date) => setTanggalAkhir(date)}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
           </Form.Item>
 
           <Form.Item
@@ -239,6 +252,9 @@ export default function FormPerizinan() {
               value={perihal}
               onChange={(e) => setPerihal(e.target.value)}
               rows={3}
+              // style={{
+              //   border: "none",
+              // }}
             />
           </Form.Item>
 
@@ -283,7 +299,10 @@ export default function FormPerizinan() {
                 icon={<CameraOutlined />}
                 onClick={startCamera}
                 className="flex flex-col items-center justify-center border border-gray-300 rounded-md"
-                style={{ width: 100, height: 100 }}
+                style={{
+                  width: 100,
+                  height: 102,
+                }}
               >
                 Kamera
               </Button>
@@ -340,16 +359,19 @@ export default function FormPerizinan() {
       </div>
 
       {/* Riwayat Table */}
-      <div className="bg-white/85 shadow-md rounded-xl p-6">
+      <div className="bg-white/70 backdrop-blur-md shadow-md rounded-xl p-6 mb-12">
         <h3 className="text-lg font-bold mb-4">Riwayat Perizinan</h3>
         <div className="overflow-x-auto">
           <div className="w-32 md:w-40 mb-4">
             <Input
-              placeholder="Cari Apa?"
+              placeholder="Cari"
               value={searchText}
               onChange={(e) => {
                 setSearchText(e.target.value);
                 setCurrentPage(1);
+              }}
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.7)",
               }}
               allowClear
               prefix={<SearchOutlined className="mr-2" />}
@@ -369,32 +391,35 @@ export default function FormPerizinan() {
           </div> */}
 
           <table className="min-w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+            <thead className="text-xs uppercase bg-gray-600 text-white">
               <tr>
-                <th className="p-2 text-center">No</th>
+                <th className="p-2 text-center rounded-s-lg">No</th>
                 <th className="p-2 text-start">Nomor Doc</th>
                 <th className="p-2 text-center">Jenis</th>
                 <th className="p-2 text-center">Tanggal</th>
                 <th className="p-2 text-center">Perihal</th>
                 <th className="p-2 text-center">Lampiran</th>
                 <th className="p-2 text-center">Act</th>
+                <th className="p-2 text-center text-gray-600 rounded-r-lg">
+                  Act
+                </th>
               </tr>
             </thead>
 
             <tbody>
               {currentItems.map((p, i) => (
                 <tr key={i} className="border-b">
-                  <td className="p-2 text-center">
+                  <td className="p-1 text-center">
                     {(currentPage - 1) * itemsPerPage + i + 1}
                   </td>
-                  <td className="p-2 text-start">{p.nomor}</td>
-                  <td className="p-2 text-center">{p.jenis_izin}</td>
-                  <td className="p-2 text-center">
-                    {new Date(p.tgl_mulai).toLocaleDateString("id-ID")} -{" "}
+                  <td className="p-1 text-start">{p.nomor}</td>
+                  <td className="p-1 text-center">{p.jenis_izin}</td>
+                  <td className="p-1 text-center">
+                    {new Date(p.tgl_mulai).toLocaleDateString("id-ID")}-{" "}
                     {new Date(p.tgl_selesai).toLocaleDateString("id-ID")}
                   </td>
-                  <td className="p-2 text-center">{p.perihal}</td>
-                  <td className="p-2 text-center">
+                  <td className="p-1 text-center">{p.perihal}</td>
+                  <td className="p-1 text-center">
                     {p.lampiran ? (
                       <a
                         href={`${import.meta.env.VITE_ABSEN_BE}/uploads/${
@@ -410,12 +435,17 @@ export default function FormPerizinan() {
                       "-"
                     )}
                   </td>
-                  <td className="p-2 text-center">
+                  <td className="p-1 text-center">
                     <button
                       onClick={() => handleEdit(i)}
-                      className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600"
+                      className="bg-amber-500 text-white px-2 py-1 rounded-full hover:bg-amber-600"
                     >
-                      Edit
+                      <EditOutlined />
+                    </button>
+                  </td>
+                  <td className="p-1 text-center">
+                    <button className="bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600">
+                      <DeleteOutlined />
                     </button>
                   </td>
                 </tr>
