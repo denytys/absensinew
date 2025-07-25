@@ -264,7 +264,6 @@ export default function Home() {
       const d = new Date()
       const time = d.toLocaleString('en-US', { hour12: false })
       const waktu = decodeCookies('waktu')
-      console.log("waktu", waktu)
       if(jenis == 'masuk') {
         if (time.substring(11) <= waktu[0]['waktu_masuk_awal']) {
           Swal.fire({

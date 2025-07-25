@@ -1,6 +1,6 @@
 import {AgGridReact} from 'ag-grid-react';
 // import { AllEnterpriseModule, ModuleRegistry } from 'ag-grid-enterprise';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { AllCommunityModule, ModuleRegistry, provideGlobalGridOptions } from 'ag-grid-community';
 import React, { useState } from 'react'
 import { themeBalham } from 'ag-grid-community';
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
@@ -10,6 +10,9 @@ const paginationPageSize = 20;
 const paginationPageSizeSelector = [10, 20, 50, 100];
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+provideGlobalGridOptions({
+    theme: "legacy",
+});
 export default function LaporanDetail({ datatabel, loading }) {
     const myTheme = themeBalham.withParams({ accentColor: 'blue' });
     let [filterText, setFilterText] = useState("");
@@ -62,7 +65,7 @@ export default function LaporanDetail({ datatabel, loading }) {
                 const batasmasuk = new Date(`1970-01-01T${params.data.batas_waktu_presensi_masuk}Z`);
                 const masuklebih = masuk - batasmasuk
                 return <>
-                    <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? (!params.data.jenis_absen_masuk && !params.data.jenis_absen_pulang ? 'text-blue-600' : 'text-red-600') : ''}>{params.data.status?.replace("(FWA)", "")}<span class={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? ' (FWA)' : "")}</span></div>
+                    <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? (!params.data.jenis_absen_masuk && !params.data.jenis_absen_pulang ? 'text-blue-600' : 'text-red-600') : ''}>{params.data.status?.replace("(FWA)", "")}<span className={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? ' (FWA)' : "")}</span></div>
                 </>
             }
         },
