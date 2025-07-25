@@ -134,6 +134,7 @@ export default function RekapLaporan() {
       data = 'view'
     }
     valueSelect['return'] = data
+    valueSelect['profiluser'] = user
     let endpoint = ""
     switch (valueSelect.jenis) {
       case 'summary':
@@ -149,11 +150,25 @@ export default function RekapLaporan() {
         endpoint = "/laporan/rekap"
     }
     try {
-      const response = await protectPostPut("post", endpoint, valueSelect)
-      const tbl = valueSelect.jenis == "summary" || valueSelect.jenis == "uangmakan" ? Object.entries(response.data.data) : response.data.data
-      setDatatabel(tbl)
+      const response = await protectPostPut("post", endpoint, valueSelect, (data == 'excel' || data == 'pdf' ? 'blob' : null))
+      if (data == 'view') {
+        const tbl = valueSelect.jenis == "summary" || valueSelect.jenis == "uangmakan" ? Object.entries(response.data.data) : response.data.data
+        setDatatabel(tbl)
+      } else if (data == 'excel' || data == 'pdf') {
+        const url = window.URL.createObjectURL(new Blob([response.data], {
+          type: response.headers['content-type'] || 'application/octet-stream',
+        }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `ePresensi ${valueSelect.bulan + valueSelect.tahun + "_" + Date.now()}.${data == 'pdf' ? 'pdf' : 'xlsx'}`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        setDatatabel(false)
+      }
       if (import.meta.env.MODE === "development") {
-        console.log("tbl", JSON.stringify(tbl))
+        console.log("tbl", JSON.stringify(response))
       }
       const tgl = getDaysInMonth(
         parseInt(valueSelect.bulan),
@@ -176,12 +191,18 @@ export default function RekapLaporan() {
       getBagian()
 
       if (cekRoles("admin") || cekRoles("adm-peg")) {
-        setSelectJenisLaporan(prevArray => [...prevArray,
+        setSelectJenisLaporan([{
+          value: 'summary',
+          label: 'Summary',
+        },
+        {
+          value: 'detail',
+          label: 'Detail',
+        },
         {
           value: 'uangmakan',
           label: 'Uang makan',
-        }
-        ])
+        }])
       }
     }
   }, [getPegawai, getBagian]);
@@ -205,7 +226,6 @@ export default function RekapLaporan() {
                 setValueSelect(values => ({ ...values, bagian: (e ? e : "all"), pegawai: 'all' }))
                 getPegawai(e)
               }}
-              // onSearch={onCl}
               options={bagianSelect}
             />
           </div>
@@ -223,7 +243,7 @@ export default function RekapLaporan() {
               placeholder="Pegawai..."
               optionFilterProp="label"
               onChange={(e) => setValueSelect(values => ({ ...values, pegawai: (e ? e : "all") }))}
-              // onSearch={onSearch}
+              onSearch={onSearch}
               options={pegawaiSelect}
             />
           </div>
@@ -240,7 +260,6 @@ export default function RekapLaporan() {
               placeholder="Pilih bulan"
               optionFilterProp="label"
               onChange={(e) => setValueSelect(values => ({ ...values, bulan: e })) & setDatatabel(false)}
-              // onSearch={onSearch}
               options={bulan}
             />
             <Select
@@ -250,7 +269,6 @@ export default function RekapLaporan() {
               placeholder="Pilih tahun"
               optionFilterProp="label"
               onChange={(e) => setValueSelect(values => ({ ...values, tahun: e })) & setDatatabel(false)}
-              // onSearch={onSearch}
               options={tahun()}
             />
           </div>
@@ -266,14 +284,26 @@ export default function RekapLaporan() {
             placeholder="Pilih jenis laporan"
             optionFilterProp="label"
             onChange={(e) => setValueSelect(values => ({ ...values, jenis: e })) & setDatatabel(false)}
-            // onSearch={onSearch}
             options={selectJenisLaporan}
           />
         </div>
         <button type="button" onClick={() => getRekapLaporan("view")} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ">
           <EyeOutlined className='me-2' />View</button>
-        <button type="button" onClick={() => getRekapLaporan("unduh")} className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-          <DownloadOutlined /> Excel</button>
+        {valueSelect.jenis == 'detail' ?
+          (cekRoles("admin") || cekRoles("adm-peg") || cekRoles("adm-tu") ?
+            <>
+              <button type="button" onClick={() => getRekapLaporan("excel")} className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                <DownloadOutlined /> Excel</button>
+              <button type="button" onClick={() => getRekapLaporan("pdf")} className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                <DownloadOutlined /> Pdf</button>
+            </>
+            :
+            <button type="button" onClick={() => getRekapLaporan("pdf")} className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+              <DownloadOutlined /> Pdf</button>
+          ) :
+          <button type="button" onClick={() => getRekapLaporan("excel")} className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+            <DownloadOutlined /> Excel</button>
+        }
       </div>
 
       {valueSelect.jenis == "summary" || valueSelect.jenis == "uangmakan" ?

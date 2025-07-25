@@ -89,7 +89,7 @@ export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pega
     const user = decodeCookies("user")
     return (
         // "testing"
-        <div className="relative overflow-x-auto text-left shadow-md rounded-xl" style={{ display: datatabel ? "block" : "none" }}>
+        <div className="relative overflow-x-auto text-left shadow-md" style={{ display: datatabel ? "block" : "none" }}>
             <Tooltip title={valueSelect.jenis == "uangmakan" ? "*Keterangan: 1 = Dihitung, 0 = Tidak Dihitung" : "*Keterangan: V = Tepat Waktu, TL = Terlambat Masuk, TL_F = Terlambat Masuk (FWA), PSW = Pulang Sebelum Waktunya,PSW_F = Pulang Sebelum Waktunya (FWA), TAM: Tidak Absen Masuk, TAP: Tidak Absen Pulang"}>
                 <>
                 <span>*Keterangan</span>

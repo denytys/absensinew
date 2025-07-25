@@ -18,6 +18,7 @@ export default function AbsenModal({
   jenisAbsen,
   location,
   lokasiTerdekat,
+  history
 }) {
   let [jenisWf, setJenisWf] = useState("wfo");
   let [isLoading, setIsLoading] = useState(false);
@@ -116,6 +117,7 @@ export default function AbsenModal({
                         id="wfo"
                         name="jenisWf"
                         checked={jenisWf == "wfo" ? true : false}
+                        disabled={history && jenisAbsen == 'pulang' ? true : false}
                         type="radio"
                         className="relative size-4"
                       />
@@ -133,6 +135,7 @@ export default function AbsenModal({
                         id="wfa"
                         name="jenisWf"
                         checked={jenisWf == "wfa" ? true : false}
+                        disabled={history && jenisAbsen == 'pulang' ? true : false}
                         type="radio"
                         className="relative size-4"
                         // className="relative size-4  rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"

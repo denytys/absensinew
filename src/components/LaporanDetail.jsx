@@ -59,8 +59,7 @@ export default function LaporanDetail({ datatabel, loading }) {
                 const batasmasuk = new Date(`1970-01-01T${params.data.batas_waktu_presensi_masuk}Z`);
                 const masuklebih = masuk - batasmasuk
                 return <>
-                    <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? 'text-red-600' : ''}>{params.data.status?.replace("(FWA)", "")}<span class={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? ' (FWA)' : "")}</span></div>
-
+                    <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? (!params.data.jenis_absen_masuk && !params.data.jenis_absen_pulang ? 'text-blue-600' : 'text-red-600') : ''}>{params.data.status?.replace("(FWA)", "")}<span class={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? ' (FWA)' : "")}</span></div>
                 </>
             }
         },
