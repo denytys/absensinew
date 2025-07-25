@@ -88,15 +88,12 @@ function uiLap(data) {
 export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pegawaiSelect }) {
     const user = decodeCookies("user")
     return (
-        // "testing"
         <div className="relative overflow-x-auto text-left shadow-md" style={{ display: datatabel ? "block" : "none" }}>
             <Tooltip title={valueSelect.jenis == "uangmakan" ? "*Keterangan: 1 = Dihitung, 0 = Tidak Dihitung" : "*Keterangan: V = Tepat Waktu, TL = Terlambat Masuk, TL_F = Terlambat Masuk (FWA), PSW = Pulang Sebelum Waktunya,PSW_F = Pulang Sebelum Waktunya (FWA), TAM: Tidak Absen Masuk, TAP: Tidak Absen Pulang"}>
                 <>
                 <span>*Keterangan</span>
                 </>
             </Tooltip>
-            {/* <p className='whitespace-nowrap'>
-            </p> */}
             <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-black font-bold uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -143,7 +140,7 @@ export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pega
                                 : ""}
                             </tr>
                         ))
-                        : ""}
+                        : <></>}
                 </tbody>
             </table>
         </div>
