@@ -22,6 +22,7 @@ export default function RiwayatAbsen() {
           const mapped = result.data.map((item) => ({
             tanggal: `${item.tanggal}T${item.waktu}`,
             jenis: item.jenis_presensi,
+            cekwf: item.cekwf,
           }));
           setDataAbsen(mapped);
         } else {
@@ -50,11 +51,11 @@ export default function RiwayatAbsen() {
 
   return (
     <div className="container py-2">
-      <div className="glass-card p-4">
-        <h5 className="mb-3">RIWAYAT ABSENSI</h5>
+      <div className="bg-white/60 shadow-md rounded-xl p-6 mb-6">
+        <h5 className="text-lg font-bold  mb-3">RIWAYAT ABSENSI</h5>
 
         {/* Filter Tanggal */}
-        <div className="mb-3 flex flex-col sm:flex-row sm:items-center gap-2">
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-4">
           <label className="text-sm whitespace-nowrap">
             Pilih Rentang Tanggal:
           </label>
@@ -64,9 +65,9 @@ export default function RiwayatAbsen() {
             endDate={endDate}
             onChange={(update) => setDateRange(update)}
             isClearable
-            className="form-control"
+            className="bg-white text-sm px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             dateFormat="yyyy-MM-dd"
-            placeholderText="Pilih tanggal awal dan akhir"
+            placeholderText="tanggal awal dan akhir"
           />
         </div>
 
@@ -90,14 +91,20 @@ export default function RiwayatAbsen() {
                         locale: id,
                       })}
                     </p>
-                    <table className="ml-4 text-sm w-full max-w-xs table-fixed">
+                    <table className="ml-4 w-full table-fixed text-sm">
                       <thead>
-                        <tr className="text-left text-gray-500"></tr>
+                        <tr className="text-gray-500">
+                          <th className="text-left w-1/3">Jenis</th>
+                          <th className="text-center w-1/3">Waktu</th>
+                          <th className="text-right pr-4 align-middle">
+                            Status
+                          </th>
+                        </tr>
                       </thead>
                       <tbody>
                         {grouped[tanggal].map((item, idx) => (
                           <tr key={idx}>
-                            <td className="py-1">
+                            <td className="py-1 text-left">
                               <div className="flex items-center gap-2">
                                 <img
                                   src={
@@ -119,8 +126,21 @@ export default function RiwayatAbsen() {
                                 </span>
                               </div>
                             </td>
-                            <td className="text-right pr-2 align-middle">
+                            <td className="text-center align-middle">
                               {format(new Date(item.tanggal), "HH:mm")}
+                            </td>
+                            <td className="text-right pr-4 align-middle">
+                              <span
+                                className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                  item.cekwf === "wfo"
+                                    ? "bg-green-100 text-green-700"
+                                    : item.cekwf === "wfa"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : "bg-gray-100 text-gray-600"
+                                }`}
+                              >
+                                {item.cekwf?.toUpperCase() || "-"}
+                              </span>
                             </td>
                           </tr>
                         ))}
