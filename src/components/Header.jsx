@@ -11,11 +11,19 @@ export default function Header() {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("user")) || {
-      nama: "User",
-      foto: "/images/user.png",
+    const loadUser = () => {
+      const data = JSON.parse(localStorage.getItem("user")) || {
+        nama: "User",
+        foto: "/images/user.png",
+      };
+      setUser(data);
     };
-    setUser(data);
+
+    loadUser(); // panggil saat mount
+
+    // dengar event perubahan storage
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
   }, []);
 
   useEffect(() => {
@@ -29,13 +37,13 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    removeSession()
+    removeSession();
     Swal.fire({
       icon: "success",
       title: "Berhasil",
       text: "Logout sukses",
-      timer: 1500 
-    })
+      timer: 1500,
+    });
     navigate("/login");
   };
 
@@ -46,16 +54,26 @@ export default function Header() {
         <h2 className="text-xl font-semibold text-gray-800">
           Presensi BARANTIN
         </h2>
-        <p className="text-sm text-gray-500"><DigitalClock/></p>
+        <p className="text-sm text-gray-500">
+          <DigitalClock />
+        </p>
       </div>
 
       {/* User Dropdown */}
       <div className="relative" ref={dropdownRef}>
         <img
-          src={user.foto || "/images/user.png"}
+          src={
+            user.foto
+              ? `${import.meta.env.VITE_ABSEN_BE}/uploads/${user.foto}`
+              : "/images/user.png"
+          }
           alt="User"
           className="w-10 h-10 rounded-full cursor-pointer object-cover"
           onClick={() => setDropdownOpen((prev) => !prev)}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/images/user.png"; // fallback kalau gambar gagal load
+          }}
         />
 
         {/* Dropdown with transition */}

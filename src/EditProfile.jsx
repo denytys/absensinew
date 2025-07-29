@@ -1,93 +1,273 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CircleFadingArrowUp } from "lucide-react";
+import {
+  Form,
+  Input,
+  Button,
+  Upload,
+  message,
+  Typography,
+  Avatar,
+  Modal,
+  Switch,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { decodeCookies } from "./helper/parsingCookies";
+import axios from "axios";
+
+const { Title } = Typography;
 
 export default function EditProfile() {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [nip, setNip] = useState("");
+  const [fotoBase64, setFotoBase64] = useState("");
+  const [fileList, setFileList] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
 
   useEffect(() => {
     const token = decodeCookies("token");
     if (!token) {
-      alert("Silakan login terlebih dahulu.");
+      message.warning("Silakan login terlebih dahulu.");
       navigate("/");
     }
-  }, []);
-  const [foto, setFoto] = useState("");
 
-  useEffect(() => {
-    const userData = decodeCookies("user") || {
-      foto: "",
-    };
-    setFoto(userData.foto || "");
+    const userData = decodeCookies("user") || {};
+    setNip(userData.nip || "");
+    setFotoBase64(userData.foto || "");
   }, []);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleUploadChange = ({ fileList }) => {
+    const file = fileList[0]?.originFileObj;
     if (!file) return;
 
     const maxSizeMB = 5;
     if (file.size > maxSizeMB * 1024 * 1024) {
-      alert("Ukuran foto maksimal 5MB.");
+      message.error("Ukuran file maksimal 5MB.");
       return;
     }
 
+    setFileList(fileList);
+
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFoto(reader.result);
+      setFotoBase64(reader.result);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    const userData = JSON.parse(localStorage.getItem("user")) || {};
-    const updatedUser = { ...userData, foto };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    navigate("/home");
+  const handleSubmit = async (values) => {
+    const token = decodeCookies("token");
+
+    // Validasi manual jika ubah password diaktifkan
+    if (showPasswordFields) {
+      const { passwordbaru, ulangipassword } = values;
+      if (passwordbaru !== ulangipassword) {
+        message.error("Ulangi password tidak cocok.");
+        return;
+      }
+      if (!passwordlama || !passwordbaru) {
+        message.error("Password lama dan baru harus diisi.");
+        return;
+      }
+    }
+
+    // console.log("Data yang dikirim:", {
+    //   nip,
+    //   foto_base64: fotoBase64,
+    //   ...(showPasswordFields && values.passwordbaru
+    //     ? {
+    //         password_lama: values.passwordlama,
+    //         password_baru: values.passwordbaru,
+    //       }
+    //     : {}),
+    // });
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_ABSEN_BE}/auth/reset_password`,
+        {
+          nip,
+          foto_base64: fotoBase64,
+          ...(showPasswordFields
+            ? {
+                password_lama: values.passwordlama,
+                password_baru: values.passwordbaru,
+              }
+            : {}),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.data.status) {
+        const BASE_URL = import.meta.env.VITE_ABSEN_BE;
+        const currentUser = JSON.parse(localStorage.getItem("user"));
+
+        // Jika ada avatar baru di response, simpan ke localStorage
+        if (res.data.avatar) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              ...currentUser,
+              foto: `${BASE_URL}/${res.data.avatar}`,
+            })
+          );
+        }
+        message.success("Profil berhasil diperbarui!");
+        setIsModalVisible(true);
+      } else {
+        message.error(res.data.message || "Gagal memperbarui profil.");
+      }
+    } catch (err) {
+      message.error("Terjadi kesalahan saat menyimpan data.");
+    }
   };
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <div className="bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Ganti Foto Profil</h2>
+      <div className="bg-white/45 shadow-md rounded-xl p-6">
+        <Title level={4}>Edit Profil</Title>
 
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">Foto Baru (max 5MB)</label>
-          <div className="flex flex-row gap-2">
-            <CircleFadingArrowUp />
-            <input
-              type="file"
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          {/* Upload Foto */}
+          <Form.Item label="Upload Foto Profil (masih pengembangan)">
+            <Upload
+              listType="picture-card"
+              beforeUpload={() => false}
+              fileList={fileList}
+              onChange={handleUploadChange}
               accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+            >
+              {fileList.length >= 1 ? null : (
+                <button
+                  style={{
+                    color: "inherit",
+                    cursor: "pointer",
+                    border: 0,
+                    background: "none",
+                  }}
+                  type="button"
+                >
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </button>
+              )}
+            </Upload>
+            {fotoBase64 && (
+              <div className="text-center mt-2">
+                <Avatar src={fotoBase64} size={96} />
+              </div>
+            )}
+          </Form.Item>
 
-        {foto && (
-          <div className="flex justify-center mt-4">
-            <img
-              src={foto}
-              alt="Preview"
-              className="w-32 h-32 object-cover rounded-full border"
+          {/* Switch Ubah Password */}
+          <Form.Item label="Ingin Ubah Password?">
+            <Switch
+              checked={showPasswordFields}
+              onChange={setShowPasswordFields}
             />
-          </div>
-        )}
+          </Form.Item>
 
-        <div className="flex flex-row-reverse mt-6 gap-3">
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-          >
-            Simpan
-          </button>
-          <button
-            onClick={() => navigate("/home")}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg"
-          >
-            Batal
-          </button>
-        </div>
+          {/* Form Password (conditional) */}
+          {showPasswordFields && (
+            <>
+              <Form.Item
+                label="Password Lama"
+                name="passwordlama"
+                rules={[{ required: true, message: "Masukkan password lama" }]}
+              >
+                <Input.Password placeholder="Masukkan password lama" />
+              </Form.Item>
+
+              <Form.Item
+                label="Password Baru"
+                name="passwordbaru"
+                dependencies={["passwordlama"]}
+                rules={[
+                  { required: true, message: "Masukkan password baru" },
+                  { min: 6, message: "Minimal 6 karakter" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (value === getFieldValue("passwordlama")) {
+                        return Promise.reject(
+                          new Error(
+                            "Password baru tidak boleh sama dengan password lama"
+                          )
+                        );
+                      }
+                      const regex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+                      if (!regex.test(value)) {
+                        return Promise.reject(
+                          new Error("Harus mengandung huruf dan angka")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password placeholder="Masukkan password baru" />
+              </Form.Item>
+
+              <Form.Item
+                label="Ulangi Password Baru"
+                name="ulangipassword"
+                dependencies={["passwordbaru"]}
+                rules={[
+                  { required: true, message: "Ulangi password baru" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || value === getFieldValue("passwordbaru")) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Password tidak cocok dengan yang baru")
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password placeholder="Ulangi password baru" />
+              </Form.Item>
+            </>
+          )}
+
+          {/* Tombol Aksi */}
+          <Form.Item className="text-end mt-6">
+            <Button
+              onClick={() => navigate("/home")}
+              style={{ marginRight: 8 }}
+            >
+              Batal
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Simpan
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <Modal
+          open={isModalVisible}
+          footer={null}
+          closable={false}
+          centered
+          width={400}
+        >
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <p style={{ fontSize: "18px", marginBottom: 24 }}>
+              Profil berhasil diperbarui!
+            </p>
+            <Button type="primary" onClick={() => navigate("/login")}>
+              Tutup
+            </Button>
+          </div>
+        </Modal>
       </div>
     </div>
   );

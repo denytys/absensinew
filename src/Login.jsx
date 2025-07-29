@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { encodeCookies } from "./helper/parsingCookies";
 import { protectGet } from "./helper/axiosHelper";
+import { Input } from "antd";
 
 export default function Login() {
   // const navigate = useNavigate();
@@ -27,29 +28,33 @@ export default function Login() {
       const res = response.data;
 
       if (res.status) {
-        encodeCookies("token", res.data.token)
-        encodeCookies("expired", res.data.expired)
+        encodeCookies("token", res.data.token);
+        encodeCookies("expired", res.data.expired);
         encodeCookies("user", res.data.data);
         encodeCookies("role", res.data.role);
         encodeCookies("waktu", res.data.setting_waktu);
         encodeCookies("lokasi_kantor", res.data.lokasi_kantor);
-        
-        const responseSett = protectGet('/presensi/setting', res.data.token)
-        responseSett.then((response) => {
-          // alert(JSON.stringify(response.data))
-          if (response.data.status) {
-            encodeCookies("setting_presensi", response.data.data);
-            // navigate("/");
-            window.location.replace("/")
-          } else {
-            alert("Gagal load setting presensi");
-          }
-        }).catch((error) => {
-          if (import.meta.env.MODE === "development") {
-            console.log("error set", error)
-          }
-          alert(error.response?.data?.message || "Gagal load setting presensi");
-        })
+
+        const responseSett = protectGet("/presensi/setting", res.data.token);
+        responseSett
+          .then((response) => {
+            // alert(JSON.stringify(response.data))
+            if (response.data.status) {
+              encodeCookies("setting_presensi", response.data.data);
+              // navigate("/");
+              window.location.replace("/");
+            } else {
+              alert("Gagal load setting presensi");
+            }
+          })
+          .catch((error) => {
+            if (import.meta.env.MODE === "development") {
+              console.log("error set", error);
+            }
+            alert(
+              error.response?.data?.message || "Gagal load setting presensi"
+            );
+          });
       } else {
         alert(res.message || "Login gagal!");
       }
@@ -104,22 +109,19 @@ export default function Login() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
+          <Input
             type="text"
             placeholder="Username"
-            required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-3xs md:w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none text-sm"
+            style={{ marginBottom: 16, height: 35, paddingLeft: 15 }}
           />
 
-          <input
-            type="password"
+          <Input.Password
             placeholder="Password"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-3xs md:w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none text-sm"
+            style={{ marginBottom: 16, height: 35, paddingLeft: 15 }}
           />
 
           {isLoading ? (
