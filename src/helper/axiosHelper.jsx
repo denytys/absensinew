@@ -14,7 +14,7 @@ export function protectGet(endpoint, tokens = false) {
     }
     return axios.request(config)
 }
-export function protectPostPut(method, endpoint, data) {
+export function protectPostPut(method, endpoint, data, restype = null) {
     let config = {
         method: method,
         maxBodyLength: Infinity,
@@ -24,6 +24,9 @@ export function protectPostPut(method, endpoint, data) {
             'Content-Type': 'application/json',
         },
         data: data
+    }
+    if (restype) {
+        config['responseType'] = restype
     }
     return axios.request(config)
 }

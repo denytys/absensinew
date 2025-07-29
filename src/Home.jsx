@@ -8,6 +8,7 @@ import { decodeCookies } from "./helper/parsingCookies";
 import { hitungJarak } from "./helper/hitungJarak";
 import InformasiUpdate from "./components/InformasiUpdate";
 import Swal from "sweetalert2";
+import { protectPostPut } from "./helper/axiosHelper";
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371000; // Radius bumi dalam meter
   const toRad = (angle) => (angle * Math.PI) / 180;
@@ -25,7 +26,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * c; // Jarak dalam meter
 };
 export default function Home() {
-  const [time, setTime] = useState(new Date());
+  // const [time, setTime] = useState(new Date());
   const [lokasiTerdekat, setLokasiTerdekat] = useState(false);
   const [modalAbsen, setModalAbsen] = useState(false);
   const [jenisAbsen, setJenisAbsen] = useState("");
@@ -106,16 +107,16 @@ export default function Home() {
       // console.error("Accelerometer tidak didukung di perangkat ini.");
     }
   }, []);
-  const [presensiList, setPresensiList] = useState(
-    () => JSON.parse(localStorage.getItem("presensiList")) || []
-  );
+  // const [presensiList, setPresensiList] = useState(
+  //   () => JSON.parse(localStorage.getItem("presensiList")) || []
+  // );
 
-  const user = JSON.parse(localStorage.getItem("user")) || {
-    nama: "Nama Default",
-    nip: "0000000000",
-    kantor: "Kantor Pusat",
-    foto: "https://via.placeholder.com/80",
-  };
+  // const user = JSON.parse(localStorage.getItem("user")) || {
+  //   nama: "Nama Default",
+  //   nip: "0000000000",
+  //   kantor: "Kantor Pusat",
+  //   foto: "https://via.placeholder.com/80",
+  // };
 
   const funcLokasiTerdekat = (locLat, locLong) => {
     const lokasi_kantor = decodeCookies("lokasi_kantor");
@@ -154,7 +155,7 @@ export default function Home() {
     }
   };
 
-  const getLocation = () => {
+  const getLocation = useCallback(() => {
     Swal.fire("Mengambil lokasi GPS..");
     Swal.showLoading();
     navigator.geolocation.getCurrentPosition(
@@ -193,7 +194,6 @@ export default function Home() {
             title: "Izin lokasi tidak diberikan",
             text: "mohon allow izin lokasi sebelum menggunakan ePresensi",
           });
-          alert();
         }
       },
       {
@@ -202,22 +202,45 @@ export default function Home() {
         maximumAge: 0,
       }
     );
-  };
+  }, []);
+
+  let [history, setHistory] = useState("")
+  const getHistory = useCallback(async () => {
+    const user = decodeCookies('user')
+    const waktuabsen = decodeCookies('waktu')
+    const shiftId = waktuabsen?.map(item => {
+      return item.id_setting_waktu_presensi
+    })
+    try {
+      const datenow = new Date
+      const data = {
+        id_user: user?.id_user,
+        tanggal: datenow.toISOString().split('T')[0],
+        shifting: user?.shifting,
+        shift_id: shiftId
+      }
+      const response = await protectPostPut('post', '/presensi/history', data)
+      setHistory(response?.data?.data)
+    } catch (error) {
+      setHistory("")
+    }
+  }, [decodeCookies])
 
   useEffect(() => {
     getLocation();
-    localStorage.setItem("presensiList", JSON.stringify(presensiList));
-  }, [presensiList, startAccelerometer]);
+    getHistory()
+    // localStorage.setItem("presensiList", JSON.stringify(presensiList));
+  }, [getLocation, getHistory]);
 
   // Filter presensi hanya milik user login
-  const presensiUser = presensiList.filter((p) => p.nama === user.nama);
+  // const presensiUser = presensiList.filter((p) => p.nama === user.nama);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const presensiHariIni = presensiUser.filter((p) =>
-    p.waktu_presensi.startsWith(today)
-  );
-  const sudahMasuk = presensiHariIni.some((p) => p.jenis === "masuk");
-  const sudahPulang = presensiHariIni.some((p) => p.jenis === "pulang");
+  // const today = new Date().toISOString().slice(0, 10);
+  // const presensiHariIni = presensiUser.filter((p) =>
+  //   p.waktu_presensi.startsWith(today)
+  // );
+  // const sudahMasuk = presensiHariIni.some((p) => p.jenis === "masuk");
+  // const sudahPulang = presensiHariIni.some((p) => p.jenis === "pulang");
 
   const handlePresensi = (jenis) => {
     if (cekGps?.gpsSpeed * 3.6 > 300 && cekGps?.accelerationMagnitude < 0.5) {
@@ -236,20 +259,52 @@ export default function Home() {
       });
       return;
     }
+    const user = decodeCookies('user')
+    if (user?.shifting != 'Y') {
+      const d = new Date()
+      const time = d.toLocaleString('en-US', { hour12: false })
+      const waktu = decodeCookies('waktu')
+      if(jenis == 'masuk') {
+        if (time.substring(11) <= waktu[0]['waktu_masuk_awal']) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Absen masuk belum dimulai',
+            text: 'Batas masuk awal: ' + waktu[0]['waktu_masuk_awal']
+          })
+          return
+        }
+        if (time.substring(11) >= waktu[0]['waktu_masuk_akhir']) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Absen masuk sudah lewat',
+            text: 'Batas masuk akhir: ' + waktu[0]['waktu_masuk_akhir']
+          })
+          return
+        }
+      }
+      if (jenis == 'pulang') {
+        let bataspulang = waktu[0]['waktu_pulang_awal']
+        if (d.getDay() == 5) {
+          const [hours, minutes, seconds] = bataspulang.split(":").map(Number);
+          const batasbaru = new Date()
+          batasbaru.setHours(hours)
+          batasbaru.setMinutes(minutes)
+          batasbaru.setSeconds(seconds)
+          batasbaru.setMinutes(batasbaru.getMinutes() + 30)
+          bataspulang = batasbaru.toTimeString().split(" ")[0]
+        }
+        if (time.substring(11) <= bataspulang) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Absen pulang belum dimulai',
+            text: 'Batas pulang awal: ' + bataspulang
+          })
+          return
+        }
+      }
+    }
     setModalAbsen(true);
     setJenisAbsen(jenis);
-    // if (!location.lat || !location.lng) return alert("Lokasi belum tersedia");
-
-    // const newPresensi = {
-    //   id: Date.now(),
-    //   nama: user.nama,
-    //   jenis,
-    //   lat: location.lat,
-    //   lng: location.lng,
-    //   waktu_presensi: new Date().toISOString(),
-    // };
-
-    // setPresensiList((prev) => [newPresensi, ...prev]);
   };
 
   return (
@@ -263,9 +318,7 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <PresensiSection
-            presensiList={presensiUser}
-            sudahMasuk={sudahMasuk}
-            sudahPulang={sudahPulang}
+            history={history}
             handlePresensi={handlePresensi}
           />
           <InformasiUpdate />
@@ -286,6 +339,7 @@ export default function Home() {
         jenisAbsen={jenisAbsen}
         location={location}
         lokasiTerdekat={lokasiTerdekat}
+        history={history}
       />
     </>
   );

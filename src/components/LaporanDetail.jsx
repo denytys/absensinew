@@ -1,26 +1,32 @@
 import {AgGridReact} from 'ag-grid-react';
-import { AllEnterpriseModule, ModuleRegistry } from 'ag-grid-enterprise';
-import React, { useMemo, useState } from 'react'
-import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
-import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
+// import { AllEnterpriseModule, ModuleRegistry } from 'ag-grid-enterprise';
+import { AllCommunityModule, ModuleRegistry, provideGlobalGridOptions } from 'ag-grid-community';
+import React, { useState } from 'react'
+import { themeBalham } from 'ag-grid-community';
+// import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
+// import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
 const pagination = true;
 const paginationPageSize = 20;
 const paginationPageSizeSelector = [10, 20, 50, 100];
 
-ModuleRegistry.registerModules([AllEnterpriseModule]);
+ModuleRegistry.registerModules([AllCommunityModule]);
+provideGlobalGridOptions({
+    theme: "legacy",
+});
 export default function LaporanDetail({ datatabel, loading }) {
+    const myTheme = themeBalham.withParams({ accentColor: 'blue' });
     let [filterText, setFilterText] = useState("");
-  const statusBar = useMemo(() => {
-        return {
-            statusPanels: [
-                { statusPanel: 'agTotalAndFilteredRowCountComponent' },
-                { statusPanel: 'agTotalRowCountComponent' },
-                { statusPanel: 'agFilteredRowCountComponent' },
-                { statusPanel: 'agSelectedRowCountComponent' },
-                { statusPanel: 'agAggregationComponent' }
-            ]
-        };
-    }, []);
+//   const statusBar = useMemo(() => {
+//         return {
+//             statusPanels: [
+//                 { statusPanel: 'agTotalAndFilteredRowCountComponent' },
+//                 { statusPanel: 'agTotalRowCountComponent' },
+//                 { statusPanel: 'agFilteredRowCountComponent' },
+//                 { statusPanel: 'agSelectedRowCountComponent' },
+//                 { statusPanel: 'agAggregationComponent' }
+//             ]
+//         };
+//     }, []);
     const [colDefs, setColDefs] = useState([
         {
             headerName: "No",
@@ -59,8 +65,7 @@ export default function LaporanDetail({ datatabel, loading }) {
                 const batasmasuk = new Date(`1970-01-01T${params.data.batas_waktu_presensi_masuk}Z`);
                 const masuklebih = masuk - batasmasuk
                 return <>
-                    <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? 'text-red-600' : ''}>{params.data.status?.replace("(FWA)", "")}<span class={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? ' (FWA)' : "")}</span></div>
-
+                    <div className={(params.data.status != "Tepat waktu" && pulanglebih - masuklebih < 0) || isNaN(pulanglebih) || isNaN(masuklebih) ? (!params.data.jenis_absen_masuk && !params.data.jenis_absen_pulang ? 'text-blue-600' : 'text-red-600') : ''}>{params.data.status?.replace("(FWA)", "")}<span className={(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? 'text-green-400' : "")}>{(pulanglebih - masuklebih > 0 && params.data.status != "Tepat waktu" ? ' (FWA)' : "")}</span></div>
                 </>
             }
         },
@@ -74,7 +79,7 @@ export default function LaporanDetail({ datatabel, loading }) {
           <div className="relative mb-1">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                   <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                   </svg>
               </div>
               <input type="search" id="search" className="block p-1 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search"
@@ -85,6 +90,7 @@ export default function LaporanDetail({ datatabel, loading }) {
           <AgGridReact
               quickFilterText={filterText}
               loading={loading}
+              theme={myTheme}
               enableCellTextSelection={true}
               ensureDomOrder={true}
               pagination={pagination}
@@ -92,7 +98,7 @@ export default function LaporanDetail({ datatabel, loading }) {
               paginationPageSizeSelector={paginationPageSizeSelector}
               defaultColDef={{ filter: true, sortable: true, autoHeight: true, autoHeaderHeight: true, cellStyle: { textAlign: 'left' } }}
               rowData={datatabel}
-              statusBar={statusBar}
+            //   statusBar={statusBar}
               columnDefs={colDefs}
           // onGridReady={getRekapLaporan}
           // debug

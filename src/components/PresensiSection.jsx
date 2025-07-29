@@ -1,39 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-import { protectPostPut } from "../helper/axiosHelper";
-import { decodeCookies } from "../helper/parsingCookies";
-
 export default function PresensiSection({
-  presensiList,
+  history,
   handlePresensi,
-  sudahMasuk,
-  sudahPulang,
+  // sudahMasuk,
+  // sudahPulang,
 }) {
-
-  const [history, setHistory] = useState("")
-  const getHistory = useCallback( async() => {
-    const user = decodeCookies('user')
-    const waktuabsen = decodeCookies('waktu')
-    const shiftId = waktuabsen?.map(item => {
-      return item.id_setting_waktu_presensi
-    })
-    try {
-      const datenow = new Date
-      const data = {
-        id_user: user?.id_user,
-        tanggal: datenow.toISOString().split('T')[0],
-        shifting: user?.shifting,
-        shift_id: shiftId
-      }
-      const response = await protectPostPut('post', '/presensi/history', data)
-      setHistory(response?.data?.data)
-    } catch (error) {
-      setHistory("")
-    }
-  }, [])
-
-  useEffect(() => {
-    getHistory()
-  }, [getHistory])
   return (
     // <div className="bg-white/45 rounded-xl p-3 mb-2">
     <div className="flex gap-4">
