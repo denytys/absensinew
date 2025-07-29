@@ -4,6 +4,7 @@ import axios from "axios";
 import { encodeCookies } from "./helper/parsingCookies";
 import { protectGet } from "./helper/axiosHelper";
 import Swal from "sweetalert2";
+import { Input } from "antd";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -141,22 +142,19 @@ export default function Login() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
+          <Input
             type="text"
             placeholder="Username"
-            required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-3xs md:w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none text-sm"
+            style={{ marginBottom: 16, height: 35, paddingLeft: 15 }}
           />
 
-          <input
-            type="password"
+          <Input.Password
             placeholder="Password"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-3xs md:w-full px-5 py-2.5 bg-white rounded-md border border-gray-300 focus:outline-none text-sm"
+            style={{ marginBottom: 16, height: 35, paddingLeft: 15 }}
           />
 
           {isLoading ? (
