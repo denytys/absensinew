@@ -14,19 +14,26 @@ export function protectGet(endpoint, tokens = false) {
     }
     return axios.request(config)
 }
-export function protectPostPut(method, endpoint, data, restype = null) {
+export function protectPostPut(method, endpoint, data, restype = null, tokenForm = null) {
+    let tokenpake = token
+    if(tokenForm) {
+        tokenpake = tokenForm
+    }
     let config = {
         method: method,
         maxBodyLength: Infinity,
         url: import.meta.env.VITE_ABSEN_BE + endpoint,
         headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${tokenpake}`,
             'Content-Type': 'application/json',
         },
         data: data
     }
     if (restype) {
         config['responseType'] = restype
+    }
+    if (import.meta.env.MODE === "development") {
+        console.log("config", JSON.stringify(config))
     }
     return axios.request(config)
 }

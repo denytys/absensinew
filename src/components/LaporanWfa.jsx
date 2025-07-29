@@ -18,7 +18,9 @@ export default function LaporanWfa() {
         }
       })
       .catch((err) => {
-        console.error("Gagal ambil laporan:", err);
+        if (import.meta.env.MODE === "development") {
+          console.error("Gagal ambil laporan:", err);
+        }
       });
   }, []);
 
@@ -51,7 +53,9 @@ export default function LaporanWfa() {
         alert("Gagal: " + response.message);
       }
     } catch (error) {
-      console.error("Error saat mengirim data:", error);
+      if (import.meta.env.MODE === "development") {
+        console.error("Error saat mengirim data:", error);
+      }
       alert("Terjadi error saat mengirim data.");
     }
   };

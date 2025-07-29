@@ -58,8 +58,10 @@ export default function FormPerizinan() {
         }
       })
       .catch((err) => {
-        console.error("Gagal mengakses kamera:", err);
-        message.error("Gagal mengakses kamera");
+        if (import.meta.env.MODE === "development") {
+          console.error("Gagal mengakses kamera:", err);
+          message.error("Gagal mengakses kamera");
+        }
       });
   };
 
@@ -97,7 +99,9 @@ export default function FormPerizinan() {
       );
       setPerizinanList(res.data.data);
     } catch (err) {
-      console.error("Gagal mengambil data perizinan:", err);
+      if (import.meta.env.MODE === "development") {
+        console.error("Gagal mengambil data perizinan:", err);
+      }
     }
   }, [user.nip]);
 
@@ -141,7 +145,9 @@ export default function FormPerizinan() {
       toast.success("Data berhasil disimpan");
       await fetchPerizinan();
     } catch (err) {
-      console.error("Gagal simpan:", err);
+      if (import.meta.env.MODE === "development") {
+        console.error("Gagal simpan:", err);
+      }
       toast.error("Gagal menyimpan data");
     } finally {
       setIsLoading(false);

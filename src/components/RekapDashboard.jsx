@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function RekapDashboard() {
   return (
-    <div>RekapDashboard</div>
+    <div>Tunggu update selanjutnya 😉</div>
   )
 }

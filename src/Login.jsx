@@ -1,15 +1,26 @@
 import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { encodeCookies } from "./helper/parsingCookies";
 import { protectGet } from "./helper/axiosHelper";
+import Swal from "sweetalert2";
 
 export default function Login() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  function setSession(data, setting) {
+    encodeCookies("token", data.token)
+    encodeCookies("expired", data.expired)
+    encodeCookies("user", data.data);
+    encodeCookies("role", data.role);
+    encodeCookies("waktu", data.setting_waktu);
+    encodeCookies("lokasi_kantor", data.lokasi_kantor);
+    encodeCookies("setting_presensi", setting);
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,35 +38,61 @@ export default function Login() {
       const res = response.data;
 
       if (res.status) {
-        encodeCookies("token", res.data.token)
-        encodeCookies("expired", res.data.expired)
-        encodeCookies("user", res.data.data);
-        encodeCookies("role", res.data.role);
-        encodeCookies("waktu", res.data.setting_waktu);
-        encodeCookies("lokasi_kantor", res.data.lokasi_kantor);
         
         const responseSett = protectGet('/presensi/setting', res.data.token)
-        responseSett.then((response) => {
+        responseSett.then(async (response) => {
           // alert(JSON.stringify(response.data))
           if (response.data.status) {
-            encodeCookies("setting_presensi", response.data.data);
-            // navigate("/");
-            window.location.replace("/")
+            if (res.data.data.sts_password == 0) {
+              navigate('/reset-password', {
+                state: {
+                  status: 'reset',
+                  user: res.data,
+                  setting: response.data.data,
+                },
+              })
+            } else if (res.data.data.is_salt == "0000-00-00 00:00:00") {
+              await Swal.fire({
+                icon: "info",
+                title: "Perhatian",
+                text: "Untuk keamanan, mohon ubah password anda!!",
+                allowOutsideClick: false,
+                showDenyButton: true,
+                denyButtonColor: 'blue',
+                confirmButtonColor: 'green',
+                denyButtonText: "Nanti aja"
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  navigate('/reset-password', {
+                    state: {
+                      status: 'reset',
+                      user: res.data,
+                      setting: response.data.data,
+                    },
+                  })
+                } else if (result.isDenied) {
+                  setSession(res.data, response.data.data)
+                  window.location.replace("/")
+                }
+              })
+            }else {
+              setSession(res.data, response.data.data)
+              window.location.replace("/")
+            }
           } else {
-            alert("Gagal load setting presensi");
+            Swal.fire("Terjadi kesalahan", "Gagal load setting presensi", "error");
           }
         }).catch((error) => {
           if (import.meta.env.MODE === "development") {
             console.log("error set", error)
           }
-          alert(error.response?.data?.message || "Gagal load setting presensi");
+          Swal.fire("Terjadi kesalahan", (error.response?.data?.message || "Gagal load setting presensi"), "error");
         })
       } else {
-        alert(res.message || "Login gagal!");
+        Swal.fire("Terjadi kesalahan", (res.message || "Login gagal!"), "error");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      alert(error.response?.data?.message || "Terjadi kesalahan saat login.");
+      Swal.fire("Terjadi kesalahan", (error.response?.data?.message || "Terjadi kesalahan saat login."), "error");
     } finally {
       setIsLoading(false); // selesai loading
     }

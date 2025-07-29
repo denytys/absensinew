@@ -100,31 +100,14 @@ export default function Home() {
         ...value,
         accelerationData: false,
       }));
-      // Swal.fire({
-      //   icon: 'warning',
-      //   text: 'Accelerometer tidak didukung di perangkat ini'
-      // })
-      // console.error("Accelerometer tidak didukung di perangkat ini.");
     }
   }, []);
-  // const [presensiList, setPresensiList] = useState(
-  //   () => JSON.parse(localStorage.getItem("presensiList")) || []
-  // );
-
-  // const user = JSON.parse(localStorage.getItem("user")) || {
-  //   nama: "Nama Default",
-  //   nip: "0000000000",
-  //   kantor: "Kantor Pusat",
-  //   foto: "https://via.placeholder.com/80",
-  // };
-
   const funcLokasiTerdekat = (locLat, locLong) => {
     const lokasi_kantor = decodeCookies("lokasi_kantor");
     const setting = decodeCookies("setting_presensi");
     let dekatKantor = [];
     lokasi_kantor?.map((item) => {
       let jarak = hitungJarak(item.lat, item.long, locLat, locLong);
-      // let jarak = getDistance(item.lat, item.long, geolocation.coords.latitude, geolocation.coords.longitude);
       jarak = jarak * 1000;
       item["jarak"] = jarak;
       dekatKantor.push(jarak);
@@ -229,18 +212,7 @@ export default function Home() {
   useEffect(() => {
     getLocation();
     getHistory()
-    // localStorage.setItem("presensiList", JSON.stringify(presensiList));
   }, [getLocation, getHistory]);
-
-  // Filter presensi hanya milik user login
-  // const presensiUser = presensiList.filter((p) => p.nama === user.nama);
-
-  // const today = new Date().toISOString().slice(0, 10);
-  // const presensiHariIni = presensiUser.filter((p) =>
-  //   p.waktu_presensi.startsWith(today)
-  // );
-  // const sudahMasuk = presensiHariIni.some((p) => p.jenis === "masuk");
-  // const sudahPulang = presensiHariIni.some((p) => p.jenis === "pulang");
 
   const handlePresensi = (jenis) => {
     if (cekGps?.gpsSpeed * 3.6 > 300 && cekGps?.accelerationMagnitude < 0.5) {
@@ -306,6 +278,10 @@ export default function Home() {
     setModalAbsen(true);
     setJenisAbsen(jenis);
   };
+  
+  function setModalAbsenClose() {
+    setModalAbsen(false);
+  }
 
   return (
     <>
@@ -335,7 +311,7 @@ export default function Home() {
 
       <AbsenModal
         modalAbsen={modalAbsen}
-        setModalAbsen={setModalAbsen}
+        setModalAbsen={setModalAbsenClose}
         jenisAbsen={jenisAbsen}
         location={location}
         lokasiTerdekat={lokasiTerdekat}

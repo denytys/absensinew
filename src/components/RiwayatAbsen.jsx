@@ -31,7 +31,9 @@ export default function RiwayatAbsen() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Fetch error:", err);
+        if (import.meta.env.MODE === "development") {
+          console.error("Fetch error:", err);
+        }
         setError("Terjadi kesalahan saat mengambil data.");
         setLoading(false);
       });

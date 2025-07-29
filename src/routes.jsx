@@ -10,12 +10,18 @@ import EditProfile from "./EditProfile";
 import FormPerizinan from "./components/FormPerizinan";
 import ErrorPage from "./pages/ErrorPage";
 import Rekap from "./Rekap";
+import ResetPassword from "./components/ResetPassword";
 
 export const router = createBrowserRouter([
     {
-        path: "/login",
+        path: "login",
         element: <Login />,
         errorElement: <ErrorPage/>
+    },
+    { 
+        path: "reset-password", 
+        element: <ResetPassword />, 
+        errorElement: <ErrorPage /> 
     },
     {
         path: "/",

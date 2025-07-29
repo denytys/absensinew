@@ -77,6 +77,15 @@ export default function Header() {
           </button>
           <button
             onClick={() => {
+              navigate("/reset-password");
+              setDropdownOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-blue-300/20 transition"
+          >
+            Ubah password
+          </button>
+          <button
+            onClick={() => {
               navigate("/edit-profile");
               setDropdownOpen(false);
             }}
