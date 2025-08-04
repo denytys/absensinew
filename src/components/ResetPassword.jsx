@@ -17,6 +17,7 @@ export default function ResetPassword() {
 
     const {
         control,
+        register,
         watch,
         handleSubmit,
         formState: { errors },
@@ -69,8 +70,8 @@ export default function ResetPassword() {
             <div className="bg-white/45 rounded-xl p-3 my-4 w-full">
                 <Form
                     layout={"vertical"}
+                    autoComplete='off'
                     onFinish={handleSubmit(onsubmit)}
-                    autoComplete="off"
                     className='w-full'
                 >
                     <Form.Item label="Nama" className='text-left mb-0'>
@@ -79,6 +80,7 @@ export default function ResetPassword() {
                     <Form.Item
                         label="Password lama"
                         name="passwordlama"
+                        required
                         validateStatus={errors.passwordlama ? "error" : ""}
                         help={errors.passwordlama?.message}
                         className="text-left"
@@ -86,16 +88,17 @@ export default function ResetPassword() {
                         <Controller
                             name="passwordlama"
                             control={control}
-                            defaultValue=""
+                            initialValues=""
                             rules={{ required: "Mohon isi password lama anda" }}
                             render={({ field }) => (
-                                <Input.Password {...field} placeholder="************" />
+                                <Input.Password {...field} placeholder="************" autoComplete="current-password" />
                             )}
                         />
                     </Form.Item>
                     <Form.Item
                         label="Password Baru"
                         name="password"
+                        required
                         validateStatus={errors.password ? "error" : ""}
                         help={errors.password?.message}
                         className="text-left"
@@ -103,7 +106,7 @@ export default function ResetPassword() {
                         <Controller
                             name="password"
                             control={control}
-                            defaultValue=""
+                            initialValues=""
                             rules={{
                                 required: "Password wajib diisi",
                                 minLength: {
@@ -118,13 +121,14 @@ export default function ResetPassword() {
                                 },
                             }}
                             render={({ field }) => (
-                                <Input.Password {...field} placeholder="************" />
+                                <Input.Password {...field} placeholder="************" autoComplete="new-password" />
                             )}
                         />
                     </Form.Item>
                     <Form.Item
                         label="Ulangi Password baru"
                         name="konfirmPassword"
+                        required
                         validateStatus={errors.konfirmPassword ? "error" : ""}
                         help={errors.konfirmPassword?.message}
                         className="text-left"
@@ -134,7 +138,7 @@ export default function ResetPassword() {
                             control={control}
                             validateStatus={errors.konfirmPassword ? "error" : ""}
                             help={errors.konfirmPassword?.message}
-                            defaultValue=""
+                            initialValues=""
                             rules={{
                                 validate: (val) => {
                                     if (watch('password') != val) {
@@ -143,7 +147,7 @@ export default function ResetPassword() {
                                 },
                             }}
                             render={({ field }) => (
-                                <Input.Password {...field} placeholder="************" />
+                                <Input.Password {...field} placeholder="************" autoComplete="new-password" />
                             )}
                         />
                     </Form.Item>
