@@ -1,5 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Form, Input, Select, Button, DatePicker, Upload, message } from "antd";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  DatePicker,
+  Upload,
+  message,
+  Modal,
+} from "antd";
 import {
   LeftOutlined,
   RightOutlined,
@@ -7,6 +16,7 @@ import {
   CameraOutlined,
   SearchOutlined,
   DeleteOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
@@ -33,7 +43,6 @@ export default function FormPerizinan() {
   const [nomor, setNomor] = useState("");
   const [tanggalAwal, setTanggalAwal] = useState(null);
   const [tanggalAkhir, setTanggalAkhir] = useState(null);
-  // const [editData, setEditData] = useState(null);
   const [perihal, setPerihal] = useState("");
   const [lampiran, setLampiran] = useState(null);
   const [imageData, setImageData] = useState(null);
@@ -42,11 +51,11 @@ export default function FormPerizinan() {
   const [perizinanList, setPerizinanList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
-  // const [editIndex, setEditIndex] = useState(null);
-  // const [pendingEditIndex, setPendingEditIndex] = useState(null);
-  // const [showEditModal, setShowEditModal] = useState(false);
-  const [filterTanggal, setFilterTanggal] = useState(null); // [start, end]
-  // const [editMode, setEditMode] = useState(false);
+  const [filterTanggal, setFilterTanggal] = useState(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const itemsPerPage = 5;
 
   const videoRef = useRef(null);
@@ -133,6 +142,11 @@ export default function FormPerizinan() {
     }
   };
 
+  const handleDelete = (id) => {
+    setSelectedId(id);
+    setOpenDeleteModal(true);
+  };
+
   useEffect(() => {
     fetchPerizinan();
   }, [fetchPerizinan]);
@@ -162,7 +176,74 @@ export default function FormPerizinan() {
 
   return (
     <div className="mx-auto p-1">
-      {/* Form */}
+      <Modal
+        open={openDeleteModal}
+        footer={null}
+        onCancel={() => setOpenDeleteModal(false)}
+        centered
+        closable={false}
+        width="100%"
+        style={{ maxWidth: 300, padding: "0 20px", margin: "0 8px" }}
+      >
+        {contextHolder}
+        <div className="flex flex-col items-center">
+          <ExclamationCircleOutlined
+            style={{ color: "#DC2525" }}
+            className="text-3xl mt-1 mb-4"
+          />
+          <h3 className="font-semibold text-lg mb-1">Hapus Riwayat Ini?</h3>
+        </div>
+
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            onClick={() => setOpenDeleteModal(false)}
+            className="bg-blue-500 text-white px-4 py-1.5 rounded hover:bg-blue-600"
+          >
+            Batal
+          </button>
+          <button
+            onClick={async () => {
+              const key = "deleteStatus";
+              try {
+                messageApi.open({
+                  key,
+                  type: "loading",
+                  content: "Menghapus data...",
+                });
+
+                await axios.delete(
+                  `${import.meta.env.VITE_ABSEN_BE}/perizinan/${selectedId}`
+                );
+
+                setTimeout(() => {
+                  messageApi.open({
+                    key,
+                    type: "success",
+                    content: "Data berhasil dihapus.",
+                    duration: 2,
+                  });
+                }, 1000);
+
+                fetchPerizinan();
+              } catch (error) {
+                console.error("Gagal menghapus:", error);
+                messageApi.open({
+                  key,
+                  type: "error",
+                  content: "Gagal menghapus data.",
+                  duration: 2,
+                });
+              } finally {
+                setOpenDeleteModal(false);
+              }
+            }}
+            className="bg-red-500 text-white px-4 py-1.5 rounded hover:bg-red-600 transition"
+          >
+            Hapus
+          </button>
+        </div>
+      </Modal>
+      ;{/* Form */}
       <div className="bg-white/70 shadow-md rounded-xl p-6 mb-6">
         {/* backdrop-blur-md  */}
         <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>
@@ -324,7 +405,6 @@ export default function FormPerizinan() {
           </div>
         </Form>
       </div>
-
       {/* Riwayat Table */}
       <div className="bg-white/70 backdrop-blur-md shadow-md rounded-xl p-6 mb-12">
         <h3 className="text-lg font-bold mb-4">Riwayat Perizinan</h3>
@@ -355,7 +435,7 @@ export default function FormPerizinan() {
                 <th className="p-2 text-center">Tanggal</th>
                 <th className="p-2 text-center">Perihal</th>
                 <th className="p-2 text-center">Lampiran</th>
-                <th className="p-2 text-center">Act</th>
+                <th className="p-2 text-center rounded-r-lg">Act</th>
                 {/* <th className="p-2 text-center text-gray-600 rounded-r-lg">
                   Act
                 </th> */}
@@ -392,7 +472,10 @@ export default function FormPerizinan() {
                     )}
                   </td>
                   <td className="p-1 text-center">
-                    <button className="bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600">
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600"
+                    >
                       <DeleteOutlined />
                     </button>
                   </td>
@@ -443,6 +526,7 @@ export default function FormPerizinan() {
           </div>
         </div>
       </div>
+      {/* {contextHolder} */}
     </div>
   );
 }
