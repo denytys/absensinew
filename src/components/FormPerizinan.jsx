@@ -7,12 +7,11 @@ import {
   CameraOutlined,
   SearchOutlined,
   DeleteOutlined,
-  EditOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
 import "react-datepicker/dist/react-datepicker.css";
-import { Toaster, toast } from "react-hot-toast";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -34,6 +33,7 @@ export default function FormPerizinan() {
   const [nomor, setNomor] = useState("");
   const [tanggalAwal, setTanggalAwal] = useState(null);
   const [tanggalAkhir, setTanggalAkhir] = useState(null);
+  // const [editData, setEditData] = useState(null);
   const [perihal, setPerihal] = useState("");
   const [lampiran, setLampiran] = useState(null);
   const [imageData, setImageData] = useState(null);
@@ -42,7 +42,11 @@ export default function FormPerizinan() {
   const [perizinanList, setPerizinanList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
+  // const [editIndex, setEditIndex] = useState(null);
+  // const [pendingEditIndex, setPendingEditIndex] = useState(null);
+  // const [showEditModal, setShowEditModal] = useState(false);
   const [filterTanggal, setFilterTanggal] = useState(null); // [start, end]
+  // const [editMode, setEditMode] = useState(false);
   const itemsPerPage = 5;
 
   const videoRef = useRef(null);
@@ -80,18 +84,6 @@ export default function FormPerizinan() {
     }
   };
 
-  const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImageData(reader.result);
-        setLampiran(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const fetchPerizinan = useCallback(async () => {
     try {
       const res = await axios.get(
@@ -105,14 +97,8 @@ export default function FormPerizinan() {
     }
   }, [user.nip]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     setIsLoading(true);
-
-    if (!lampiran) {
-      message.warning("Silakan ambil foto atau upload file terlebih dahulu.");
-      setIsLoading(false);
-      return;
-    }
 
     const payload = {
       nomor,
@@ -131,34 +117,19 @@ export default function FormPerizinan() {
       formData.append(key, value);
     });
 
-    const fileToUpload =
-      typeof lampiran === "string"
-        ? dataURLtoFile(lampiran, "lampiran.png")
-        : lampiran;
+    if (lampiran) {
+      const fileToUpload =
+        typeof lampiran === "string"
+          ? dataURLtoFile(lampiran, "lampiran.png")
+          : lampiran;
 
-    formData.append("lampiran", fileToUpload);
-
-    try {
-      await axios.post(`${import.meta.env.VITE_ABSEN_BE}/perizinan`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      toast.success("Data berhasil disimpan");
-      await fetchPerizinan();
-    } catch (err) {
-      if (import.meta.env.MODE === "development") {
-        console.error("Gagal simpan:", err);
-      }
-      toast.error("Gagal menyimpan data");
-    } finally {
+      formData.append("lampiran", fileToUpload);
+    } else if (values.lampiran_lama) {
+      formData.append("lampiran_lama", values.lampiran_lama);
+    } else {
+      message.warning("Silakan unggah atau ambil foto terlebih dahulu.");
       setIsLoading(false);
-      form.resetFields();
-      setNomor("");
-      setJenis("Dinas Luar");
-      setTanggalAwal(null);
-      setTanggalAkhir(null);
-      setPerihal("");
-      setLampiran(null);
-      setImageData(null);
+      return;
     }
   };
 
@@ -191,7 +162,6 @@ export default function FormPerizinan() {
 
   return (
     <div className="mx-auto p-1">
-      <Toaster position="top-right" reverseOrder={false} />
       {/* Form */}
       <div className="bg-white/70 shadow-md rounded-xl p-6 mb-6">
         {/* backdrop-blur-md  */}
@@ -200,13 +170,15 @@ export default function FormPerizinan() {
           form={form}
           onFinish={handleSubmit}
           layout="vertical"
-          initialValues={{ jenis: "Dinas Luar" }}
+          initialValues={{
+            jenis: "Dinas Luar",
+          }}
           className="text-start"
         >
           <Form.Item
             label="Jenis Izin"
             name="jenis"
-            rules={[{ required: true }]}
+            // rules={[{ required: true }]}
           >
             <Select value={jenis} onChange={(value) => setJenis(value)}>
               <Option value="Dinas Luar">Dinas Luar</Option>
@@ -221,46 +193,35 @@ export default function FormPerizinan() {
               value={nomor}
               onChange={(e) => setNomor(e.target.value)}
               placeholder="Masukkan nomor surat"
-              // style={{
-              //   backgroundColor: "rgba(255, 255, 255, 0.8)",
-              //   borderColor: "white",
-              // }}
             />
           </Form.Item>
 
-          <Form.Item
-            label="Tanggal"
-            name="tanggal"
-            rules={[{ required: false }]}
-          >
-            <div className="flex flex-row gap-2 md:gap-4">
+          {/* tanggal */}
+          <div className="flex flex-row gap-2 md:gap-4">
+            <Form.Item label="Tanggal Mulai">
               <DatePicker
-                placeholder="tgl mulai"
-                selected={tanggalAwal}
-                onChange={(date) => setTanggalAwal(date)}
-                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                value={tanggalAwal ? dayjs(tanggalAwal) : null}
+                onChange={(date) => setTanggalAwal(date?.toDate())}
               />
+            </Form.Item>
+
+            <Form.Item label="Tanggal Selesai">
               <DatePicker
-                placeholder="tgl selesai"
-                selected={tanggalAkhir}
-                onChange={(date) => setTanggalAkhir(date)}
-                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                value={tanggalAkhir ? dayjs(tanggalAkhir) : null}
+                onChange={(date) => setTanggalAkhir(date?.toDate())}
               />
-            </div>
-          </Form.Item>
+            </Form.Item>
+          </div>
 
           <Form.Item
             label="Perihal"
             name="perihal"
-            rules={[{ required: true }]}
+            // rules={[{ required: true }]}
           >
             <TextArea
               value={perihal}
               onChange={(e) => setPerihal(e.target.value)}
               rows={3}
-              // style={{
-              //   border: "none",
-              // }}
             />
           </Form.Item>
 
@@ -285,7 +246,7 @@ export default function FormPerizinan() {
                     setImageData(null);
                   }
 
-                  return false; // prevent automatic upload
+                  return false;
                 }}
                 showUploadList={false}
               >
@@ -384,17 +345,6 @@ export default function FormPerizinan() {
               className="w-full sm:w-1/2"
             />
           </div>
-          {/* <div className="w-40 mb-4">
-            <DatePicker.RangePicker
-              size="small"
-              onChange={(dates) => {
-                setFilterTanggal(dates);
-                setCurrentPage(1);
-              }}
-              className="mt-1 w-full"
-              allowClear
-            />
-          </div> */}
 
           <table className="min-w-full text-sm text-left text-gray-500">
             <thead className="text-xs uppercase bg-gray-600 text-white">
@@ -406,9 +356,9 @@ export default function FormPerizinan() {
                 <th className="p-2 text-center">Perihal</th>
                 <th className="p-2 text-center">Lampiran</th>
                 <th className="p-2 text-center">Act</th>
-                <th className="p-2 text-center text-gray-600 rounded-r-lg">
+                {/* <th className="p-2 text-center text-gray-600 rounded-r-lg">
                   Act
-                </th>
+                </th> */}
               </tr>
             </thead>
 
@@ -440,14 +390,6 @@ export default function FormPerizinan() {
                     ) : (
                       "-"
                     )}
-                  </td>
-                  <td className="p-1 text-center">
-                    <button
-                      onClick={() => handleEdit(i)}
-                      className="bg-amber-500 text-white px-2 py-1 rounded-full hover:bg-amber-600"
-                    >
-                      <EditOutlined />
-                    </button>
                   </td>
                   <td className="p-1 text-center">
                     <button className="bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600">

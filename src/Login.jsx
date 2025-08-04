@@ -14,8 +14,8 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   function setSession(data, setting) {
-    encodeCookies("token", data.token)
-    encodeCookies("expired", data.expired)
+    encodeCookies("token", data.token);
+    encodeCookies("expired", data.expired);
     encodeCookies("user", data.data);
     encodeCookies("role", data.role);
     encodeCookies("waktu", data.setting_waktu);
@@ -39,61 +39,74 @@ export default function Login() {
       const res = response.data;
 
       if (res.status) {
-        
-        const responseSett = protectGet('/presensi/setting', res.data.token)
-        responseSett.then(async (response) => {
-          // alert(JSON.stringify(response.data))
-          if (response.data.status) {
-            if (res.data.data.sts_password == 0) {
-              navigate('/reset-password', {
-                state: {
-                  status: 'reset',
-                  user: res.data,
-                  setting: response.data.data,
-                },
-              })
-            } else if (res.data.data.is_salt == "0000-00-00 00:00:00") {
-              await Swal.fire({
-                icon: "info",
-                title: "Perhatian",
-                text: "Untuk keamanan, mohon ubah password anda!!",
-                allowOutsideClick: false,
-                showDenyButton: true,
-                denyButtonColor: 'blue',
-                confirmButtonColor: 'green',
-                denyButtonText: "Nanti aja"
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  navigate('/reset-password', {
-                    state: {
-                      status: 'reset',
-                      user: res.data,
-                      setting: response.data.data,
-                    },
-                  })
-                } else if (result.isDenied) {
-                  setSession(res.data, response.data.data)
-                  window.location.replace("/")
-                }
-              })
-            }else {
-              setSession(res.data, response.data.data)
-              window.location.replace("/")
+        const responseSett = protectGet("/presensi/setting", res.data.token);
+        responseSett
+          .then(async (response) => {
+            // alert(JSON.stringify(response.data))
+            if (response.data.status) {
+              if (res.data.data.sts_password == 0) {
+                navigate("/reset-password", {
+                  state: {
+                    status: "reset",
+                    user: res.data,
+                    setting: response.data.data,
+                  },
+                });
+              } else if (res.data.data.is_salt == "0000-00-00 00:00:00") {
+                await Swal.fire({
+                  icon: "info",
+                  title: "Perhatian",
+                  text: "Untuk keamanan, mohon ubah password anda!!",
+                  allowOutsideClick: false,
+                  showDenyButton: true,
+                  denyButtonColor: "blue",
+                  confirmButtonColor: "green",
+                  denyButtonText: "Nanti aja",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate("/reset-password", {
+                      state: {
+                        status: "reset",
+                        user: res.data,
+                        setting: response.data.data,
+                      },
+                    });
+                  } else if (result.isDenied) {
+                    setSession(res.data, response.data.data);
+                    window.location.replace("/");
+                  }
+                });
+              } else {
+                setSession(res.data, response.data.data);
+                window.location.replace("/");
+              }
+            } else {
+              Swal.fire(
+                "Terjadi kesalahan",
+                "Gagal load setting presensi",
+                "error"
+              );
             }
-          } else {
-            Swal.fire("Terjadi kesalahan", "Gagal load setting presensi", "error");
-          }
-        }).catch((error) => {
-          if (import.meta.env.MODE === "development") {
-            console.log("error set", error)
-          }
-          Swal.fire("Terjadi kesalahan", (error.response?.data?.message || "Gagal load setting presensi"), "error");
-        })
+          })
+          .catch((error) => {
+            if (import.meta.env.MODE === "development") {
+              console.log("error set", error);
+            }
+            Swal.fire(
+              "Terjadi kesalahan",
+              error.response?.data?.message || "Gagal load setting presensi",
+              "error"
+            );
+          });
       } else {
-        Swal.fire("Terjadi kesalahan", (res.message || "Login gagal!"), "error");
+        Swal.fire("Terjadi kesalahan", res.message || "Login gagal!", "error");
       }
     } catch (error) {
-      Swal.fire("Terjadi kesalahan", (error.response?.data?.message || "Terjadi kesalahan saat login."), "error");
+      Swal.fire(
+        "Terjadi kesalahan",
+        error.response?.data?.message || "Terjadi kesalahan saat login.",
+        "error"
+      );
     } finally {
       setIsLoading(false); // selesai loading
     }

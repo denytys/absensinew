@@ -10,6 +10,8 @@ import {
   Avatar,
   Modal,
   Switch,
+  Radio,
+  Select,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { decodeCookies } from "./helper/parsingCookies";
@@ -25,6 +27,7 @@ export default function EditProfile() {
   const [fileList, setFileList] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  // const [username, setUsername] = useState("");
 
   useEffect(() => {
     const token = decodeCookies("token");
@@ -131,12 +134,12 @@ export default function EditProfile() {
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <div className="bg-white/45 shadow-md rounded-xl p-6">
+      <div className="bg-white/45 shadow-md rounded-xl p-6 mb-30">
         <Title level={4}>Edit Profil</Title>
 
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           {/* Upload Foto */}
-          <Form.Item label="Upload Foto Profil (masih pengembangan)">
+          <Form.Item label="Upload Foto Profil">
             <Upload
               listType="picture-card"
               beforeUpload={() => false}
@@ -166,77 +169,52 @@ export default function EditProfile() {
             )}
           </Form.Item>
 
-          {/* Switch Ubah Password */}
-          <Form.Item label="Ingin Ubah Password?">
-            <Switch
-              checked={showPasswordFields}
-              onChange={setShowPasswordFields}
+          {/* <Form.Item label="Username" name="username">
+            <Input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
+          </Form.Item> */}
+
+          {/* Zona */}
+          <Form.Item label="Zona Nyaman">
+            <Radio.Group>
+              <Radio value="WIB">WIB</Radio>
+              <Radio value="WITA">WITA</Radio>
+              <Radio value="WIT">WIT</Radio>
+            </Radio.Group>
           </Form.Item>
 
-          {/* Form Password (conditional) */}
-          {showPasswordFields && (
-            <>
-              <Form.Item
-                label="Password Lama"
-                name="passwordlama"
-                rules={[{ required: true, message: "Masukkan password lama" }]}
-              >
-                <Input.Password placeholder="Masukkan password lama" />
-              </Form.Item>
+          <Form.Item label="Nama UPT" name="UPT" rules={[{ required: true }]}>
+            <Select>
+              <Option value="Kantor Pusat">Kantor Pusat</Option>
+              <Option value="BBKHIT DKI Jakarta">BBKHIT DKI Jakarta</Option>
+              <Option value="BBKHIT Jawa Tengah">BBKHIT Jawa Tengah</Option>
+              <Option value="BBKHIT Jawa Timur">BBKHIT Jawa Timur</Option>
+            </Select>
+          </Form.Item>
 
-              <Form.Item
-                label="Password Baru"
-                name="passwordbaru"
-                dependencies={["passwordlama"]}
-                rules={[
-                  { required: true, message: "Masukkan password baru" },
-                  { min: 6, message: "Minimal 6 karakter" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (value === getFieldValue("passwordlama")) {
-                        return Promise.reject(
-                          new Error(
-                            "Password baru tidak boleh sama dengan password lama"
-                          )
-                        );
-                      }
-                      const regex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
-                      if (!regex.test(value)) {
-                        return Promise.reject(
-                          new Error("Harus mengandung huruf dan angka")
-                        );
-                      }
-                      return Promise.resolve();
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password placeholder="Masukkan password baru" />
-              </Form.Item>
+          <Form.Item
+            label="Lokasi Kantor"
+            name="Kantor"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              <Option value="Kantor Utama">Kantor Utama</Option>
+              <Option value="Kantor 1">Kantor 1</Option>
+              <Option value="Kantor 2">Kantor 2</Option>
+              <Option value="Kantor 3">Kantor 3</Option>
+            </Select>
+          </Form.Item>
 
-              <Form.Item
-                label="Ulangi Password Baru"
-                name="ulangipassword"
-                dependencies={["passwordbaru"]}
-                rules={[
-                  { required: true, message: "Ulangi password baru" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || value === getFieldValue("passwordbaru")) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(
-                        new Error("Password tidak cocok dengan yang baru")
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password placeholder="Ulangi password baru" />
-              </Form.Item>
-            </>
-          )}
+          <Form.Item label="Bagian" name="Bagian" rules={[{ required: true }]}>
+            <Select>
+              <Option value="Bagian 1">Bagian 1</Option>
+              <Option value="Bagian 2">Bagian 2</Option>
+              <Option value="Bagian 3">Bagian 3</Option>
+              <Option value="Bagian 4">Bagian 4</Option>
+            </Select>
+          </Form.Item>
 
           {/* Tombol Aksi */}
           <Form.Item className="text-end mt-6">
