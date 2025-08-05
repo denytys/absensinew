@@ -293,7 +293,7 @@ export default function FormPerizinan() {
           </button>
         </div>
       </Modal>
-      ;{/* Form */}
+      {/* Form */}
       <div className="bg-white/70 shadow-md rounded-xl p-6 mb-6">
         {/* backdrop-blur-md  */}
         <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>
