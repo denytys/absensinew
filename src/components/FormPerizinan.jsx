@@ -233,15 +233,18 @@ export default function FormPerizinan() {
         centered
         closable={false}
         width="100%"
-        style={{ maxWidth: 300, padding: "0 20px", margin: "0 8px" }}
+        style={{ maxWidth: 350, padding: "0 20px", margin: "0 8px" }}
       >
         {contextHolder}
-        <div className="flex flex-col items-center">
+        <div className="flex items-start space-x-3">
           <ExclamationCircleOutlined
             style={{ color: "#DC2525" }}
-            className="text-3xl mt-1 mb-4"
+            className="text-2xl mt-1 mb-4"
           />
-          <h3 className="font-semibold text-lg mb-1">Hapus Riwayat Ini?</h3>
+          <div>
+            <h3 className="font-semibold text-lg mb-1">Hapus Riwayat Ini?</h3>
+            <p>ini akan menghapus data secara permanen</p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
@@ -293,7 +296,8 @@ export default function FormPerizinan() {
           </button>
         </div>
       </Modal>
-      ;{/* Form */}
+
+      {/* Form */}
       <div className="bg-white/70 shadow-md rounded-xl p-6 mb-6">
         {/* backdrop-blur-md  */}
         <h2 className="text-lg font-bold mb-4">Form Input Perizinan</h2>

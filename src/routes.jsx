@@ -11,34 +11,48 @@ import FormPerizinan from "./components/FormPerizinan";
 import ErrorPage from "./pages/ErrorPage";
 import Rekap from "./Rekap";
 import ResetPassword from "./components/ResetPassword";
+import Maintenance from "./Maintenance";
 
 export const router = createBrowserRouter([
-    {
-        path: "login",
-        element: <Login />,
-        errorElement: <ErrorPage/>
-    },
-    { 
-        path: "reset-password", 
-        element: <ResetPassword />, 
-        errorElement: <ErrorPage /> 
-    },
-    {
-        path: "/",
-        element: <MainLayout />,
-        loader: protectedLoader,
-        children: [
-            { index: true, element: <Home />, errorElement: <ErrorPage /> },
-            { path: 'home', element: <Home />, errorElement: <ErrorPage /> },
-            { path: "riwayat", element: <RiwayatAbsen />, errorElement: <ErrorPage /> },
-            { path: "izin", element: <FormPerizinan />, errorElement: <ErrorPage /> },
-            { path: "wfa", element: <LaporanWfa />, errorElement: <ErrorPage /> },
-            { path: "rekap", element: <Rekap />, errorElement: <ErrorPage /> },
-            { path: "edit-profile", element: <EditProfile />, errorElement: <ErrorPage /> },
-        ],
-    },
-    {
-        path: "*",
-        element: <ErrorPage />,
-    },
+  {
+    path: "login",
+    element: <Login />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "reset-password",
+    element: <ResetPassword />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/",
+    element: <MainLayout />,
+    loader: protectedLoader,
+    children: [
+      { index: true, element: <Home />, errorElement: <ErrorPage /> },
+      { path: "home", element: <Home />, errorElement: <ErrorPage /> },
+      {
+        path: "riwayat",
+        element: <RiwayatAbsen />,
+        errorElement: <ErrorPage />,
+      },
+      { path: "izin", element: <FormPerizinan />, errorElement: <ErrorPage /> },
+      { path: "wfa", element: <LaporanWfa />, errorElement: <ErrorPage /> },
+      { path: "rekap", element: <Rekap />, errorElement: <ErrorPage /> },
+      {
+        path: "edit-profile",
+        element: <EditProfile />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/maintenance",
+        element: <Maintenance />,
+        errorElement: <ErrorPage />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
+  },
 ]);

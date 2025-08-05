@@ -2,16 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Form,
-  Input,
   Button,
   Upload,
   message,
   Typography,
   Avatar,
   Modal,
-  Switch,
   Radio,
   Select,
+  Result,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { decodeCookies } from "./helper/parsingCookies";
@@ -27,18 +26,21 @@ export default function EditProfile() {
   const [fileList, setFileList] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
-  // const [username, setUsername] = useState("");
+
+  // useEffect(() => {
+  //   const token = decodeCookies("token");
+  //   if (!token) {
+  //     message.warning("Silakan login terlebih dahulu.");
+  //     navigate("/");
+  //   }
+
+  //   const userData = decodeCookies("user") || {};
+  //   setNip(userData.nip || "");
+  //   setFotoBase64(userData.foto || "");
+  // }, []);
 
   useEffect(() => {
-    const token = decodeCookies("token");
-    if (!token) {
-      message.warning("Silakan login terlebih dahulu.");
-      navigate("/");
-    }
-
-    const userData = decodeCookies("user") || {};
-    setNip(userData.nip || "");
-    setFotoBase64(userData.foto || "");
+    navigate("/maintenance");
   }, []);
 
   const handleUploadChange = ({ fileList }) => {
@@ -75,17 +77,6 @@ export default function EditProfile() {
         return;
       }
     }
-
-    // console.log("Data yang dikirim:", {
-    //   nip,
-    //   foto_base64: fotoBase64,
-    //   ...(showPasswordFields && values.passwordbaru
-    //     ? {
-    //         password_lama: values.passwordlama,
-    //         password_baru: values.passwordbaru,
-    //       }
-    //     : {}),
-    // });
 
     try {
       const res = await axios.post(
@@ -136,7 +127,6 @@ export default function EditProfile() {
     <div className="max-w-xl mx-auto p-4">
       <div className="bg-white/45 shadow-md rounded-xl p-6 mb-30">
         <Title level={4}>Edit Profil</Title>
-
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           {/* Upload Foto */}
           <Form.Item label="Upload Foto Profil">
@@ -169,23 +159,21 @@ export default function EditProfile() {
             )}
           </Form.Item>
 
-          {/* <Form.Item label="Username" name="username">
-            <Input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </Form.Item> */}
-
           {/* Zona */}
           <Form.Item label="Zona Nyaman">
-            <Radio.Group>
-              <Radio value="WIB">WIB</Radio>
-              <Radio value="WITA">WITA</Radio>
-              <Radio value="WIT">WIT</Radio>
+            <Radio.Group
+              name="radiogroup"
+              defaultValue={1}
+              style={{ display: "flex", justifyContent: "flex-start" }}
+            >
+              <Radio value={1}>WIB</Radio>
+              <Radio value={2}>WITA</Radio>
+              <Radio value={3}>WIT</Radio>
             </Radio.Group>
           </Form.Item>
 
-          <Form.Item label="Nama UPT" name="UPT" rules={[{ required: true }]}>
+          {/* UPT */}
+          <Form.Item label="Nama UPT" name="UPT" rules={[{ required: false }]}>
             <Select>
               <Option value="Kantor Pusat">Kantor Pusat</Option>
               <Option value="BBKHIT DKI Jakarta">BBKHIT DKI Jakarta</Option>
@@ -194,10 +182,11 @@ export default function EditProfile() {
             </Select>
           </Form.Item>
 
+          {/* LOKASI */}
           <Form.Item
             label="Lokasi Kantor"
             name="Kantor"
-            rules={[{ required: true }]}
+            rules={[{ required: false }]}
           >
             <Select>
               <Option value="Kantor Utama">Kantor Utama</Option>
@@ -207,13 +196,43 @@ export default function EditProfile() {
             </Select>
           </Form.Item>
 
-          <Form.Item label="Bagian" name="Bagian" rules={[{ required: true }]}>
+          {/* RULES */}
+          <Form.Item label="Bagian" name="Bagian" rules={[{ required: false }]}>
             <Select>
               <Option value="Bagian 1">Bagian 1</Option>
               <Option value="Bagian 2">Bagian 2</Option>
               <Option value="Bagian 3">Bagian 3</Option>
               <Option value="Bagian 4">Bagian 4</Option>
             </Select>
+          </Form.Item>
+
+          {/* Jabatan */}
+          <Form.Item
+            label="Jabatan"
+            name="Jabatan"
+            rules={[{ required: false }]}
+          >
+            <Select>
+              <Option value="Bagian 1">Bagian 1</Option>
+              <Option value="Bagian 2">Bagian 2</Option>
+              <Option value="Bagian 3">Bagian 3</Option>
+              <Option value="Bagian 4">Bagian 4</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Role */}
+          <Form.Item label="Role" name="Role" rules={[{ required: false }]}>
+            <Select
+              mode="multiple"
+              defaultValue={["user"]}
+              placeholder="Outlined"
+              style={{ flex: 1 }}
+              options={[
+                { value: "user", label: "User" },
+                { value: "admin kepegawaian", label: "Admin Kepegawaian" },
+                { value: "tata usaha", label: "Tata Usaha" },
+              ]}
+            />
           </Form.Item>
 
           {/* Tombol Aksi */}
