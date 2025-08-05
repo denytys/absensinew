@@ -233,7 +233,7 @@ export default function FormPerizinan() {
         centered
         closable={false}
         width="100%"
-        style={{ maxWidth: 350, padding: "0 20px", margin: "0 8px" }}
+        style={{ maxWidth: 300, padding: "0 20px", margin: "0 8px" }}
       >
         {contextHolder}
         <div className="flex items-start space-x-3">
