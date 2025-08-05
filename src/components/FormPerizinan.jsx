@@ -296,7 +296,6 @@ export default function FormPerizinan() {
           </button>
         </div>
       </Modal>
-
       {/* Form */}
       <div className="bg-white/70 shadow-md rounded-xl p-6 mb-6">
         {/* backdrop-blur-md  */}
