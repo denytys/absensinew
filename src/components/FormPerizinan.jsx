@@ -55,6 +55,7 @@ export default function FormPerizinan() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [modal, contextHolderModal] = Modal.useModal(); // untuk notifikasi sukses
 
   const itemsPerPage = 5;
 
@@ -140,6 +141,54 @@ export default function FormPerizinan() {
       setIsLoading(false);
       return;
     }
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_ABSEN_BE}/perizinan`,
+        formData
+      );
+
+      if (res.data?.status === true) {
+        showSuccessModal();
+
+        message.success("Perizinan berhasil disimpan");
+        form.resetFields();
+        setNomor("");
+        setPerihal("");
+        setTanggalAwal(null);
+        setTanggalAkhir(null);
+        setLampiran(null);
+        setImageData(null);
+        fetchPerizinan();
+      } else {
+        message.error("Gagal menyimpan perizinan.");
+      }
+    } catch (err) {
+      console.error("Gagal submit:", err);
+      message.error("Terjadi kesalahan saat mengirim data.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const showSuccessModal = () => {
+    let secondsToGo = 3;
+    const instance = modal.success({
+      title: "Berhasil Disimpan",
+      content: `Form perizinan berhasil disimpan. Modal ini akan tertutup dalam ${secondsToGo} detik.`,
+    });
+
+    const timer = setInterval(() => {
+      secondsToGo -= 1;
+      instance.update({
+        content: `Form perizinan berhasil disimpan. Modal ini akan tertutup dalam ${secondsToGo} detik.`,
+      });
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(timer);
+      instance.destroy();
+    }, secondsToGo * 1000);
   };
 
   const handleDelete = (id) => {
@@ -176,6 +225,7 @@ export default function FormPerizinan() {
 
   return (
     <div className="mx-auto p-1">
+      {contextHolderModal}
       <Modal
         open={openDeleteModal}
         footer={null}
@@ -436,9 +486,6 @@ export default function FormPerizinan() {
                 <th className="p-2 text-center">Perihal</th>
                 <th className="p-2 text-center">Lampiran</th>
                 <th className="p-2 text-center rounded-r-lg">Act</th>
-                {/* <th className="p-2 text-center text-gray-600 rounded-r-lg">
-                  Act
-                </th> */}
               </tr>
             </thead>
 
@@ -526,7 +573,6 @@ export default function FormPerizinan() {
           </div>
         </div>
       </div>
-      {/* {contextHolder} */}
     </div>
   );
 }
