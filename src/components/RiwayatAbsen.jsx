@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { protectGet } from "../helper/axiosHelper";
 
 export default function RiwayatAbsen() {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -13,8 +14,8 @@ export default function RiwayatAbsen() {
   const userId = 1; // nanti ganti dengan user login
 
   useEffect(() => {
-    fetch(
-      `http://localhost/absensi-be/index.php/absen/getRiwayat?user_id=${userId}`
+    protectGet(
+      `/absen/getRiwayat?user_id=${userId}`
     )
       .then((res) => res.json())
       .then((result) => {

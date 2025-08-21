@@ -272,7 +272,6 @@ export default function RekapLaporan() {
                   pegawai: e ? e : "all",
                 }))
               }
-              // onSearch={onSearch}
               options={pegawaiSelect}
             />
           </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { protectGet, protectPostPut } from "../helper/axiosHelper";
 
 export default function LaporanWfa() {
   const [judul, setJudul] = useState("");
@@ -28,15 +29,12 @@ export default function LaporanWfa() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://127.0.0.1/absensi-be/index.php/wfa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          judul: judul,
-          uraian: kegiatan,
-        }),
-      });
+      const body = JSON.stringify({
+        user_id: userId,
+        judul: judul,
+        uraian: kegiatan,
+      })
+      const res = await protectPostPut('post', "/wfa", body);
 
       const response = await res.json();
       if (response.success) {
@@ -44,8 +42,7 @@ export default function LaporanWfa() {
         setJudul("");
         setKegiatan("");
 
-        const r = await fetch(
-          `http://127.0.0.1/absensi-be/index.php/wfa/get?user_id=${userId}`
+        const r = await protectGet(`/wfa/get?user_id=${userId}`
         );
         const rJson = await r.json();
         if (rJson.success) setPerizinanList(rJson.data);

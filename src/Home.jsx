@@ -235,6 +235,7 @@ export default function Home() {
     if (user?.shifting != 'Y') {
       const d = new Date()
       const time = d.toLocaleString('en-US', { hour12: false })
+      console.log("waktu", decodeCookies('waktu'))
       const waktu = decodeCookies('waktu')
       if(jenis == 'masuk') {
         if (time.substring(11) <= waktu[0]['waktu_masuk_awal']) {
