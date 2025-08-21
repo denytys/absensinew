@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { protectGet } from "../helper/axiosHelper";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function RiwayatAbsen() {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -11,7 +12,8 @@ export default function RiwayatAbsen() {
   const [dataAbsen, setDataAbsen] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const userId = 1; // nanti ganti dengan user login
+  const user = decodeCookies('user')
+  const userId = user?.id_user ?? 1; // nanti ganti dengan user login
 
   useEffect(() => {
     protectGet(

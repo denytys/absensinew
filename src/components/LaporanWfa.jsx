@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { protectGet, protectPostPut } from "../helper/axiosHelper";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function LaporanWfa() {
   const [judul, setJudul] = useState("");
   const [kegiatan, setKegiatan] = useState("");
   const [perizinanList, setPerizinanList] = useState([]);
-
-  const userId = 1;
+  const user = decodeCookies('user')
+  const userId = user?.id_user ?? 1;
 
   useEffect(() => {
-    fetch(`http://127.0.0.1/absensi-be/index.php/wfa/get?user_id=${userId}`)
+    protectGet(
+      `/wfa/get?user_id=${userId}`
+    )
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {
