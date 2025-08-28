@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
+import { protectGet, protectPostPut } from "../helper/axiosHelper";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function LaporanWfa() {
   const [judul, setJudul] = useState("");
   const [kegiatan, setKegiatan] = useState("");
   const [perizinanList, setPerizinanList] = useState([]);
-
-  const userId = 1;
+  const user = decodeCookies('user')
+  const userId = user?.id_user ?? 1;
 
   useEffect(() => {
-    fetch(`http://127.0.0.1/absensi-be/index.php/wfa/get?user_id=${userId}`)
-      .then((res) => res.json())
+    protectGet(
+      `/wfa?user_id=${userId}`
+    )
       .then((result) => {
-        if (result.success) {
-          setPerizinanList(result.data);
+        if (result.data.status) {
+          setPerizinanList(result.data.data);
         } else {
-          alert("Gagal ambil data: " + result.message);
+          alert("Gagal ambil data: " + result.data.message);
         }
       })
       .catch((err) => {
@@ -28,29 +31,22 @@ export default function LaporanWfa() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://127.0.0.1/absensi-be/index.php/wfa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          judul: judul,
-          uraian: kegiatan,
-        }),
-      });
+      const body = JSON.stringify({
+        user_id: userId,
+        judul: judul,
+        uraian: kegiatan,
+      })
+      const response = await protectPostPut('post', "/wfa", body);
 
-      const response = await res.json();
-      if (response.success) {
+      if (response.data.status) {
         alert("Berhasil disimpan!");
         setJudul("");
         setKegiatan("");
 
-        const r = await fetch(
-          `http://127.0.0.1/absensi-be/index.php/wfa/get?user_id=${userId}`
-        );
-        const rJson = await r.json();
-        if (rJson.success) setPerizinanList(rJson.data);
+        const rJson = await protectGet(`/wfa?user_id=${userId}`);
+        if (rJson.data.status) setPerizinanList(rJson.data.data);
       } else {
-        alert("Gagal: " + response.message);
+        alert("Gagal: " + response.data.message);
       }
     } catch (error) {
       if (import.meta.env.MODE === "development") {

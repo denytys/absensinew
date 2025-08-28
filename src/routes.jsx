@@ -12,6 +12,9 @@ import ErrorPage from "./pages/ErrorPage";
 import Rekap from "./Rekap";
 import ResetPassword from "./components/ResetPassword";
 import Maintenance from "./Maintenance";
+import LayoutAdmin from "./layout/LayoutAdmin";
+import AdminHome from "./components/admin/AdminHome";
+import AdminPegawai from "./components/admin/AdminPegawai";
 
 export const router = createBrowserRouter([
   {
@@ -45,9 +48,19 @@ export const router = createBrowserRouter([
         errorElement: <ErrorPage />,
       },
       {
+        path: "/admins",
+        element: <LayoutAdmin />,
+        errorElement: <ErrorPage />,
+      },
+      {
         path: "/maintenance",
         element: <Maintenance />,
         errorElement: <ErrorPage />,
+        children: [
+          { index: true, element: <AdminHome />, errorElement: <ErrorPage /> },
+          { path: "home", element: <AdminHome />, errorElement: <ErrorPage /> },
+          { path: "pegawai", element: <AdminPegawai />, errorElement: <ErrorPage /> },
+        ]
       },
     ],
   },

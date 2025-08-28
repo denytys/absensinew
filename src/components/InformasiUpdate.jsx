@@ -25,10 +25,10 @@ export default function InformasiUpdate() {
 
       <div className={`${isOpen ? "block" : "hidden"} sm:block`}>
         <div className="text-left md:text-center pl-4 md:pl-0 pt-2 pb-2">
-          <p className="text-xs">1. Filter foto biar mirip giring nidji</p>
-          <p className="text-xs">2. Klik submit = rudal balansik aktif</p>
+          <p className="text-xs">Update e-Presensi versi 2</p>
+          {/* <p className="text-xs">2. Klik submit = rudal balansik aktif</p>
           <p className="text-xs">3. Gak ngeklik apa-apa gak dapet sepeda</p>
-          {/* <p className="text-xs">4. Salah klik = tiup seruling di tugu tani</p> */}
+          <p className="text-xs">4. Salah klik = tiup seruling di tugu tani</p> */}
         </div>
       </div>
     </div>

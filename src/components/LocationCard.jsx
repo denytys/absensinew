@@ -43,15 +43,15 @@ function FitBounds({ location, kantor }) {
 
   useEffect(() => {
     if (!done && location?.lat && location?.lng) {
-      const bounds = L.latLngBounds([
-        [location?.lat, location?.lng],
-        [kantor?.lat, kantor?.long],
+      const bounds = L?.latLngBounds([
+        [(location?.lat ?? 0), (location?.lng ?? 0)],
+        [(kantor?.lat ?? 0), (kantor?.long ?? 0)],
       ]);
       map.fitBounds(bounds, { padding: [30, 30] });
       setDone(true);
     }
   }, [location, kantor, map, done]);
-
+  
   return null;
 }
 const lokasiKantor = decodeCookies("lokasi_kantor");

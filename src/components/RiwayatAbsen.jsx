@@ -3,6 +3,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { protectGet } from "../helper/axiosHelper";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function RiwayatAbsen() {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -10,16 +12,17 @@ export default function RiwayatAbsen() {
   const [dataAbsen, setDataAbsen] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const userId = 1; // nanti ganti dengan user login
+  const user = decodeCookies('user')
+  const userId = user?.id_user ?? 1; // nanti ganti dengan user login
 
   useEffect(() => {
-    fetch(
-      `http://localhost/absensi-be/index.php/absen/getRiwayat?user_id=${userId}`
+    protectGet(
+      `/absen/getRiwayat?user_id=${userId}`
     )
-      .then((res) => res.json())
       .then((result) => {
-        if (result.success) {
-          const mapped = result.data.map((item) => ({
+        console.log(result)
+        if (result.data.success) {
+          const mapped = result.data.data.map((item) => ({
             tanggal: `${item.tanggal}T${item.waktu}`,
             jenis: item.jenis_presensi,
             cekwf: item.cekwf,

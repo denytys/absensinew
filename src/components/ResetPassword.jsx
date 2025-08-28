@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DigitalClock from './DigitalClock';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { decodeCookies, encodeCookies } from '../helper/parsingCookies';
 import Swal from 'sweetalert2';
 import { protectPostPut } from '../helper/axiosHelper';
+import cekRoles from '../helper/cekRoles';
 
 export default function ResetPassword() {
     const navigate = useNavigate()
@@ -14,6 +15,8 @@ export default function ResetPassword() {
     const { status, user, setting } = location.state || {}
     const userCo = decodeCookies("user")
     let [userState, setUserState] = useState("")
+    let [modNip, setModNip] = useState(false)
+    let [nipUbah, setNipUbah] = useState("")
 
     const {
         control,
@@ -40,7 +43,7 @@ export default function ResetPassword() {
         protectPostPut("post", "/auth/resetPass", values, false, (user?.token ?? null))
         .then((response) => {
             if (response?.data?.status) {
-                Swal.fire("Berhasil simpan data", response?.data?.message ?? "Gagal simpan data", "success")
+                Swal.fire("Berhasil simpan data", response?.data?.message ?? "Berhasil simpan data", "success")
                 if (status == 'reset') {
                     encodeCookies("token", user.token)
                     encodeCookies("expired", user.expired)
@@ -59,6 +62,28 @@ export default function ResetPassword() {
             Swal.fire("Terjadi kesalahan", error?.response?.data?.message ?? "Gagal simpan data", "error")
         })
     }
+
+    const submitUbahPassword = () => {
+        if (!nipUbah) {
+            Swal.fire("Perhatian!", "Mohon isi nip yang mau direset password", "warning")
+            return;
+        }
+        Swal.fire("Sedang menyimpan..")
+        Swal.showLoading()
+        const nipKirim = {
+            nip: nipUbah,
+            upt: userCo?.upt_id
+        }
+        protectPostPut("post", "/auth/resetPassByNIP", nipKirim)
+            .then((response) => {
+                if (response?.data?.status) {
+                    Swal.fire("Berhasil simpan data", response?.data?.message ?? "Berhasil simpan data", "success")
+                }
+            })
+            .catch((error) => {
+                Swal.fire("Terjadi kesalahan", error?.response?.data?.message ?? "Gagal simpan data", "error")
+            })
+    } 
     return (
         <div className="cmax-w-screen-lg mx-auto px-2 relative min-h-screen">
             <div className="text-left">
@@ -68,6 +93,9 @@ export default function ResetPassword() {
                 <p className="text-sm text-gray-500"><DigitalClock /></p>
             </div>
             <div className="bg-white/45 rounded-xl p-3 my-4 w-full">
+                {decodeCookies("token") && (cekRoles("admin") || cekRoles("adm-peg") || cekRoles('adm-tu')) ?
+                <Button onClick={() => setModNip(true)}>By NIP</Button>
+                : ""}
                 <Form
                     layout={"vertical"}
                     autoComplete='off'
@@ -155,6 +183,24 @@ export default function ResetPassword() {
                         <Button type="primary" htmlType="submit">Submit</Button>
                     </Form.Item>
                 </Form>
+                <Modal
+                    open={modNip}
+                    footer={null}
+                    centered
+                    onCancel={() => setModNip(false)}
+                    width={400}
+                >
+                    <div style={{ textAlign: "center", padding: "20px" }}>
+                        <p style={{ fontSize: "18px", marginBottom: 24 }}>
+                            Reset Password! <br />
+                            Default: <b>JanganLupaLagi45:)</b>
+                        </p>
+                        <Input onChange={(e) => setNipUbah(e.target.value)} placeholder="Masukan NIP" />
+                        <Button type="primary" className='mt-2' onClick={submitUbahPassword}>
+                            Ubah password
+                        </Button>
+                    </div>
+                </Modal>
             </div>
         </div>
     )
