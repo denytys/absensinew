@@ -187,31 +187,31 @@ export default function Home() {
     );
   }, []);
 
-  let [history, setHistory] = useState("")
+  let [history, setHistory] = useState("");
   const getHistory = useCallback(async () => {
-    const user = decodeCookies('user')
-    const waktuabsen = decodeCookies('waktu')
-    const shiftId = waktuabsen?.map(item => {
-      return item.id_setting_waktu_presensi
-    })
+    const user = decodeCookies("user");
+    const waktuabsen = decodeCookies("waktu");
+    const shiftId = waktuabsen?.map((item) => {
+      return item.id_setting_waktu_presensi;
+    });
     try {
-      const datenow = new Date
+      const datenow = new Date();
       const data = {
         id_user: user?.id_user,
-        tanggal: datenow.toISOString().split('T')[0],
+        tanggal: datenow.toISOString().split("T")[0],
         shifting: user?.shifting,
-        shift_id: shiftId
-      }
-      const response = await protectPostPut('post', '/presensi/history', data)
-      setHistory(response?.data?.data)
+        shift_id: shiftId,
+      };
+      const response = await protectPostPut("post", "/presensi/history", data);
+      setHistory(response?.data?.data);
     } catch (error) {
-      setHistory("")
+      setHistory("");
     }
-  }, [decodeCookies])
+  }, [decodeCookies]);
 
   useEffect(() => {
     getLocation();
-    getHistory()
+    getHistory();
   }, [getLocation, getHistory]);
 
   const handlePresensi = (jenis) => {
@@ -231,54 +231,54 @@ export default function Home() {
       });
       return;
     }
-    const user = decodeCookies('user')
-    if (user?.shifting != 'Y') {
-      const d = new Date()
-      const time = d.toLocaleString('en-US', { hour12: false })
-      const waktu = decodeCookies('waktu')
-      if(jenis == 'masuk') {
-        if (time.substring(11) <= waktu[0]['waktu_masuk_awal']) {
+    const user = decodeCookies("user");
+    if (user?.shifting != "Y") {
+      const d = new Date();
+      const time = d.toLocaleString("en-US", { hour12: false });
+      const waktu = decodeCookies("waktu");
+      if (jenis == "masuk") {
+        if (time.substring(11) <= waktu[0]["waktu_masuk_awal"]) {
           Swal.fire({
-            icon: 'error',
-            title: 'Absen masuk belum dimulai',
-            text: 'Batas masuk awal: ' + waktu[0]['waktu_masuk_awal']
-          })
-          return
+            icon: "error",
+            title: "Absen masuk belum dimulai",
+            text: "Batas masuk awal: " + waktu[0]["waktu_masuk_awal"],
+          });
+          return;
         }
-        if (time.substring(11) >= waktu[0]['waktu_masuk_akhir']) {
+        if (time.substring(11) >= waktu[0]["waktu_masuk_akhir"]) {
           Swal.fire({
-            icon: 'error',
-            title: 'Absen masuk sudah lewat',
-            text: 'Batas masuk akhir: ' + waktu[0]['waktu_masuk_akhir']
-          })
-          return
+            icon: "error",
+            title: "Absen masuk sudah lewat",
+            text: "Batas masuk akhir: " + waktu[0]["waktu_masuk_akhir"],
+          });
+          return;
         }
       }
-      if (jenis == 'pulang') {
-        let bataspulang = waktu[0]['waktu_pulang_awal']
+      if (jenis == "pulang") {
+        let bataspulang = waktu[0]["waktu_pulang_awal"];
         if (d.getDay() == 5) {
           const [hours, minutes, seconds] = bataspulang.split(":").map(Number);
-          const batasbaru = new Date()
-          batasbaru.setHours(hours)
-          batasbaru.setMinutes(minutes)
-          batasbaru.setSeconds(seconds)
-          batasbaru.setMinutes(batasbaru.getMinutes() + 30)
-          bataspulang = batasbaru.toTimeString().split(" ")[0]
+          const batasbaru = new Date();
+          batasbaru.setHours(hours);
+          batasbaru.setMinutes(minutes);
+          batasbaru.setSeconds(seconds);
+          batasbaru.setMinutes(batasbaru.getMinutes() + 30);
+          bataspulang = batasbaru.toTimeString().split(" ")[0];
         }
         if (time.substring(11) <= bataspulang) {
           Swal.fire({
-            icon: 'error',
-            title: 'Absen pulang belum dimulai',
-            text: 'Batas pulang awal: ' + bataspulang
-          })
-          return
+            icon: "error",
+            title: "Absen pulang belum dimulai",
+            text: "Batas pulang awal: " + bataspulang,
+          });
+          return;
         }
       }
     }
     setModalAbsen(true);
     setJenisAbsen(jenis);
   };
-  
+
   function setModalAbsenClose() {
     setModalAbsen(false);
   }
@@ -293,10 +293,7 @@ export default function Home() {
       {/* Baris 2: PresensiSection dan LocationCard sejajar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <PresensiSection
-            history={history}
-            handlePresensi={handlePresensi}
-          />
+          <PresensiSection history={history} handlePresensi={handlePresensi} />
           <InformasiUpdate />
         </div>
         <div>
