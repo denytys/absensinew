@@ -13,7 +13,8 @@ export default function AbsenModal({
   jenisAbsen,
   location,
   lokasiTerdekat,
-  history
+  history,
+  getHistory
 }) {
   let [jenisWf, setJenisWf] = useState("wfo");
   let [isLoading, setIsLoading] = useState(false);
@@ -45,6 +46,7 @@ export default function AbsenModal({
         title: "Berhasil simpan",
         text: response?.data?.message ?? "Berhasil menyimpan data",
       });
+      getHistory()
     } catch (err) {
       if (import.meta.env.MODE === "development") {
         console.error("Gagal simpan:", err);

@@ -11,14 +11,13 @@ export default function LaporanWfa() {
 
   useEffect(() => {
     protectGet(
-      `/wfa/get?user_id=${userId}`
+      `/wfa?user_id=${userId}`
     )
-      .then((res) => res.json())
       .then((result) => {
-        if (result.success) {
-          setPerizinanList(result.data);
+        if (result.data.status) {
+          setPerizinanList(result.data.data);
         } else {
-          alert("Gagal ambil data: " + result.message);
+          alert("Gagal ambil data: " + result.data.message);
         }
       })
       .catch((err) => {
@@ -37,20 +36,17 @@ export default function LaporanWfa() {
         judul: judul,
         uraian: kegiatan,
       })
-      const res = await protectPostPut('post', "/wfa", body);
+      const response = await protectPostPut('post', "/wfa", body);
 
-      const response = await res.json();
-      if (response.success) {
+      if (response.data.status) {
         alert("Berhasil disimpan!");
         setJudul("");
         setKegiatan("");
 
-        const r = await protectGet(`/wfa/get?user_id=${userId}`
-        );
-        const rJson = await r.json();
-        if (rJson.success) setPerizinanList(rJson.data);
+        const rJson = await protectGet(`/wfa?user_id=${userId}`);
+        if (rJson.data.status) setPerizinanList(rJson.data.data);
       } else {
-        alert("Gagal: " + response.message);
+        alert("Gagal: " + response.data.message);
       }
     } catch (error) {
       if (import.meta.env.MODE === "development") {

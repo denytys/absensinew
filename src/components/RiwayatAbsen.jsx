@@ -19,10 +19,10 @@ export default function RiwayatAbsen() {
     protectGet(
       `/absen/getRiwayat?user_id=${userId}`
     )
-      .then((res) => res.json())
       .then((result) => {
-        if (result.success) {
-          const mapped = result.data.map((item) => ({
+        console.log(result)
+        if (result.data.success) {
+          const mapped = result.data.data.map((item) => ({
             tanggal: `${item.tanggal}T${item.waktu}`,
             jenis: item.jenis_presensi,
             cekwf: item.cekwf,

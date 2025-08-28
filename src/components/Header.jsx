@@ -93,6 +93,15 @@ export default function Header() {
           >
             Home
           </button>
+          {/* <button
+            onClick={() => {
+              navigate("/admins");
+              setDropdownOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-blue-300/20 transition"
+          >
+            Admin Presensi
+          </button> */}
           <button
             onClick={() => {
               navigate("/reset-password");

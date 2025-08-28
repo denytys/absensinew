@@ -110,18 +110,20 @@ export default function FormPerizinan() {
   const handleSubmit = async (values) => {
     setIsLoading(true);
 
+    // console.log("tanggalAwal",tanggalAwal?.toISOString().slice(0, 10))
+    // console.log("tanggalAkhir", tanggalAkhir?.toISOString().slice(0, 10))
     const payload = {
       nomor,
       perihal,
       jenis_izin: jenis,
-      tgl_mulai: tanggalAwal?.toISOString().slice(0, 10),
-      tgl_selesai: tanggalAkhir?.toISOString().slice(0, 10),
+      tgl_mulai: tanggalAwal,
+      tgl_selesai: tanggalAkhir,
       p_upt: user.upt_id,
       p_bagian: user.bagian_id,
       user_input: user.nama,
       nip: user.nip,
     };
-
+    
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) => {
       formData.append(key, value);
@@ -141,12 +143,15 @@ export default function FormPerizinan() {
       setIsLoading(false);
       return;
     }
-
+    
     try {
+      // return;
       const res = await axios.post(
         `${import.meta.env.VITE_ABSEN_BE}/perizinan`,
         formData
-      );
+        );
+        console.log("payload", formData)
+      console.log("res", res)
 
       if (res.data?.status === true) {
         showSuccessModal();
@@ -315,10 +320,12 @@ export default function FormPerizinan() {
             // rules={[{ required: true }]}
           >
             <Select value={jenis} onChange={(value) => setJenis(value)}>
-              <Option value="Dinas Luar">Dinas Luar</Option>
-              <Option value="Cuti Tahunan">Cuti Tahunan</Option>
-              <Option value="Cuti Sakit">Cuti Sakit</Option>
-              <Option value="Cuti Besar">Cuti Besar</Option>
+              <Option value="1">Dinas Luar</Option>
+              <Option value="2">Cuti Tahunan</Option>
+              <Option value="3">Cuti Sakit</Option>
+              <Option value="4">Cuti Besar</Option>
+              <Option value="5">Cuti Alasan Penting</Option>
+              <Option value="6">Cuti Melahirkan</Option>
             </Select>
           </Form.Item>
 
@@ -335,14 +342,15 @@ export default function FormPerizinan() {
             <Form.Item label="Tanggal Mulai">
               <DatePicker
                 value={tanggalAwal ? dayjs(tanggalAwal) : null}
-                onChange={(date) => setTanggalAwal(date?.toDate())}
+                onChange={(date) => setTanggalAwal(date?.toDate().toLocaleDateString("en-CA"))}
+                // onChange={(date) => console.log(date?.toDate().toLocaleDateString("en-CA"))}
               />
             </Form.Item>
 
             <Form.Item label="Tanggal Selesai">
               <DatePicker
                 value={tanggalAkhir ? dayjs(tanggalAkhir) : null}
-                onChange={(date) => setTanggalAkhir(date?.toDate())}
+                onChange={(date) => setTanggalAkhir(date?.toDate().toLocaleDateString("en-CA"))}
               />
             </Form.Item>
           </div>

@@ -195,9 +195,10 @@ export default function Home() {
       return item.id_setting_waktu_presensi
     })
     try {
-      const datenow = new Date
+      let datenow = new Date()
       const data = {
-        id_user: user?.id_user,
+        id_user: "5355",
+        // id_user: user?.id_user,
         tanggal: datenow.toISOString().split('T')[0],
         shifting: user?.shifting,
         shift_id: shiftId
@@ -235,7 +236,6 @@ export default function Home() {
     if (user?.shifting != 'Y') {
       const d = new Date()
       const time = d.toLocaleString('en-US', { hour12: false })
-      console.log("waktu", decodeCookies('waktu'))
       const waktu = decodeCookies('waktu')
       if(jenis == 'masuk') {
         if (time.substring(11) <= waktu[0]['waktu_masuk_awal']) {
@@ -317,6 +317,7 @@ export default function Home() {
         location={location}
         lokasiTerdekat={lokasiTerdekat}
         history={history}
+        getHistory={getHistory}
       />
     </>
   );
