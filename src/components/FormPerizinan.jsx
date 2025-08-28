@@ -109,9 +109,6 @@ export default function FormPerizinan() {
 
   const handleSubmit = async (values) => {
     setIsLoading(true);
-
-    // console.log("tanggalAwal",tanggalAwal?.toISOString().slice(0, 10))
-    // console.log("tanggalAkhir", tanggalAkhir?.toISOString().slice(0, 10))
     const payload = {
       nomor,
       perihal,
@@ -150,8 +147,6 @@ export default function FormPerizinan() {
         `${import.meta.env.VITE_ABSEN_BE}/perizinan`,
         formData
         );
-        console.log("payload", formData)
-      console.log("res", res)
 
       if (res.data?.status === true) {
         showSuccessModal();
@@ -169,7 +164,9 @@ export default function FormPerizinan() {
         message.error("Gagal menyimpan perizinan.");
       }
     } catch (err) {
-      console.error("Gagal submit:", err);
+      if (import.meta.env.MODE === "development") {
+        console.error("Gagal submit:", err);
+      }
       message.error("Terjadi kesalahan saat mengirim data.");
     } finally {
       setIsLoading(false);
@@ -284,7 +281,9 @@ export default function FormPerizinan() {
 
                 fetchPerizinan();
               } catch (error) {
-                console.error("Gagal menghapus:", error);
+                if (import.meta.env.MODE === "development") {
+                  console.error("Gagal menghapus:", error);
+                }
                 messageApi.open({
                   key,
                   type: "error",
@@ -343,7 +342,6 @@ export default function FormPerizinan() {
               <DatePicker
                 value={tanggalAwal ? dayjs(tanggalAwal) : null}
                 onChange={(date) => setTanggalAwal(date?.toDate().toLocaleDateString("en-CA"))}
-                // onChange={(date) => console.log(date?.toDate().toLocaleDateString("en-CA"))}
               />
             </Form.Item>
 
