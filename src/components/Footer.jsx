@@ -10,7 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 export default function Footer() {
   const location = useLocation();
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-gray-100/75 p-2">
+    <footer className="fixed bottom-0 left-0 right-0 bg-gray-100/75 p-0">
       <div className="flex justify-around text-center text-sm text-gray-600">
         <Link
           to="/home"
