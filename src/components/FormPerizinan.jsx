@@ -39,7 +39,7 @@ function dataURLtoFile(dataurl, filename) {
 export default function FormPerizinan() {
   const user = decodeCookies("user");
   const [form] = Form.useForm();
-  const [jenis, setJenis] = useState("Dinas Luar");
+  const [jenis, setJenis] = useState("1");
   const [nomor, setNomor] = useState("");
   const [tanggalAwal, setTanggalAwal] = useState(null);
   const [tanggalAkhir, setTanggalAkhir] = useState(null);
@@ -97,7 +97,7 @@ export default function FormPerizinan() {
   const fetchPerizinan = useCallback(async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_ABSEN_BE}/perizinan?nip=${user.nip}`
+        `${import.meta.env.VITE_ABSEN_BE}/perizinan?ui=${user.id_user}`
       );
       setPerizinanList(res.data.data);
     } catch (err) {
@@ -105,7 +105,16 @@ export default function FormPerizinan() {
         console.error("Gagal mengambil data perizinan:", err);
       }
     }
-  }, [user.nip]);
+  }, [user.id_user]);
+
+  const MASTER_IZIN = [
+    { id: 1, kode: "DL", deskripsi: "Dinas Luar" },
+    { id: 2, kode: "CT", deskripsi: "Cuti Tahunan" },
+    { id: 3, kode: "CS", deskripsi: "Cuti Sakit" },
+    { id: 4, kode: "CB", deskripsi: "Cuti Besar" },
+    { id: 5, kode: "CP", deskripsi: "Cuti Alasan Penting" },
+    { id: 6, kode: "CM", deskripsi: "Cuti Melahirkan" },
+  ];
 
   const handleSubmit = async (values) => {
     setIsLoading(true);
@@ -117,10 +126,10 @@ export default function FormPerizinan() {
       tgl_selesai: tanggalAkhir,
       p_upt: user.upt_id,
       p_bagian: user.bagian_id,
-      user_input: user.nama,
+      user_input: user.id_user,
       nip: user.nip,
     };
-    
+
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) => {
       formData.append(key, value);
@@ -140,13 +149,13 @@ export default function FormPerizinan() {
       setIsLoading(false);
       return;
     }
-    
+
     try {
       // return;
       const res = await axios.post(
         `${import.meta.env.VITE_ABSEN_BE}/perizinan`,
         formData
-        );
+      );
 
       if (res.data?.status === true) {
         showSuccessModal();
@@ -319,12 +328,11 @@ export default function FormPerizinan() {
             // rules={[{ required: true }]}
           >
             <Select value={jenis} onChange={(value) => setJenis(value)}>
-              <Option value="1">Dinas Luar</Option>
-              <Option value="2">Cuti Tahunan</Option>
-              <Option value="3">Cuti Sakit</Option>
-              <Option value="4">Cuti Besar</Option>
-              <Option value="5">Cuti Alasan Penting</Option>
-              <Option value="6">Cuti Melahirkan</Option>
+              {MASTER_IZIN.map((izin) => (
+                <Select.Option key={izin.id} value={izin.id}>
+                  {izin.deskripsi}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -341,14 +349,18 @@ export default function FormPerizinan() {
             <Form.Item label="Tanggal Mulai">
               <DatePicker
                 value={tanggalAwal ? dayjs(tanggalAwal) : null}
-                onChange={(date) => setTanggalAwal(date?.toDate().toLocaleDateString("en-CA"))}
+                onChange={(date) =>
+                  setTanggalAwal(date?.toDate().toLocaleDateString("en-CA"))
+                }
               />
             </Form.Item>
 
             <Form.Item label="Tanggal Selesai">
               <DatePicker
                 value={tanggalAkhir ? dayjs(tanggalAkhir) : null}
-                onChange={(date) => setTanggalAkhir(date?.toDate().toLocaleDateString("en-CA"))}
+                onChange={(date) =>
+                  setTanggalAkhir(date?.toDate().toLocaleDateString("en-CA"))
+                }
               />
             </Form.Item>
           </div>
