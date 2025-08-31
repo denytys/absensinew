@@ -196,10 +196,13 @@ export default function Home() {
     })
     try {
       let datenow = new Date()
+      const [month, day, year] = datenow.toLocaleDateString('en-US').split('/');
+      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      // console.log("datenow", formattedDate)
       const data = {
-        id_user: "5355",
-        // id_user: user?.id_user,
-        tanggal: datenow.toISOString().split('T')[0],
+        // id_user: "5355",
+        id_user: user?.id_user,
+        tanggal: formattedDate,
         shifting: user?.shifting,
         shift_id: shiftId
       }
@@ -235,10 +238,10 @@ export default function Home() {
     const user = decodeCookies('user')
     if (user?.shifting != 'Y') {
       const d = new Date()
-      const time = d.toLocaleString('en-US', { hour12: false })
+      const time = d.toLocaleTimeString('en-US', { hour12: false })
       const waktu = decodeCookies('waktu')
       if(jenis == 'masuk') {
-        if (time.substring(11) <= waktu[0]['waktu_masuk_awal']) {
+        if (time <= waktu[0]['waktu_masuk_awal']) {
           Swal.fire({
             icon: 'error',
             title: 'Absen masuk belum dimulai',
@@ -246,7 +249,7 @@ export default function Home() {
           })
           return
         }
-        if (time.substring(11) >= waktu[0]['waktu_masuk_akhir']) {
+        if (time >= waktu[0]['waktu_masuk_akhir']) {
           Swal.fire({
             icon: 'error',
             title: 'Absen masuk sudah lewat',
@@ -266,7 +269,7 @@ export default function Home() {
           batasbaru.setMinutes(batasbaru.getMinutes() + 30)
           bataspulang = batasbaru.toTimeString().split(" ")[0]
         }
-        if (time.substring(11) <= bataspulang) {
+        if (time <= bataspulang) {
           Swal.fire({
             icon: 'error',
             title: 'Absen pulang belum dimulai',

@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { protectGet } from "../helper/axiosHelper";
+import { protectPostPut } from "../helper/axiosHelper";
 import { decodeCookies } from "../helper/parsingCookies";
 
 export default function RiwayatAbsen() {
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [dateRange, setDateRange] = useState([Date.now() - (7 * 24 * 60 * 60 * 1000), Date.now()]);
   const [startDate, endDate] = dateRange;
   const [dataAbsen, setDataAbsen] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,12 +15,14 @@ export default function RiwayatAbsen() {
   const user = decodeCookies('user')
   const userId = user?.id_user ?? 1; // nanti ganti dengan user login
 
-  useEffect(() => {
-    protectGet(
-      `/absen/getRiwayat?user_id=${userId}`
-    )
+  const selectRiwayat = useCallback(() => {
+    const payload = {
+      user_id: userId,
+      dFrom: new Date(startDate).toLocaleDateString("en-CA"),
+      dTo: new Date(endDate).toLocaleDateString("en-CA"),
+    }
+    protectPostPut('post', `/absen/getRiwayat`, payload)
       .then((result) => {
-        console.log(result)
         if (result.data.success) {
           const mapped = result.data.data.map((item) => ({
             tanggal: `${item.tanggal}T${item.waktu}`,
@@ -40,7 +42,11 @@ export default function RiwayatAbsen() {
         setError("Terjadi kesalahan saat mengambil data.");
         setLoading(false);
       });
-  }, []);
+  }, [])
+
+  useEffect(() => {
+    selectRiwayat()
+  }, [selectRiwayat]);
 
   const filtered = dataAbsen.filter((item) => {
     const date = new Date(item.tanggal);
@@ -68,7 +74,10 @@ export default function RiwayatAbsen() {
             selectsRange
             startDate={startDate}
             endDate={endDate}
-            onChange={(update) => setDateRange(update)}
+            onChange={(update) => {
+              setDateRange(update)
+              (startDate && endDate ? selectRiwayat() : "")
+            }}
             isClearable
             className="bg-white text-sm px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             dateFormat="yyyy-MM-dd"

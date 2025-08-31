@@ -81,6 +81,13 @@ export default function AbsenModal({
   useEffect(() => {
     getIpAddress();
   }, [getIpAddress]);
+
+  // console.log("history absen", history)
+  useEffect(() => {
+    if (history) {
+      setJenisWf(history.cekwf)
+    }
+  }, [history])
   return (
     <Modal
       open={modalAbsen}
@@ -104,7 +111,7 @@ export default function AbsenModal({
                 id="wfo"
                 name="jenisWf"
                 checked={jenisWf == "wfo" ? true : false}
-                disabled={history && jenisAbsen == 'pulang' ? true : false}
+              disabled={history && jenisAbsen == 'pulang' ? (history.lokasi_kantor_id == "111000" || history.lokasi_kantor_id == "111100" ? false : true) : false}
                 type="radio"
                 className="relative size-4"
               />
@@ -122,7 +129,7 @@ export default function AbsenModal({
                 id="wfa"
                 name="jenisWf"
                 checked={jenisWf == "wfa" ? true : false}
-                disabled={history && jenisAbsen == 'pulang' ? true : false}
+              disabled={history && jenisAbsen == 'pulang' ? (history.lokasi_kantor_id == "111000" || history.lokasi_kantor_id == "111100" ? false : true) : false}
                 type="radio"
                 className="relative size-4"
               />
@@ -146,82 +153,6 @@ export default function AbsenModal({
             </button>
           </div>
         </div>
-      {/* <Dialog open={modalAbsen || false} onClose={setModalAbsen || false} className="relative z-10"> */}
-      {/* <div
-        transition
-        aria-hidden="true"
-        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
-      /> */}
-
-      {/* <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-        <div className="flex min-h-full justify-center p-4 text-center items-center sm:p-0">
-          <div
-            className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95"
-          >
-            <div className="bg-white px-4 sm:p-6 sm:pb-4">
-              <div className="flex sm:items-start">
-                <div className="field-sizing-fixed w-full mt-3 sm:text-left">
-                  <div className="text-2xl text-center font-semibold text-gray-900">
-                    Absensi {jenisAbsen}
-                  </div>
-                  <hr className="mb-1" />
-                  <DigitalClock />
-                  <fieldset className="flex gap-x-8">
-                    <div className="flex items-center gap-x-3">
-                      <input
-                        value="wfo"
-                        onChange={(e) => setJenisWf(e.target.value)}
-                        id="wfo"
-                        name="jenisWf"
-                        checked={jenisWf == "wfo" ? true : false}
-                        disabled={history && jenisAbsen == 'pulang' ? true : false}
-                        type="radio"
-                        className="relative size-4"
-                      />
-                      <label
-                        htmlFor="wfo"
-                        className="block text-sm/6 font-medium text-gray-900"
-                      >
-                        WFO
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-x-3">
-                      <input
-                        value="wfa"
-                        onChange={(e) => setJenisWf(e.target.value)}
-                        id="wfa"
-                        name="jenisWf"
-                        checked={jenisWf == "wfa" ? true : false}
-                        disabled={history && jenisAbsen == 'pulang' ? true : false}
-                        type="radio"
-                        className="relative size-4"
-                      // className="relative size-4  rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
-                      />
-                      <label
-                        htmlFor="wfa"
-                        className="block text-sm/6 font-medium text-gray-900"
-                      >
-                        WFA
-                      </label>
-                    </div>
-                  </fieldset>
-                  <div className="my-6 flex items-center gap-x-6">
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => onSubmit()}
-                      className="rounded-xl w-full mx-4 bg-emerald-800 py-2 font-semibold text-white disabled:bg-emerald-950 disabled:text-gray-500"
-                    >
-                      {isLoading ? <LoadingOutlined className="me-2" /> : ""}
-                      Submit
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </Modal>
   );
 }
