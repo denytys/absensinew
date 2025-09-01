@@ -175,8 +175,7 @@ export default function RekapLaporan() {
         link.href = url;
         link.setAttribute(
           "download",
-          `ePresensi ${
-            valueSelect.bulan + valueSelect.tahun + "_" + Date.now()
+          `ePresensi ${valueSelect.bulan + valueSelect.tahun + "_" + Date.now()
           }.${data == "pdf" ? "pdf" : "xlsx"}`
         );
         document.body.appendChild(link);
@@ -231,8 +230,8 @@ export default function RekapLaporan() {
       <div className="border-b border-gray-200 dark:border-gray-700 mb-2 max-w-4xl mx-auto">
         <h2 className="text-lg font-bold">Rekap Laporan</h2>
         {cekRoles("admin") ||
-        cekRoles("adm-peg") ||
-        (cekRoles("adm-tu") && user?.upt_id != "1000") ? (
+          cekRoles("adm-peg") ||
+          (cekRoles("adm-tu") && user?.upt_id != "1000") ? (
           <div className="mb-2">
             <label className="block font-medium mb-1 text-left">Bagian</label>
             <Select
@@ -287,10 +286,10 @@ export default function RekapLaporan() {
               className="w-full text-left"
               placeholder="Pilih bulan"
               optionFilterProp="label"
-              onChange={(e) =>
-                setValueSelect((values) => ({ ...values, bulan: e })) &
+              onChange={(e) => {
+                setValueSelect((values) => ({ ...values, bulan: e, bulanView: bulan.find(x => x.value == e).label }))
                 setDatatabel(false)
-              }
+              }}
               options={bulan}
             />
             <Select

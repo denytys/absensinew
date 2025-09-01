@@ -89,7 +89,7 @@ export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pega
     const user = decodeCookies("user")
     return (
         <div className="relative overflow-x-auto text-left shadow-md" style={{ display: datatabel ? "block" : "none" }}>
-            <Tooltip title={valueSelect.jenis == "uangmakan" ? "*Keterangan: 1 = Dihitung, 0 = Tidak Dihitung" : "*Keterangan: V = Tepat Waktu, TL = Terlambat Masuk, TL_F = Terlambat Masuk (FWA), PSW = Pulang Sebelum Waktunya,PSW_F = Pulang Sebelum Waktunya (FWA), TAM: Tidak Absen Masuk, TAP: Tidak Absen Pulang"}>
+            <Tooltip title={valueSelect?.jenis == "uangmakan" ? "*Keterangan: 1 = Dihitung, 0 = Tidak Dihitung" : "*Keterangan: V = Tepat Waktu, TL = Terlambat Masuk, TL_F = Terlambat Masuk (FWA), PSW = Pulang Sebelum Waktunya,PSW_F = Pulang Sebelum Waktunya (FWA), TAM: Tidak Absen Masuk, TAP: Tidak Absen Pulang"}>
                 <>
                 <span>*Keterangan</span>
                 </>
@@ -103,8 +103,8 @@ export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pega
                         <th scope="col" rowSpan={2} className="py-4 px-2 border-1">
                             Nama
                         </th>
-                        <th scope="col" colSpan={tanggalan?.length + (valueSelect.jenis == "uangmakan" ? 1 : 0)} className="py-2 px-2 border-1">
-                            {valueSelect.bulanView + " " + valueSelect.tahun}
+                        <th scope="col" colSpan={tanggalan?.length + (valueSelect?.jenis == "uangmakan" ? 1 : 0)} className="py-2 px-2 border-1">
+                            {valueSelect?.bulanView + " " + valueSelect?.tahun}
                         </th>
                     </tr>
                     <tr>
@@ -113,7 +113,7 @@ export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pega
                                 {item}
                             </th>
                         )) : ""}
-                        {valueSelect.jenis == "uangmakan" ?
+                        {valueSelect?.jenis == "uangmakan" ?
                             <th className="py-2 px-2 border-1">Total</th>
                             : ""}
                     </tr>
@@ -125,17 +125,17 @@ export default function LaporanSummary({ datatabel, valueSelect, tanggalan, pega
                                 <td className='border-1'>{index + 1}</td>
                                 <td className={'text-left px-1 py-1 font-medium border-1 text-gray-900 whitespace-nowrap' + (cekGanjil(index) ? " bg-gray-100" : "")}>{(pegawaiSelect?.length > 0 ? pegawaiSelect?.find(e => e.nip == tab[0])?.label : user?.nama)?.toUpperCase()}</td>
                                 {tanggalan ? tanggalan?.map(item => (
-                                    (valueSelect.jenis == "summary" ?
-                                        <td key={item} className={"px-1 text-center py-1 border-1 whitespace-nowrap " + (!(new Date(valueSelect.tahun + "-" + valueSelect.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? " bg-gray-300" : uiLap(tab[1][item])?.css)}>
-                                            {tab[1][item] ? uiLap(tab[1][item])?.text : (!(new Date(valueSelect.tahun + "-" + valueSelect.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? "" : "TA")}
+                                    (valueSelect?.jenis == "summary" ?
+                                        <td key={item} className={"px-1 text-center py-1 border-1 whitespace-nowrap " + (!(new Date(valueSelect?.tahun + "-" + valueSelect?.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? " bg-gray-300" : uiLap(tab[1][item])?.css)}>
+                                            {tab[1][item] ? uiLap(tab[1][item])?.text : (!(new Date(valueSelect?.tahun + "-" + valueSelect?.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? "" : "TA")}
                                         </td>
                                         :
-                                        <td key={item} className={"px-1 text-center py-1 border-1 whitespace-nowrap " + (!(new Date(valueSelect.tahun + "-" + valueSelect.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? " bg-gray-300" : uiLap(tab[1][item])?.css)}>
-                                            {tab[1][item] ? (tab[1][item] == tab[1][item].toLowerCase() ? 1 : 0) : (!(new Date(valueSelect.tahun + "-" + valueSelect.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? "" : 0)}
+                                        <td key={item} className={"px-1 text-center py-1 border-1 whitespace-nowrap " + (!(new Date(valueSelect?.tahun + "-" + valueSelect?.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? " bg-gray-300" : uiLap(tab[1][item])?.css)}>
+                                            {tab[1][item] ? (tab[1][item] == tab[1][item].toLowerCase() ? 1 : 0) : (!(new Date(valueSelect?.tahun + "-" + valueSelect?.bulan + "-" + ("0" + item).substring(-2)).getDay() % 6) ? "" : 0)}
                                         </td>
                                     )
                                 )) : ""}
-                                {valueSelect.jenis == "uangmakan" ?
+                                {valueSelect?.jenis == "uangmakan" ?
                                     <td className='text-center px-1 py-1 font-medium border-1 text-gray-900 whitespace-nowrap'>{Object.entries(tab[1]).filter(([_k, v]) => v === v.toLowerCase()).length}</td>
                                 : ""}
                             </tr>
