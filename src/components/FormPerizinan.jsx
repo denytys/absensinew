@@ -22,6 +22,8 @@ import axios from "axios";
 import { decodeCookies } from "../helper/parsingCookies";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
+import { protectPostPut } from "../helper/axiosHelper";
+import Swal from "sweetalert2";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -39,23 +41,24 @@ function dataURLtoFile(dataurl, filename) {
 export default function FormPerizinan() {
   const user = decodeCookies("user");
   const [form] = Form.useForm();
-  const [jenis, setJenis] = useState("1");
-  const [nomor, setNomor] = useState("");
-  const [tanggalAwal, setTanggalAwal] = useState(null);
-  const [tanggalAkhir, setTanggalAkhir] = useState(null);
-  const [perihal, setPerihal] = useState("");
-  const [lampiran, setLampiran] = useState(null);
-  const [imageData, setImageData] = useState(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [perizinanList, setPerizinanList] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchText, setSearchText] = useState("");
-  const [filterTanggal, setFilterTanggal] = useState(null);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [messageApi, contextHolder] = message.useMessage();
-  const [modal, contextHolderModal] = Modal.useModal(); // untuk notifikasi sukses
+  let [jenis, setJenis] = useState("1");
+  let [nomor, setNomor] = useState("");
+  let [tanggalAwal, setTanggalAwal] = useState(null);
+  let [tanggalAkhir, setTanggalAkhir] = useState(null);
+  let [perihal, setPerihal] = useState("asdjaskjdahkjshd");
+  let [lampiran, setLampiran] = useState(null);
+  let [idFrom, setIdFrom] = useState("");
+  let [imageData, setImageData] = useState(null);
+  let [isCameraActive, setIsCameraActive] = useState(false);
+  let [isLoading, setIsLoading] = useState(false);
+  let [perizinanList, setPerizinanList] = useState([]);
+  let [currentPage, setCurrentPage] = useState(1);
+  let [searchText, setSearchText] = useState("");
+  let [filterTanggal, setFilterTanggal] = useState(null);
+  let [openDeleteModal, setOpenDeleteModal] = useState(false);
+  let [selectedId, setSelectedId] = useState(null);
+  let [messageApi, contextHolder] = message.useMessage();
+  let [modal, contextHolderModal] = Modal.useModal(); // untuk notifikasi sukses
 
   const itemsPerPage = 5;
 
@@ -121,6 +124,7 @@ export default function FormPerizinan() {
     const payload = {
       nomor,
       perihal,
+      id: idFrom,
       jenis_izin: jenis,
       tgl_mulai: tanggalAwal,
       tgl_selesai: tanggalAkhir,
@@ -136,10 +140,11 @@ export default function FormPerizinan() {
     });
 
     if (lampiran) {
-      const fileToUpload =
-        typeof lampiran === "string"
-          ? dataURLtoFile(lampiran, "lampiran.png")
-          : lampiran;
+      const fileToUpload = (lampiran == "yanglama" ? lampiran :
+      (typeof lampiran === "string"
+        ? dataURLtoFile(lampiran, "lampiran.png")
+        : lampiran)
+      )
 
       formData.append("lampiran", fileToUpload);
     } else if (values.lampiran_lama) {
@@ -206,6 +211,48 @@ export default function FormPerizinan() {
     setSelectedId(id);
     setOpenDeleteModal(true);
   };
+
+  const cekNomorDL = () => {
+    const payload = {
+      nomor: nomor
+    }
+    protectPostPut('post', '/perizinan/getByNomor', payload)
+    .then((response) => {
+      // console.log("response izin", response)
+      const izin = response.data.data
+      // console.log("izin", izin)
+      setPerihal(izin.perihal)
+      setIdFrom(izin.id)
+      setLampiran("yanglama")
+      setTanggalAwal(izin.tgl_mulai)
+      setTanggalAkhir(izin.tgl_selesai)
+    })
+    .catch((error) => {
+      // console.log("error izin", error)
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      if (error?.response?.status == 404) {
+        Toast.fire({
+          icon: "success",
+          title: "Surat nomor " + nomor + " belum pernah diupload"
+        });
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "Terjadi kesalahan saat cek nomor"
+        });
+      }
+    })
+  }
 
   useEffect(() => {
     fetchPerizinan();
@@ -341,6 +388,7 @@ export default function FormPerizinan() {
               value={nomor}
               onChange={(e) => setNomor(e.target.value)}
               placeholder="Masukkan nomor surat"
+              onBlur={() => cekNomorDL()}
             />
           </Form.Item>
 
@@ -367,7 +415,7 @@ export default function FormPerizinan() {
 
           <Form.Item
             label="Perihal"
-            name="perihal"
+            // name="perihal"
             // rules={[{ required: true }]}
           >
             <TextArea
@@ -517,7 +565,7 @@ export default function FormPerizinan() {
                     {(currentPage - 1) * itemsPerPage + i + 1}
                   </td>
                   <td className="p-1 text-start">{p.nomor}</td>
-                  <td className="p-1 text-center">{p.jenis_izin}</td>
+                  <td className="p-1 text-center">{p.jenis_izin_desc}</td>
                   <td className="p-1 text-center">
                     {new Date(p.tgl_mulai).toLocaleDateString("id-ID")}-{" "}
                     {new Date(p.tgl_selesai).toLocaleDateString("id-ID")}
