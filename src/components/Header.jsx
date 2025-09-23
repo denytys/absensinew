@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DigitalClock from "./DigitalClock";
 import { removeSession } from "../helper/funcLogout";
 import Swal from "sweetalert2";
+import cekRoles from "../helper/cekRoles";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -93,7 +94,9 @@ export default function Header() {
           >
             Home
           </button>
-          {/* <button
+          {cekRoles("admin") ||
+            (cekRoles("adm-peg") && user?.upt_id == "1000")}
+          <button
             onClick={() => {
               navigate("/admins");
               setDropdownOpen(false);
@@ -101,7 +104,7 @@ export default function Header() {
             className="w-full text-left px-4 py-2 hover:bg-blue-300/20 transition"
           >
             Admin Presensi
-          </button> */}
+          </button>
           <button
             onClick={() => {
               navigate("/reset-password");

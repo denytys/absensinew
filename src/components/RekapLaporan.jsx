@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { getDaysInMonth } from "../helper/formHelper";
 import LaporanSummary from "./LaporanSummary";
 import LaporanDetail from "./LaporanDetail";
+import ListUPT from "../assets/uptNewGrouping.json";
 
 const bulan = [
   { value: "01", label: "Januari" },
@@ -64,13 +65,30 @@ export default function RekapLaporan() {
     tahun: d.getFullYear(),
   });
 
-  const getPegawai = useCallback(async (bag) => {
+  const listUPT = () => {
+    let datauptjson = ListUPT
+    if (user?.upt_id?.slice(0, 2) != '10') {
+      datauptjson = datauptjson.filter(item => item.kode_upt == user?.upt_id?.slice(0, 2))
+    }
+    const dataUpt = datauptjson.map(item => {
+      return {
+        value: item.id?.toString(),
+        label: item.nama?.replace("Balai Karantina Hewan, Ikan, dan Tumbuhan", "BKHIT")?.replace("Balai Besar Karantina Hewan, Ikan, dan Tumbuhan", "BBKHIT")
+      }
+    })
+    // if (user?.upt_id?.slice(0, 2) == '10') {
+      //   dataUpt.unshift({ value: "", label: "-Semua UPT-" })
+    // }
+    return dataUpt
+  }
+
+  const getPegawai = useCallback(async (bag, upt) => {
     Swal.fire("Loading pegawai..");
     Swal.showLoading();
     setLoading(true);
     try {
       const cari = {
-        upt: cekRoles("admin") ? "all" : user?.upt_id,
+        upt: cekRoles("admin") ? "all" : (upt ? upt : user?.upt_id),
         bagian:
           cekRoles("admin") || cekRoles("adm-peg")
             ? bag
@@ -101,12 +119,12 @@ export default function RekapLaporan() {
       setLoading(false);
     }
   }, []);
-  const getBagian = useCallback(async () => {
+  const getBagian = useCallback(async (e) => {
     Swal.fire("Loading bagian..");
     Swal.showLoading();
     try {
       const bagian = await protectGet(
-        "/bagian/getBy?jenis=" + (user?.upt_id == "1000" ? "1000" : "upt")
+        "/bagian/getBy?jenis=" + (e ? (e == "1000" ? "1000" : "upt") : (user?.upt_id == "1000" ? "1000" : "upt"))
       );
       if (import.meta.env.MODE == "development") {
         console.log(bagian);
@@ -229,6 +247,33 @@ export default function RekapLaporan() {
     <div className="mb-24">
       <div className="border-b border-gray-200 dark:border-gray-700 mb-2 max-w-4xl mx-auto">
         <h2 className="text-lg font-bold">Rekap Laporan</h2>
+
+        {cekRoles("admin") ||
+          (cekRoles("adm-peg") && user?.upt_id == "1000") ?
+          <div className="mb-2">
+            <label className="block font-medium mb-1 text-left">UPT</label>
+            <Select
+              showSearch
+              allowClear
+              value={valueSelect.upt}
+              className="w-full text-left"
+              placeholder="Bagian..."
+              optionFilterProp="label"
+              onChange={(e) => {
+                setValueSelect((values) => ({
+                  ...values,
+                  upt: e,
+                  bagian: "all",
+                  pegawai: "all",
+                }));
+                getBagian(e);
+                getPegawai("all", e)
+                setDatatabel(false)
+              }}
+              options={listUPT()}
+            />
+          </div>
+          : ""}
         {cekRoles("admin") ||
           cekRoles("adm-peg") ||
           (cekRoles("adm-tu") && user?.upt_id != "1000") ? (
@@ -247,7 +292,8 @@ export default function RekapLaporan() {
                   bagian: e ? e : "all",
                   pegawai: "all",
                 }));
-                getPegawai(e);
+                getPegawai(e, valueSelect.upt);
+                setDatatabel(false)
               }}
               options={bagianSelect}
             />
@@ -269,7 +315,7 @@ export default function RekapLaporan() {
                 setValueSelect((values) => ({
                   ...values,
                   pegawai: e ? e : "all",
-                }))
+                })) & setDatatabel(false)
               }
               options={pegawaiSelect}
             />

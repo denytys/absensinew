@@ -45,7 +45,7 @@ export default function FormPerizinan() {
   let [nomor, setNomor] = useState("");
   let [tanggalAwal, setTanggalAwal] = useState(null);
   let [tanggalAkhir, setTanggalAkhir] = useState(null);
-  let [perihal, setPerihal] = useState("asdjaskjdahkjshd");
+  let [perihal, setPerihal] = useState("");
   let [lampiran, setLampiran] = useState(null);
   let [idFrom, setIdFrom] = useState("");
   let [imageData, setImageData] = useState(null);
@@ -56,6 +56,7 @@ export default function FormPerizinan() {
   let [searchText, setSearchText] = useState("");
   let [filterTanggal, setFilterTanggal] = useState(null);
   let [openDeleteModal, setOpenDeleteModal] = useState(false);
+  let [linkUploadExist, setLinkUploadExist] = useState("");
   let [selectedId, setSelectedId] = useState(null);
   let [messageApi, contextHolder] = message.useMessage();
   let [modal, contextHolderModal] = Modal.useModal(); // untuk notifikasi sukses
@@ -124,7 +125,6 @@ export default function FormPerizinan() {
     const payload = {
       nomor,
       perihal,
-      id: idFrom,
       jenis_izin: jenis,
       tgl_mulai: tanggalAwal,
       tgl_selesai: tanggalAkhir,
@@ -133,6 +133,9 @@ export default function FormPerizinan() {
       user_input: user.id_user,
       nip: user.nip,
     };
+    if (idFrom) {
+      payload['id'] = idFrom
+    }
 
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) => {
@@ -141,9 +144,9 @@ export default function FormPerizinan() {
 
     if (lampiran) {
       const fileToUpload = (lampiran == "yanglama" ? lampiran :
-      (typeof lampiran === "string"
-        ? dataURLtoFile(lampiran, "lampiran.png")
-        : lampiran)
+        (typeof lampiran === "string"
+          ? dataURLtoFile(lampiran, "lampiran.png")
+          : lampiran)
       )
 
       formData.append("lampiran", fileToUpload);
@@ -173,6 +176,7 @@ export default function FormPerizinan() {
         setTanggalAkhir(null);
         setLampiran(null);
         setImageData(null);
+        setIdFrom("")
         fetchPerizinan();
       } else {
         message.error("Gagal menyimpan perizinan.");
@@ -217,41 +221,42 @@ export default function FormPerizinan() {
       nomor: nomor
     }
     protectPostPut('post', '/perizinan/getByNomor', payload)
-    .then((response) => {
-      // console.log("response izin", response)
-      const izin = response.data.data
-      // console.log("izin", izin)
-      setPerihal(izin.perihal)
-      setIdFrom(izin.id)
-      setLampiran("yanglama")
-      setTanggalAwal(izin.tgl_mulai)
-      setTanggalAkhir(izin.tgl_selesai)
-    })
-    .catch((error) => {
-      // console.log("error izin", error)
-      const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.onmouseenter = Swal.stopTimer;
-          toast.onmouseleave = Swal.resumeTimer;
+      .then((response) => {
+        // console.log("response izin", response)
+        const izin = response.data.data
+        // console.log("izin", izin)
+        setPerihal(izin.perihal)
+        setIdFrom(izin.id)
+        setLampiran("yanglama")
+        setLinkUploadExist(`${import.meta.env.VITE_ABSEN_BE}/uploads/${izin.lampiran}`)
+        setTanggalAwal(izin.tgl_mulai)
+        setTanggalAkhir(izin.tgl_selesai)
+      })
+      .catch((error) => {
+        // console.log("error izin", error)
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
+        if (error?.response?.status == 404) {
+          Toast.fire({
+            icon: "success",
+            title: "Surat nomor " + nomor + " belum pernah diupload"
+          });
+        } else {
+          Toast.fire({
+            icon: "error",
+            title: "Terjadi kesalahan saat cek nomor"
+          });
         }
-      });
-      if (error?.response?.status == 404) {
-        Toast.fire({
-          icon: "success",
-          title: "Surat nomor " + nomor + " belum pernah diupload"
-        });
-      } else {
-        Toast.fire({
-          icon: "error",
-          title: "Terjadi kesalahan saat cek nomor"
-        });
-      }
-    })
+      })
   }
 
   useEffect(() => {
@@ -372,7 +377,7 @@ export default function FormPerizinan() {
           <Form.Item
             label="Jenis Izin"
             name="jenis"
-            // rules={[{ required: true }]}
+          // rules={[{ required: true }]}
           >
             <Select value={jenis} onChange={(value) => setJenis(value)}>
               {MASTER_IZIN.map((izin) => (
@@ -415,8 +420,8 @@ export default function FormPerizinan() {
 
           <Form.Item
             label="Perihal"
-            // name="perihal"
-            // rules={[{ required: true }]}
+          // name="perihal"
+          // rules={[{ required: true }]}
           >
             <TextArea
               value={perihal}
@@ -430,50 +435,52 @@ export default function FormPerizinan() {
             <Input value={user.nama} disabled />
           </div>
 
-          <Form.Item label="Lampiran">
-            <div className="flex gap-2 mb-2">
-              <Upload
-                accept="image/*,application/pdf"
-                listType="picture-card"
-                beforeUpload={(file) => {
-                  setLampiran(file);
+          <Form.Item label={lampiran == "yanglama" ? "" : "Lampiran"}>
+            {lampiran == "yanglama" ? "" :
+              <div className="flex gap-2 mb-2">
+                <Upload
+                  accept="image/*,application/pdf"
+                  listType="picture-card"
+                  beforeUpload={(file) => {
+                    setLampiran(file);
 
-                  if (file.type.startsWith("image/")) {
-                    const reader = new FileReader();
-                    reader.onload = () => setImageData(reader.result);
-                    reader.readAsDataURL(file);
-                  } else {
-                    setImageData(null);
-                  }
+                    if (file.type.startsWith("image/")) {
+                      const reader = new FileReader();
+                      reader.onload = () => setImageData(reader.result);
+                      reader.readAsDataURL(file);
+                    } else {
+                      setImageData(null);
+                    }
 
-                  return false;
-                }}
-                showUploadList={false}
-              >
-                <div
-                  className="flex flex-col items-center justify-center rounded-md bg-white hover:text-blue-500"
+                    return false;
+                  }}
+                  showUploadList={false}
+                >
+                  <div
+                    className="flex flex-col items-center justify-center rounded-md bg-white hover:text-blue-500"
+                    style={{
+                      width: 100,
+                      height: 100,
+                    }}
+                  >
+                    <UploadOutlined />
+                    <div style={{ marginTop: 8 }}>Upload</div>
+                  </div>
+                </Upload>
+
+                <Button
+                  icon={<CameraOutlined />}
+                  onClick={startCamera}
+                  className="flex flex-col items-center justify-center border border-gray-300 rounded-md"
                   style={{
                     width: 100,
-                    height: 100,
+                    height: 102,
                   }}
                 >
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Upload</div>
-                </div>
-              </Upload>
-
-              <Button
-                icon={<CameraOutlined />}
-                onClick={startCamera}
-                className="flex flex-col items-center justify-center border border-gray-300 rounded-md"
-                style={{
-                  width: 100,
-                  height: 102,
-                }}
-              >
-                Kamera
-              </Button>
-            </div>
+                  Kamera
+                </Button>
+              </div>
+            }
 
             {isCameraActive && (
               <div className="mb-4">
@@ -501,6 +508,7 @@ export default function FormPerizinan() {
                 ) : (
                   <div className="text-sm mt-2">{lampiran.name}</div>
                 )}
+                {linkUploadExist ? <a href={linkUploadExist} target="_blank">[View]</a> : ""}
               </div>
             )}
 
@@ -574,9 +582,8 @@ export default function FormPerizinan() {
                   <td className="p-1 text-center">
                     {p.lampiran ? (
                       <a
-                        href={`${import.meta.env.VITE_ABSEN_BE}/uploads/${
-                          p.lampiran
-                        }`}
+                        href={`${import.meta.env.VITE_ABSEN_BE}/uploads/${p.lampiran
+                          }`}
                         target="_blank"
                         rel="noreferrer"
                         className="text-blue-500 underline"
@@ -620,11 +627,10 @@ export default function FormPerizinan() {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 rounded-full shadow-sm text-xs ${
-                    currentPage === page
+                  className={`px-3 py-2 rounded-full shadow-sm text-xs ${currentPage === page
                       ? "bg-gray-500 text-white"
                       : "bg-white hover:bg-gray-300 text-gray-500 hover:text-black"
-                  }`}
+                    }`}
                 >
                   {page}
                 </button>

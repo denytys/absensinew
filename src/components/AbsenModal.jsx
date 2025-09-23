@@ -111,7 +111,7 @@ export default function AbsenModal({
                 id="wfo"
                 name="jenisWf"
                 checked={jenisWf == "wfo" ? true : false}
-              disabled={history && jenisAbsen == 'pulang' ? (history.lokasi_kantor_id == "111000" || history.lokasi_kantor_id == "111100" ? false : true) : false}
+              disabled={history && jenisAbsen == 'pulang' ? true : false}
                 type="radio"
                 className="relative size-4"
               />
@@ -129,7 +129,7 @@ export default function AbsenModal({
                 id="wfa"
                 name="jenisWf"
                 checked={jenisWf == "wfa" ? true : false}
-              disabled={history && jenisAbsen == 'pulang' ? (history.lokasi_kantor_id == "111000" || history.lokasi_kantor_id == "111100" ? false : true) : false}
+              disabled={history && jenisAbsen == 'pulang' ? true : false}
                 type="radio"
                 className="relative size-4"
               />

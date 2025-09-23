@@ -15,6 +15,9 @@ import Maintenance from "./Maintenance";
 import LayoutAdmin from "./layout/LayoutAdmin";
 import AdminHome from "./components/admin/AdminHome";
 import AdminPegawai from "./components/admin/AdminPegawai";
+import ShiftPegawai from "./components/admin/ShiftPegawai";
+import MasterShift from "./components/admin/MasterShift";
+import MasterLokasiKantor from "./components/admin/MasterLokasiKantor";
 
 export const router = createBrowserRouter([
   {
@@ -48,21 +51,25 @@ export const router = createBrowserRouter([
         errorElement: <ErrorPage />,
       },
       {
-        path: "/admins",
-        element: <LayoutAdmin />,
-        errorElement: <ErrorPage />,
-      },
-      {
         path: "/maintenance",
         element: <Maintenance />,
         errorElement: <ErrorPage />,
-        children: [
-          { index: true, element: <AdminHome />, errorElement: <ErrorPage /> },
-          { path: "home", element: <AdminHome />, errorElement: <ErrorPage /> },
-          { path: "pegawai", element: <AdminPegawai />, errorElement: <ErrorPage /> },
-        ]
       },
     ],
+  },
+  {
+    path: "/admins",
+    element: <LayoutAdmin />,
+    loader: protectedLoader,
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: <AdminHome />, errorElement: <ErrorPage /> },
+      { path: "home", element: <AdminHome />, errorElement: <ErrorPage /> },
+      { path: "pegawai", element: <AdminPegawai />, errorElement: <ErrorPage /> },
+      { path: "shiftpeg", element: <ShiftPegawai />, errorElement: <ErrorPage /> },
+      { path: "mshift", element: <MasterShift />, errorElement: <ErrorPage /> },
+      { path: "mlokasi", element: <MasterLokasiKantor />, errorElement: <ErrorPage /> },
+    ]
   },
   {
     path: "*",
