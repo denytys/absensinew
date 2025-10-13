@@ -52,15 +52,15 @@ export default function AdminPegawai() {
       width: 40,
       cellStyle: { textAlign: "center" },
     },
-    { field: 'unit_kerja', headerName: "UNIT KERJA", cellStyle: { "white-space": "normal" }, },
-    { field: 'nama', headerName: "NAMA", cellStyle: { "white-space": "normal" }, },
+    { field: 'unit_kerja', headerName: "UNIT KERJA", cellStyle: { whiteSpace: "normal" }, },
+    { field: 'nama', headerName: "NAMA", cellStyle: { whiteSpace: "normal" }, },
     {
       field: 'nip', headerName: "NIP", width: 150, cellRenderer: params => {
         return params.data.nip == 0 ? params.data.nik : params.data.nip
       }
     },
     { field: 'username', headerName: "Username", width: 120 },
-    { field: 'role_peg', headerName: "Role", width: 120, cellStyle: { "white-space": "normal" }, },
+    { field: 'role_peg', headerName: "Role", width: 120, cellStyle: { whiteSpace: "normal" }, },
     {
       field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
         return <Flex gap="small" >

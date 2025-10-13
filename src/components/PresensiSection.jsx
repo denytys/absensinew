@@ -1,4 +1,5 @@
 import { LoginOutlined, LogoutOutlined } from "@ant-design/icons";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function PresensiSection({
   history,
@@ -6,6 +7,7 @@ export default function PresensiSection({
   // sudahMasuk,
   // sudahPulang,
 }) {
+  const waktu = decodeCookies('waktu')
   return (
     // <div className="bg-white/45 rounded-xl p-3 mb-2">
     <div className="flex gap-4">
@@ -30,9 +32,14 @@ export default function PresensiSection({
         >
           {history?.presensi_masuk ? "Sudah absen" : "Belum absen"}
         </p>
-        <p className="mb-4 text-sm">
+        <p className={waktu[0]['hari_pulang'] == 'hari_berikutnya' ? "text-sm" : "mb-4 text-sm"}>
           {history?.presensi_masuk ? history?.presensi_masuk : "-"}
         </p>
+        {waktu[0]['hari_pulang'] == 'hari_berikutnya' ?
+          <p className="mb-4 text-sm">
+            {history?.tanggal_real_masuk ? `(${history?.tanggal_real_masuk})` : ""}
+          </p>
+          : ''}
       </div>
       <div className="bg-white/45 rounded-xl w-72 h-28 md:h-auto">
         {/* <a>
@@ -45,7 +52,7 @@ export default function PresensiSection({
         <button
           className="mt-4 md:mt-10 mb-2 md:mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           onClick={() => handlePresensi("pulang")}
-          //   disabled={!sudahMasuk || sudahPulang}
+        //   disabled={!sudahMasuk || sudahPulang}
         >
           <span className="inline-flex items-center">
             <LogoutOutlined className="mr-2" />
@@ -59,9 +66,14 @@ export default function PresensiSection({
         >
           {history?.presensi_pulang ? "Sudah absen" : "Belum absen"}
         </p>
-        <p className="mb-4 text-sm">
+        <p className={waktu[0]['hari_pulang'] == 'hari_berikutnya' ? "text-sm" : "mb-4 text-sm"}>
           {history?.presensi_pulang ? history?.presensi_pulang : "-"}
         </p>
+        {waktu[0]['hari_pulang'] == 'hari_berikutnya' ?
+          <p className="mb-4 text-sm">
+            {history?.tanggal_real_pulang ? `${history?.tanggal_real_pulang}` : ""}
+          </p>
+          : ''}
       </div>
     </div>
   );

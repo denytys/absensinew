@@ -49,7 +49,7 @@ export default function RekapLaporan() {
       label: "Detail",
     },
   ]);
-  const [tanggalan, setTanggalan] = useState(
+  let [tanggalan, setTanggalan] = useState(
     getDaysInMonth(d.getMonth(), d.getFullYear())
   );
   let [datatabel, setDatatabel] = useState(false);
@@ -170,6 +170,11 @@ export default function RekapLaporan() {
         endpoint = "/laporan/rekap";
     }
     try {
+      const tgl = getDaysInMonth(
+        parseInt(valueSelect.bulan) - 1,
+        valueSelect.tahun
+      );
+      setTanggalan(tgl);
       const response = await protectPostPut(
         "post",
         endpoint,
@@ -205,11 +210,6 @@ export default function RekapLaporan() {
       if (import.meta.env.MODE === "development") {
         console.log("tbl", JSON.stringify(response));
       }
-      const tgl = getDaysInMonth(
-        parseInt(valueSelect.bulan),
-        valueSelect.tahun
-      );
-      setTanggalan(tgl);
     } catch (error) {
       setDatatabel([]);
       if (import.meta.env.MODE === "development") {

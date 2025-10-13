@@ -191,9 +191,9 @@ export default function Home() {
   const getHistory = useCallback(async () => {
     const user = decodeCookies("user");
     const waktuabsen = decodeCookies("waktu");
-    const shiftId = waktuabsen?.map((item) => {
-      return item.id_setting_waktu_presensi;
-    });
+    // const shiftId = waktuabsen?.map((item) => {
+    //   return item.id_setting_waktu_presensi;
+    // });
     try {
       let datenow = new Date()
       const [month, day, year] = datenow.toLocaleDateString('en-US').split('/');
@@ -204,7 +204,7 @@ export default function Home() {
         id_user: user?.id_user,
         tanggal: formattedDate,
         shifting: user?.shifting,
-        shift_id: shiftId,
+        shift_id: waktuabsen,
       };
       const response = await protectPostPut("post", "/presensi/history", data);
       setHistory(response?.data?.data);

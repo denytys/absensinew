@@ -52,10 +52,10 @@ export default function MasterLokasiKantor() {
             width: 40,
             cellStyle: { textAlign: "center" },
         },
-        { field: 'nama_lokasi', headerName: "Nama Lokasi", cellStyle: { "white-space": "normal" }, },
-        { field: 'alamat', headerName: "Alamat", width: 420, cellStyle: { "white-space": "normal" }, },
+        { field: 'nama_lokasi', headerName: "Nama Lokasi", cellStyle: { whiteSpace: "normal" }, },
+        { field: 'alamat', headerName: "Alamat", width: 420, cellStyle: { whiteSpace: "normal" }, },
         {
-            field: 'batas_waktu_masuk', headerName: "Titik Lokasi", cellStyle: { "white-space": "normal" }, cellRenderer: params => {
+            field: 'batas_waktu_masuk', headerName: "Titik Lokasi", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
                 return <a href={"https://www.google.com/maps/search/?api=1&query=" + params.data.lat + "," + params.data.long} target='_blank'>{params.data.lat + ", " + params.data.long}</a>
             }
         },
@@ -98,7 +98,7 @@ export default function MasterLokasiKantor() {
                     <label className="block font-medium mb-1 text-left">UPT</label>
                     <Select
                         showSearch
-                        allowClear
+                        // allowClear
                         value={upt}
                         className="w-1/2 text-left"
                         placeholder="Bagian..."

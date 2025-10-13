@@ -25,7 +25,7 @@ function getItem({ key, title = '', label, icon = '', visible = "block", disable
 const items = [
     getItem({ key: "1", label: <Link to="/admins">Home admin</Link>, icon: <PieChartOutlined /> }),
     getItem({
-        key: "sub1", label: 'Master', icon: <UserOutlined />, children: [
+        key: "sub1", label: 'Data Master', icon: <UserOutlined />, children: [
             getItem({ key: "3", label: <Link to="/admins/pegawai">Master Pegawai</Link>, icon: <UsergroupAddOutlined /> }),
             getItem({ key: "4", label: <Link to="/admins/mshift">Master shift</Link>, icon: <FieldTimeOutlined /> }),
             getItem({ key: "5", label: <Link to="/admins/mlokasi">Lokasi Kantor</Link>, icon: <EnvironmentOutlined /> }),

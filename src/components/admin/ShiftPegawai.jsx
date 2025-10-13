@@ -3,15 +3,19 @@ import { AllCommunityModule, ModuleRegistry, provideGlobalGridOptions, themeBalh
 import React, { useState } from 'react'
 import Title from 'antd/es/typography/Title';
 import cekRoles from '../../helper/cekRoles';
-import { Button, Flex, Select } from 'antd';
+import { Button, DatePicker, Flex, Select } from 'antd';
 import { decodeCookies } from '../../helper/parsingCookies';
 import ListUPT from "../../assets/uptNewGrouping.json";
-import { protectGet } from '../../helper/axiosHelper';
+import { protectDelete, protectGet } from '../../helper/axiosHelper';
 import Swal from 'sweetalert2';
+import dayjs from 'dayjs';
 import {
     EditOutlined,
-    DeleteOutlined
+    DeleteOutlined,
+    UploadOutlined,
+    PlusOutlined
 } from '@ant-design/icons';
+import FormUploadShift from './FormUploadShift';
 
 const pagination = true;
 const paginationPageSize = 20;
@@ -25,10 +29,14 @@ provideGlobalGridOptions({
 export default function ShiftPegawai() {
     const myTheme = themeBalham.withParams({ accentColor: 'blue' });
     const user = decodeCookies("user")
+    let [openModal, setOpenModal] = useState(false);
+    let [valueSelected, setValueSelected] = useState("");
     let [filterText, setFilterText] = useState("");
+    let [flag, setFlag] = useState("");
     let [datatabel, setDatatabel] = useState([]);
     let [loading, setLoading] = useState(false);
     let [upt, setUpt] = useState(user?.upt_id);
+    let [periode, setPeriode] = useState(dayjs().format('YYYY-MM'));
     const listUPT = () => {
         let datauptjson = ListUPT
         if (user?.upt_id?.slice(0, 2) != '10') {
@@ -45,43 +53,13 @@ export default function ShiftPegawai() {
         // }
         return dataUpt
     }
-    const [colDefs, setColDefs] = useState([
-        {
-            headerName: "No",
-            valueGetter: (params) => params.node.rowIndex + 1,
-            width: 40,
-            cellStyle: { textAlign: "center" },
-        },
-        { field: 'nama', headerName: "Petugas", cellStyle: { "white-space": "normal" }, },
-        { field: 'tanggal', headerName: "Tanggal", width: 100, cellStyle: { "white-space": "normal" }, },
-        { field: 'nama_shift', headerName: "Shift", width: 100, cellStyle: { "white-space": "normal" }, },
-        {
-            field: 'batas_waktu_masuk', headerName: "Batas waktu masuk", cellStyle: { "white-space": "normal" }, cellRenderer: params => {
-                return params.data.batas_waktu_masuk + " (" + params.data.waktu_masuk_awal + " sd " + params.data.waktu_masuk_akhir + " )"
-            }
-        },
-        {
-            field: 'batas_waktu_pulang', headerName: "Batas waktu pulang", cellStyle: { "white-space": "normal" }, cellRenderer: params => {
-                return params.data.batas_waktu_pulang + " (" + params.data.waktu_pulang_awal + " sd " + params.data.waktu_pulang_akhir + " )"
-            }
-        },
-        { field: 'hari_pulang', headerName: "Hari pulang", width: 130, cellStyle: { "white-space": "normal" }, },
-        {
-            field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
-                return <Flex gap="small" >
-                    <Button variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
-                    <Button variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
-                </Flex>
-            }
-        },
-    ]);
-
-    const getShift = async (uptt) => {
+    
+    const getShift = async (uptt, periodee) => {
         Swal.fire("Loading pegawai..");
         Swal.showLoading();
         setLoading(true);
         try {
-            const pegawai = await protectGet("/shiftPegawai/byUpt?upt=" + (typeof uptt === "string" ? uptt : upt));
+            const pegawai = await protectGet("/shiftPegawai/byUpt?upt=" + (typeof uptt === "string" ? uptt : upt) + '&periode=' + (periodee ? periodee : periode));
             if (import.meta.env.MODE == "development") {
                 console.log(pegawai);
             }
@@ -96,28 +74,121 @@ export default function ShiftPegawai() {
             setLoading(false);
         }
     };
+    function deleteShiftPegawai(e) {
+        Swal.fire({
+            icon: "warning",
+            title: "Perhatian!",
+            text: "Jadwal " + e?.nama_shift + " a/n  " + e?.nama + " tanggal " + e.tanggal + " akan dihapus. Anda yakin ?",
+            showDenyButton: true,
+            confirmButtonText: "Yakin",
+            confirmButtonColor: "red",
+            denyButtonColor: "green",
+            denyButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const payload = {
+                    id: e.id
+                }
+                Swal.fire("Menghapus data..")
+                Swal.showLoading()
+                protectDelete("/shiftPegawai", payload)
+                    .then(async (response) => {
+                        if (response.data.status) {
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Sukses!',
+                                text: response?.data?.message ?? 'Data berhasil dihapus.'
+                            })
+                            getShift()
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon: "error",
+                            text: error.response.data?.message ?? 'Data gagal dihapus.'
+                        })
+                    })
+            }
+        })
+    }
+    const [colDefs, setColDefs] = useState([
+        {
+            headerName: "No",
+            valueGetter: (params) => params.node.rowIndex + 1,
+            width: 40,
+            cellStyle: { textAlign: "center" },
+        },
+        { field: 'nama', headerName: "Petugas", cellStyle: { whiteSpace: "normal" }, },
+        { field: 'tanggal', headerName: "Tanggal", width: 100, cellStyle: { whiteSpace: "normal" }, },
+        { field: 'nama_shift', headerName: "Shift", width: 100, cellStyle: { whiteSpace: "normal" }, },
+        {
+            field: 'batas_waktu_masuk', headerName: "Batas waktu masuk", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
+                return params.data.batas_waktu_masuk + " (" + params.data.waktu_masuk_awal + " sd " + params.data.waktu_masuk_akhir + " )"
+            }
+        },
+        {
+            field: 'batas_waktu_pulang', headerName: "Batas waktu pulang", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
+                return params.data.batas_waktu_pulang + " (" + params.data.waktu_pulang_awal + " sd " + params.data.waktu_pulang_akhir + " )"
+            }
+        },
+        { field: 'hari_pulang', headerName: "Hari pulang", width: 130, cellStyle: { whiteSpace: "normal" }, },
+        {
+            field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
+                return <Flex gap="small" >
+                    <Button onClick={() => {
+                        setValueSelected(params.data);
+                        setOpenModal(true);
+                        setFlag('user');
+                    }} variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
+                    <Button onClick={() => deleteShiftPegawai(params.data)} variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
+                </Flex>
+            }
+        },
+    ]);
     return (
         <>
             <Title level={4} style={{ margin: 0, padding: 0, textAlign: "end" }}>Manajemen waktu shift</Title>
-            {cekRoles("admin") ||
-                (cekRoles("adm-peg") && user?.upt_id == "1000") ?
+            <Flex gap={2} style={{
+                display: 'flex',
+                flexWrap: 'wrap'
+            }}>
+                {cekRoles("admin") ||
+                    (cekRoles("adm-peg") && user?.upt_id == "1000") ?
+                    <div className="mb-2">
+                        <label className="block font-medium mb-1 text-left">UPT</label>
+                        <Select
+                            showSearch
+                            allowClear
+                            value={upt}
+                            placeholder="Bagian..."
+                            optionFilterProp="label"
+                            onChange={(e) => {
+                                setUpt(e)
+                                getShift(e, periode)
+                            }}
+                            className="text-left w-auto max-w-full sm:w-[300px]"
+                            popupMatchSelectWidth={false}
+                            popupStyle={{ width: 'auto' }}
+                            options={listUPT()}
+                        />
+                    </div>
+                    : ""}
                 <div className="mb-2">
-                    <label className="block font-medium mb-1 text-left">UPT</label>
-                    <Select
-                        showSearch
-                        allowClear
-                        value={upt}
-                        className="w-1/2 text-left"
-                        placeholder="Bagian..."
-                        optionFilterProp="label"
-                        onChange={(e) => {
-                            setUpt(e)
-                            getShift(e)
+                    <label className="block font-medium mb-1 text-left">Periode</label>
+                    <DatePicker
+                        defaultValue={[dayjs()]}
+                        picker="month"
+                        value={dayjs(periode)}
+                        format="YYYY-MM"
+                        onChange={(dates) => {
+                            setPeriode(dates.format('YYYY-MM'))
+                            getShift(upt, dates.format('YYYY-MM'))
                         }}
-                        options={listUPT()}
                     />
                 </div>
-                : ""}
+            </Flex>
+            <Button onClick={() => setOpenModal(true) & setFlag('user')} color="purple" variant="solid" icon={<PlusOutlined />} className='mb-2 mr-2'>Input jadwal petugas</Button>
+            <Button onClick={() => setOpenModal(true) & setFlag('excel')} color="green" variant="solid" icon={<UploadOutlined />} className='mb-2'>Upload Excel</Button>
             <div
                 className="ag-theme-quartz" // applying the Data Grid theme
                 style={{ height: 400, display: datatabel ? "block" : "none" }} // the Data Grid will fill the size of the parent container
@@ -151,6 +222,14 @@ export default function ShiftPegawai() {
                 // debug
                 />
             </div>
+            <FormUploadShift
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                getShift={getShift}
+                flag={flag}
+                setFlag={setFlag}
+                valueSelected={valueSelected}
+            />
         </>
     )
 }

@@ -1,4 +1,4 @@
-import { Button, Flex, Progress, Row, Select } from 'antd'
+import { Button, Flex, Modal, Progress, Row, Select, Table } from 'antd'
 import React, { useState } from 'react'
 import { protectPostPut } from '../../helper/axiosHelper';
 import { decodeCookies } from '../../helper/parsingCookies';
@@ -33,6 +33,8 @@ export default function PenggunaanPresensi() {
     const d = new Date();
     const user = decodeCookies("user");
     let [dataPenggunaan, setDataPenggunaan] = useState([])
+    let [dataPenggunaanDetil, setDataPenggunaanDetil] = useState([])
+    let [isModalVisible, setIsModalVisible] = useState(false)
     let [valueSelect, setValueSelect] = useState({
         upt: user?.upt_id,
         // bulan: "08",
@@ -75,9 +77,38 @@ export default function PenggunaanPresensi() {
                 Swal.close()
             })
     }
+
+    function getPenggunaanPerPegawai(e) {
+        Swal.fire("Loading..")
+        Swal.showLoading()
+        e['bulan'] = valueSelect.bulan
+        e['tahun'] = valueSelect.tahun
+        if (valueSelect.upt == 'all') {
+            e['bagian_id'] = 'all'
+        }
+        protectPostPut("post", "/dashboard/perUptBagian", e)
+            .then((response) => {
+                setIsModalVisible(true)
+                setDataPenggunaanDetil(response.data.data)
+                if (import.meta.env.MODE === "development") {
+                    console.log("tbl", response);
+                }
+                Swal.close()
+            })
+            .catch((error) => {
+                if (import.meta.env.MODE === "development") {
+                    console.log("err get laporan", error);
+                }
+                setDataPenggunaanDetil([])
+                Swal.close()
+            })
+    }
     return (
         <div>
-            <Flex gap="small">
+            <Flex gap="small" style={{
+                display: 'flex',
+                flexWrap: 'wrap'
+            }}>
                 {cekRoles("admin") ||
                     (cekRoles("adm-peg") && user?.upt_id == "1000") ?
                     // <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -88,7 +119,9 @@ export default function PenggunaanPresensi() {
                             allowClear
                             style={{ width: "max-content", minWidth: "150px" }}
                             value={valueSelect.upt}
-                            className="w-full text-left"
+                            className="text-left w-auto max-w-full sm:w-[300px]"
+                            popupMatchSelectWidth={false}
+                            popupStyle={{ width: 'auto' }}
                             placeholder="Filter UPT..."
                             optionFilterProp="label"
                             onChange={(e) => {
@@ -103,9 +136,9 @@ export default function PenggunaanPresensi() {
                     </Flex>
                     // </Row>
                     : ""}
-                <div className="mb-2">
+                <Flex vertical>
                     <label className="block font-medium mb-1 text-left">Periode</label>
-                    <Flex gap="small">
+                    <Flex gap="small" >
                         <Select
                             showSearch
                             value={valueSelect.bulan}
@@ -132,10 +165,7 @@ export default function PenggunaanPresensi() {
                         />
                         <Button shape="round" type='primary' icon={<SearchOutlined />} onClick={getLaporan}>Submit</Button>
                     </Flex>
-                </div>
-                <div className="mb-2">
-
-                </div>
+                </Flex>
             </Flex>
             <div style={{ overflowX: 'auto', display: dataPenggunaan?.length > 0 ? "block" : "none" }}>
                 <table>
@@ -166,7 +196,7 @@ export default function PenggunaanPresensi() {
                                         />
                                     </td>
                                     <td className='px-2 text-right'>
-                                        {item.jumlah_presensi + " / " + item.total_user}
+                                        <Button type='link' onClick={() => getPenggunaanPerPegawai(item)}> {item.jumlah_presensi + " / " + item.total_user}</Button>
                                     </td>
                                 </tr>
                             ))
@@ -174,6 +204,54 @@ export default function PenggunaanPresensi() {
                     </tbody>
                 </table>
             </div>
+            <Modal
+                open={isModalVisible}
+                footer={null}
+                onCancel={() => setIsModalVisible(false)}
+                centered
+                width={600}
+            >
+                <div style={{ textAlign: "start", padding: "20px" }}>
+                    <p style={{ fontSize: "18px", marginBottom: 24 }}>
+                        Detil Penggunaan ePresensi Periode {valueSelect.bulanView + ' ' + valueSelect.tahun}
+                    </p>
+                    <div style={{ overflowX: 'auto', display: dataPenggunaan?.length > 0 ? "block" : "none" }}>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>NIP</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {dataPenggunaanDetil?.length > 0 ?
+                                    dataPenggunaanDetil.map((item, index) => (
+                                        <tr key={index}>
+                                            <td className='p-2'>
+                                                {index + 1}
+                                            </td>
+                                            <td className='px-2'>
+                                                {item.nama}
+                                            </td>
+                                            <td className='px-2'>
+                                                {item.nip}
+                                            </td>
+                                            <td className={'px-2 text-right' + (item.jumlah_presensi == 1 ? ' text-emerald-800' : ' text-red-500')}>
+                                                {item.jumlah_presensi == 1 ? 'Pakai' : 'Belum'}
+                                            </td>
+                                        </tr>
+                                    ))
+                                    : ""}
+                            </tbody>
+                        </table>
+                    </div>
+                    <Button type="primary" onClick={() => setIsModalVisible(false)}>
+                        Tutup
+                    </Button>
+                </div>
+            </Modal>
         </div>
     )
 }

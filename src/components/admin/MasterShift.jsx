@@ -6,12 +6,14 @@ import cekRoles from '../../helper/cekRoles';
 import { Button, Flex, Select } from 'antd';
 import { decodeCookies } from '../../helper/parsingCookies';
 import ListUPT from "../../assets/uptNewGrouping.json";
-import { protectGet } from '../../helper/axiosHelper';
+import { protectDelete, protectGet } from '../../helper/axiosHelper';
 import Swal from 'sweetalert2';
 import {
     EditOutlined,
-    DeleteOutlined
+    DeleteOutlined,
+    PlusOutlined
 } from '@ant-design/icons';
+import FormMasterShift from './FormMasterShift';
 
 const pagination = true;
 const paginationPageSize = 20;
@@ -26,6 +28,8 @@ export default function MasterShift() {
     const myTheme = themeBalham.withParams({ accentColor: 'blue' });
     const user = decodeCookies("user")
     let [filterText, setFilterText] = useState("");
+    let [openModal, setOpenModal] = useState(false);
+    let [dataSelected, setDataSelected] = useState("");
     let [datatabel, setDatatabel] = useState([]);
     let [loading, setLoading] = useState(false);
     let [upt, setUpt] = useState(user?.upt_id);
@@ -45,30 +49,6 @@ export default function MasterShift() {
         // }
         return dataUpt
     }
-    const [colDefs, setColDefs] = useState([
-        {
-            headerName: "No",
-            valueGetter: (params) => params.node.rowIndex + 1,
-            width: 40,
-            cellStyle: { textAlign: "center" },
-        },
-        { field: 'nama_setting', headerName: "Nama Shift", cellStyle: { "white-space": "normal" }, },
-        { field: 'batas_waktu_masuk', headerName: "Batas waktu masuk", cellStyle: { "white-space": "normal" }, cellRenderer: params => {
-            return params.data.batas_waktu_masuk + " (" + params.data.waktu_masuk_awal + " sd " + params.data.waktu_masuk_akhir + " )"
-        } },
-        { field: 'batas_waktu_pulang', headerName: "Batas waktu pulang", cellStyle: { "white-space": "normal" }, cellRenderer: params => {
-            return params.data.batas_waktu_pulang + " (" + params.data.waktu_pulang_awal + " sd " + params.data.waktu_pulang_akhir + " )"
-        } },
-        { field: 'hari_pulang', headerName: "Hari pulang", cellStyle: { "white-space": "normal" }, },
-        {
-            field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
-                return <Flex gap="small" >
-                    <Button variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
-                    <Button variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
-                </Flex>
-            }
-        },
-    ]);
 
     const getShift = async (uptt) => {
         Swal.fire("Loading pegawai..");
@@ -90,6 +70,71 @@ export default function MasterShift() {
             setLoading(false);
         }
     };
+    function deleteMasterShift(e) {
+        Swal.fire({
+            icon: "warning",
+            title: "Perhatian!",
+            text: "Shift " + e?.nama_setting + " akan dihapus. Anda yakin ?",
+            showDenyButton: true,
+            confirmButtonText: "Yakin",
+            confirmButtonColor: "red",
+            denyButtonColor: "green",
+            denyButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const payload = {
+                    id_setting_waktu_presensi: e.id_setting_waktu_presensi
+                }
+                Swal.fire("Menghapus data..")
+                Swal.showLoading()
+                protectDelete("/masterWaktuPresensi", payload)
+                    .then(async (response) => {
+                        if (response.data.status) {
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Sukses!',
+                                text: response?.data?.message ?? 'Data berhasil dihapus.'
+                            })
+                            getShift()
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon: "error",
+                            text: error.response.data?.message ?? 'Data gagal dihapus.'
+                        })
+                    })
+            }
+        })
+    }
+    const [colDefs, setColDefs] = useState([
+        {
+            headerName: "No",
+            valueGetter: (params) => params.node.rowIndex + 1,
+            width: 40,
+            cellStyle: { textAlign: "center" },
+        },
+        { field: 'nama_setting', headerName: "Nama Shift", cellStyle: { whiteSpace: "normal" }, },
+        {
+            field: 'batas_waktu_masuk', headerName: "Batas waktu masuk", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
+                return params.data.batas_waktu_masuk + " (" + params.data.waktu_masuk_awal + " sd " + params.data.waktu_masuk_akhir + " )"
+            }
+        },
+        {
+            field: 'batas_waktu_pulang', headerName: "Batas waktu pulang", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
+                return params.data.batas_waktu_pulang + " (" + params.data.waktu_pulang_awal + " sd " + params.data.waktu_pulang_akhir + " )"
+            }
+        },
+        { field: 'hari_pulang', headerName: "Hari pulang", cellStyle: { whiteSpace: "normal" }, },
+        {
+            field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
+                return <Flex gap="small" >
+                    <Button onClick={() => setOpenModal(true) & setDataSelected(params.data)} variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
+                    <Button onClick={() => deleteMasterShift(params.data)} variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
+                </Flex>
+            }
+        },
+    ]);
     return (
         <>
             <Title level={4} style={{ margin: 0, padding: 0, textAlign: "end" }}>Manajemen waktu shift</Title>
@@ -99,7 +144,7 @@ export default function MasterShift() {
                     <label className="block font-medium mb-1 text-left">UPT</label>
                     <Select
                         showSearch
-                        allowClear
+                        // allowClear
                         value={upt}
                         className="w-1/2 text-left"
                         placeholder="Bagian..."
@@ -112,6 +157,13 @@ export default function MasterShift() {
                     />
                 </div>
                 : ""}
+            <Button onClick={() => setOpenModal(true)} color="blue" variant="solid" icon={<PlusOutlined />} className='mb-2 mr-2'>Input Baru</Button>
+            <FormMasterShift
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                dataSelected={dataSelected}
+                getShift={getShift}
+            />
             <div
                 className="ag-theme-quartz" // applying the Data Grid theme
                 style={{ height: 400, display: datatabel ? "block" : "none" }} // the Data Grid will fill the size of the parent container
