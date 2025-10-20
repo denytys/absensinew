@@ -103,7 +103,7 @@ export default function EditProfile() {
     } else {
       userid = user?.id_user
     }
-    Swal.fire("Loading lokasi..");
+    Swal.fire("Loading data user..");
     Swal.showLoading();
     try {
       const datapeg = await protectGet(
@@ -227,9 +227,15 @@ export default function EditProfile() {
   const handleSubmit = async (values) => {
     values['avatarBase64'] = fotoBase64
     values['tgl_lahir'] = values.tgl_lahir ? dayjs(values.tgl_lahir).format('YYYY-MM-DD') : null
-    values['jabatan'] = values.jabatan.join(",")
-    values['lokasi_kantor_id'] = values.lokasi_kantor_id.join(",")
-    values['role'] = values.role.join(",")
+    if (values.jabatan) {
+      values['jabatan'] = values.jabatan.join(",")
+    }
+    if (values.lokasi_kantor_id) {
+      values['lokasi_kantor_id'] = values.lokasi_kantor_id.join(",")
+    }
+    if (values.role) {
+      values['role'] = values.role.join(",")
+    }
     // console.log("values", values)
     // console.log("values", values?.id_user)
     // return;
@@ -255,7 +261,7 @@ export default function EditProfile() {
     getLokasi()
     getBagian()
     getDataUser()
-  }, [form, getLokasi, getBagian, getDataUser])
+  }, [getLokasi, getBagian, getDataUser])
 
   return (
     <div className="max-w-full mx-auto p-4">
@@ -306,10 +312,12 @@ export default function EditProfile() {
                   <Input disabled={cekRoles("admin") ? false : true} />
                 </Form.Item>
                 :
-                <Input
-                  value={dataSelect?.username}
-                  disabled={cekRoles("admin") ? false : true}
-                />
+                <Form.Item label="Username">
+                  <Input
+                    value={dataSelect?.username}
+                    disabled={cekRoles("admin") ? false : true}
+                  />
+                </Form.Item>
               }
               <Form.Item name="nama" label="Nama" rules={[{ required: true }]}>
                 <Input />
