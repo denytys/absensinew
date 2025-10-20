@@ -6,11 +6,12 @@ import cekRoles from '../../helper/cekRoles';
 import { Button, Flex, Select } from 'antd';
 import { decodeCookies, encodeCookies } from '../../helper/parsingCookies';
 import ListUPT from "../../assets/uptNewGrouping.json";
-import { protectPostPut } from '../../helper/axiosHelper';
+import { protectDelete, protectPostPut } from '../../helper/axiosHelper';
 import Swal from 'sweetalert2';
 import {
   EditOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  UnlockOutlined
 } from '@ant-design/icons';
 
 const pagination = true;
@@ -45,31 +46,6 @@ export default function AdminPegawai() {
     // }
     return dataUpt
   }
-  const [colDefs, setColDefs] = useState([
-    {
-      headerName: "No",
-      valueGetter: (params) => params.node.rowIndex + 1,
-      width: 40,
-      cellStyle: { textAlign: "center" },
-    },
-    { field: 'unit_kerja', headerName: "UNIT KERJA", cellStyle: { whiteSpace: "normal" }, },
-    { field: 'nama', headerName: "NAMA", cellStyle: { whiteSpace: "normal" }, },
-    {
-      field: 'nip', headerName: "NIP", width: 150, cellRenderer: params => {
-        return params.data.nip == 0 ? params.data.nik : params.data.nip
-      }
-    },
-    { field: 'username', headerName: "Username", width: 120 },
-    { field: 'role_peg', headerName: "Role", width: 120, cellStyle: { whiteSpace: "normal" }, },
-    {
-      field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
-        return <Flex gap="small" >
-          <Button onClick={() => encodeCookies("userGet", params.data) & window.location.replace('/edit-profile')} variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
-          <Button variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
-        </Flex>
-      }
-    },
-  ]);
 
   const getPegawai = async (uptt) => {
     Swal.fire("Loading pegawai..");
@@ -94,6 +70,74 @@ export default function AdminPegawai() {
       setLoading(false);
     }
   };
+
+  const handleDeletePeggawai = values => {
+    Swal.fire({
+      icon: "warning",
+      title: "Perhatian!",
+      text: "Pegawai a/n " + values.nama + " hanya akan di" + (values.verified == "1" ? "nonaktifkan" : "aktifkan kembali") + ". Anda yakin ?",
+      showDenyButton: true,
+      confirmButtonText: "Yakin",
+      confirmButtonColor: "red",
+      denyButtonColor: "green",
+      denyButtonText: "Batal"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload = {
+          id_user: values.id_user,
+          verified: values.verified,
+        }
+        Swal.fire("Menghapus data..")
+        Swal.showLoading()
+        protectDelete("/pegawai", payload)
+          .then(async (response) => {
+            if (response.data.status) {
+              await Swal.fire({
+                icon: 'success',
+                title: 'Sukses!',
+                text: response?.data?.message ?? 'Data berhasil dihapus.'
+              })
+              getPegawai()
+            }
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              text: error.response.data?.message ?? 'Data gagal dihapus.'
+            })
+          })
+      }
+    })
+  }
+  const [colDefs, setColDefs] = useState([
+    {
+      headerName: "No",
+      valueGetter: (params) => params.node.rowIndex + 1,
+      width: 40,
+      cellStyle: { textAlign: "center" },
+    },
+    { field: 'unit_kerja', headerName: "UNIT KERJA", cellStyle: { whiteSpace: "normal" }, },
+    { field: 'nama', headerName: "NAMA", cellStyle: { whiteSpace: "normal" }, },
+    {
+      field: 'nip', headerName: "NIP", width: 150, cellRenderer: params => {
+        return params.data.nip == 0 ? params.data.nik : params.data.nip
+      }
+    },
+    { field: 'username', headerName: "Username", width: 120 },
+    { field: 'role_peg', headerName: "Role", width: 120, cellStyle: { whiteSpace: "normal" }, },
+    {
+      field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
+        return <Flex gap="small" >
+          <Button onClick={() => encodeCookies("userGet", params.data) & window.location.replace('/edit-profile')} variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
+          {cekRoles("admin") ||
+            (cekRoles("adm-peg") && user?.upt_id == "1000") ?
+            <Button onClick={() => handleDeletePeggawai(params.data)} variant='solid' shape="round" color={params.data.verified == 1 ? 'danger' : 'green'} icon={params.data.verified == 1 ?<DeleteOutlined /> : <UnlockOutlined />} size={"small"}></Button>
+            : ""}
+        </Flex>
+      }
+    },
+  ]);
+
   return (
     <>
       <Title level={4} style={{ margin: 0, padding: 0, textAlign: "end" }}>User Manager</Title>
