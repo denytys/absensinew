@@ -15,6 +15,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "ag-grid-react": "^34.0.2",
     "antd": "^5.26.6",
+    "antd-img-crop": "^4.27.0",
     "axios": "^1.10.0",
     "flowbite": "^3.1.2",
     "leaflet": "^1.9.4",

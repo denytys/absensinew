@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Title from 'antd/es/typography/Title';
 import cekRoles from '../../helper/cekRoles';
 import { Button, Flex, Select } from 'antd';
-import { decodeCookies } from '../../helper/parsingCookies';
+import { decodeCookies, encodeCookies } from '../../helper/parsingCookies';
 import ListUPT from "../../assets/uptNewGrouping.json";
 import { protectPostPut } from '../../helper/axiosHelper';
 import Swal from 'sweetalert2';
@@ -64,7 +64,7 @@ export default function AdminPegawai() {
     {
       field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
         return <Flex gap="small" >
-          <Button variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
+          <Button onClick={() => encodeCookies("userGet", params.data) & window.location.replace('/edit-profile')} variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
           <Button variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
         </Flex>
       }

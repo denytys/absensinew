@@ -1,0 +1,229 @@
+[ 
+{ 
+"id_wilayah_propinsi":1,
+"nama_propinsi":"Aceh",
+"ibukota":"Banda Aceh",
+"p_bsni":"ID-AC"
+},
+{ 
+"id_wilayah_propinsi":2,
+"nama_propinsi":"Sumatra Utara",
+"ibukota":"Medan",
+"p_bsni":"ID-SU"
+},
+{ 
+"id_wilayah_propinsi":3,
+"nama_propinsi":"Sumatra Barat",
+"ibukota":"Padang",
+"p_bsni":"ID-SB"
+},
+{ 
+"id_wilayah_propinsi":4,
+"nama_propinsi":"Riau",
+"ibukota":"Pekanbaru",
+"p_bsni":"ID-RI"
+},
+{ 
+"id_wilayah_propinsi":5,
+"nama_propinsi":"Jambi",
+"ibukota":"Jambi",
+"p_bsni":"ID-JA"
+},
+{ 
+"id_wilayah_propinsi":6,
+"nama_propinsi":"Sumatra Selatan",
+"ibukota":"Palembang",
+"p_bsni":"ID-SS"
+},
+{ 
+"id_wilayah_propinsi":7,
+"nama_propinsi":"Bengkulu",
+"ibukota":"Bengkulu",
+"p_bsni":"ID-BE"
+},
+{ 
+"id_wilayah_propinsi":8,
+"nama_propinsi":"Lampung",
+"ibukota":"Bandar Lampung",
+"p_bsni":"ID-LA"
+},
+{ 
+"id_wilayah_propinsi":9,
+"nama_propinsi":"Kepulauan Bangka Belitung",
+"ibukota":"Pangkalpinang",
+"p_bsni":"ID-BB"
+},
+{ 
+"id_wilayah_propinsi":10,
+"nama_propinsi":"Kepulauan Riau",
+"ibukota":"Tanjungpinang",
+"p_bsni":"ID-KR"
+},
+{ 
+"id_wilayah_propinsi":11,
+"nama_propinsi":"Daerah Khusus Ibukota Jakarta",
+"ibukota":"Jakarta",
+"p_bsni":"ID-JB"
+},
+{ 
+"id_wilayah_propinsi":12,
+"nama_propinsi":"Jawa Barat",
+"ibukota":"Bandung",
+"p_bsni":"ID-JB"
+},
+{ 
+"id_wilayah_propinsi":13,
+"nama_propinsi":"Jawa Tengah",
+"ibukota":"Semarang",
+"p_bsni":"ID-JT"
+},
+{ 
+"id_wilayah_propinsi":14,
+"nama_propinsi":"Daerah Istimewa Yogyakarta",
+"ibukota":"Yogyakarta",
+"p_bsni":"ID-YO"
+},
+{ 
+"id_wilayah_propinsi":15,
+"nama_propinsi":"Jawa Timur",
+"ibukota":"Surabaya",
+"p_bsni":"ID-JI"
+},
+{ 
+"id_wilayah_propinsi":16,
+"nama_propinsi":"Banten",
+"ibukota":"Serang",
+"p_bsni":"ID-BT"
+},
+{ 
+"id_wilayah_propinsi":17,
+"nama_propinsi":"Bali",
+"ibukota":"Denpasar",
+"p_bsni":"ID-BA"
+},
+{ 
+"id_wilayah_propinsi":18,
+"nama_propinsi":"Nusa Tenggara Barat",
+"ibukota":"Mataram",
+"p_bsni":"ID-NB"
+},
+{ 
+"id_wilayah_propinsi":19,
+"nama_propinsi":"Nusa Tenggara Timur",
+"ibukota":"Kupang",
+"p_bsni":"ID-NT"
+},
+{ 
+"id_wilayah_propinsi":20,
+"nama_propinsi":"Kalimantan Barat",
+"ibukota":"Pontianak",
+"p_bsni":"ID-KB"
+},
+{ 
+"id_wilayah_propinsi":21,
+"nama_propinsi":"Kalimantan Tengah",
+"ibukota":"Palangka Raya",
+"p_bsni":"ID-KT"
+},
+{ 
+"id_wilayah_propinsi":22,
+"nama_propinsi":"Kalimantan Selatan",
+"ibukota":"Banjarmasin",
+"p_bsni":"ID-KS"
+},
+{ 
+"id_wilayah_propinsi":23,
+"nama_propinsi":"Kalimantan Timur",
+"ibukota":"Samarinda",
+"p_bsni":"ID-KI"
+},
+{ 
+"id_wilayah_propinsi":24,
+"nama_propinsi":"Kalimantan Utara",
+"ibukota":"Tanjung Selor",
+"p_bsni":"ID-KU"
+},
+{ 
+"id_wilayah_propinsi":25,
+"nama_propinsi":"Sulawesi Utara",
+"ibukota":"Manado",
+"p_bsni":"ID-SA"
+},
+{ 
+"id_wilayah_propinsi":26,
+"nama_propinsi":"Sulawesi Tengah",
+"ibukota":"Palu",
+"p_bsni":"ID-ST"
+},
+{ 
+"id_wilayah_propinsi":27,
+"nama_propinsi":"Sulawesi Selatan",
+"ibukota":"Makassar",
+"p_bsni":"ID-SN"
+},
+{ 
+"id_wilayah_propinsi":28,
+"nama_propinsi":"Sulawesi Tenggara",
+"ibukota":"Kendari",
+"p_bsni":"ID-SG"
+},
+{ 
+"id_wilayah_propinsi":29,
+"nama_propinsi":"Gorontalo",
+"ibukota":"Gorontalo",
+"p_bsni":"ID-GO"
+},
+{ 
+"id_wilayah_propinsi":30,
+"nama_propinsi":"Sulawesi Barat",
+"ibukota":"Mamuju",
+"p_bsni":"ID-SR"
+},
+{ 
+"id_wilayah_propinsi":31,
+"nama_propinsi":"Maluku",
+"ibukota":"Ambon",
+"p_bsni":"ID-MA"
+},
+{ 
+"id_wilayah_propinsi":32,
+"nama_propinsi":"Maluku Utara",
+"ibukota":"Sofifi",
+"p_bsni":"ID-MU"
+},
+{ 
+"id_wilayah_propinsi":33,
+"nama_propinsi":"Papua",
+"ibukota":"Jayapura",
+"p_bsni":"ID-PA"
+},
+{ 
+"id_wilayah_propinsi":34,
+"nama_propinsi":"Papua Barat",
+"ibukota":"Manokwari",
+"p_bsni":"ID-PB"
+},
+{ 
+"id_wilayah_propinsi":35,
+"nama_propinsi":"Papua Selatan",
+"ibukota":null,
+"p_bsni":null
+},
+{ 
+"id_wilayah_propinsi":36,
+"nama_propinsi":"Papua Tengah",
+"ibukota":null,
+"p_bsni":null
+},
+{ 
+"id_wilayah_propinsi":37,
+"nama_propinsi":"Papua Pegunungan",
+"ibukota":null,
+"p_bsni":null
+},
+{ 
+"id_wilayah_propinsi":38,
+"nama_propinsi":"Papua Barat Daya",
+"ibukota":null,
+"p_bsni":null
+}]

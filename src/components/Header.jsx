@@ -4,28 +4,30 @@ import DigitalClock from "./DigitalClock";
 import { removeSession } from "../helper/funcLogout";
 import Swal from "sweetalert2";
 import cekRoles from "../helper/cekRoles";
+import { decodeCookies } from "../helper/parsingCookies";
 
 export default function Header() {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [user, setUser] = useState({ nama: "", foto: "" });
+  const user = decodeCookies("user")
+  // const [user, setUser] = useState({ nama: "", foto: "" });
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const loadUser = () => {
-      const data = JSON.parse(localStorage.getItem("user")) || {
-        nama: "User",
-        foto: "/images/user.png",
-      };
-      setUser(data);
-    };
+  // useEffect(() => {
+  //   const loadUser = () => {
+  //     const data = JSON.parse(localStorage.getItem("user")) || {
+  //       nama: "User",
+  //       foto: "/images/user.png",
+  //     };
+  //     setUser(data);
+  //   };
 
-    loadUser(); // panggil saat mount
+  //   loadUser(); // panggil saat mount
 
-    // dengar event perubahan storage
-    window.addEventListener("storage", loadUser);
-    return () => window.removeEventListener("storage", loadUser);
-  }, []);
+  //   // dengar event perubahan storage
+  //   window.addEventListener("storage", loadUser);
+  //   return () => window.removeEventListener("storage", loadUser);
+  // }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -64,12 +66,12 @@ export default function Header() {
       <div className="relative" ref={dropdownRef}>
         <img
           src={
-            user.foto
-              ? `${import.meta.env.VITE_ABSEN_BE}/uploads/${user.foto}`
+            user.avatar
+              ? `${import.meta.env.VITE_ABSEN_BE}/assets/user/${user.avatar}`
               : "/images/user.png"
           }
           alt="User"
-          className="w-10 h-10 rounded-full cursor-pointer object-cover"
+          className="w-10 h-10 rounded-full cursor-pointer object-cover border-2 border-b-green-400"
           onClick={() => setDropdownOpen((prev) => !prev)}
           onError={(e) => {
             e.target.onerror = null;
@@ -116,7 +118,8 @@ export default function Header() {
           </button>
           <button
             onClick={() => {
-              navigate("/edit-profile");
+              sessionStorage.removeItem("userGet")
+              window.location.replace("/edit-profile");
               setDropdownOpen(false);
             }}
             className="w-full text-left px-4 py-2 hover:bg-blue-300/20 transition"
