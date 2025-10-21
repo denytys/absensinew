@@ -393,7 +393,7 @@ export default function FormPerizinan() {
               value={nomor}
               onChange={(e) => setNomor(e.target.value)}
               placeholder="Masukkan nomor surat"
-              onBlur={() => cekNomorDL()}
+              onBlur={() => jenis == 1 ? cekNomorDL() : null}
             />
           </Form.Item>
 

@@ -97,7 +97,7 @@ export default function Header() {
             Home
           </button>
           {cekRoles("admin") ||
-            (cekRoles("adm-peg") && user?.upt_id == "1000")}
+            cekRoles("adm-peg") ?
           <button
             onClick={() => {
               navigate("/admins");
@@ -107,6 +107,7 @@ export default function Header() {
           >
             Admin Presensi
           </button>
+          : ""}
           <button
             onClick={() => {
               navigate("/reset-password");
