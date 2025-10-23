@@ -442,6 +442,11 @@ export default function FormPerizinan() {
                   accept="image/*,application/pdf"
                   listType="picture-card"
                   beforeUpload={(file) => {
+                    const maxSizeMB = 2;
+                    if (file.size > maxSizeMB * 1024 * 1024) {
+                      Swal.fire('Perhatian', 'Ukuran file maksimal 2MB', 'warning')
+                      return;
+                    }
                     setLampiran(file);
 
                     if (file.type.startsWith("image/")) {
