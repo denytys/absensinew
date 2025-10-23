@@ -6,12 +6,14 @@ import cekRoles from '../../helper/cekRoles';
 import { Button, Flex, Select } from 'antd';
 import { decodeCookies } from '../../helper/parsingCookies';
 import ListUPT from "../../assets/uptNewGrouping.json";
-import { protectGet } from '../../helper/axiosHelper';
+import { protectDelete, protectGet } from '../../helper/axiosHelper';
 import Swal from 'sweetalert2';
 import {
     EditOutlined,
-    DeleteOutlined
+    DeleteOutlined,
+    PlusOutlined
 } from '@ant-design/icons';
+import FormLokasiKantor from './FormLokasiKantor';
 
 const pagination = true;
 const paginationPageSize = 20;
@@ -28,6 +30,8 @@ export default function MasterLokasiKantor() {
     let [filterText, setFilterText] = useState("");
     let [datatabel, setDatatabel] = useState([]);
     let [loading, setLoading] = useState(false);
+    let [openModal, setOpenModal] = useState(false);
+    let [valueInput, setValueInput] = useState("");
     let [upt, setUpt] = useState(user?.upt_id);
     const listUPT = () => {
         let datauptjson = ListUPT
@@ -45,32 +49,9 @@ export default function MasterLokasiKantor() {
         // }
         return dataUpt
     }
-    const [colDefs, setColDefs] = useState([
-        {
-            headerName: "No",
-            valueGetter: (params) => params.node.rowIndex + 1,
-            width: 40,
-            cellStyle: { textAlign: "center" },
-        },
-        { field: 'nama_lokasi', headerName: "Nama Lokasi", cellStyle: { whiteSpace: "normal" }, },
-        { field: 'alamat', headerName: "Alamat", width: 420, cellStyle: { whiteSpace: "normal" }, },
-        {
-            field: 'batas_waktu_masuk', headerName: "Titik Lokasi", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
-                return <a href={"https://www.google.com/maps/search/?api=1&query=" + params.data.lat + "," + params.data.long} target='_blank'>{params.data.lat + ", " + params.data.long}</a>
-            }
-        },
-        {
-            field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
-                return <Flex gap="small" >
-                    <Button variant='solid' shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
-                    <Button variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
-                </Flex>
-            }
-        },
-    ]);
-
-    const getShift = async (uptt) => {
-        Swal.fire("Loading pegawai..");
+    
+    const getLokasi = async (uptt) => {
+        Swal.fire("Loading lokasi..");
         Swal.showLoading();
         setLoading(true);
         try {
@@ -89,11 +70,78 @@ export default function MasterLokasiKantor() {
             setLoading(false);
         }
     };
+
+    function deleteMasterLokasi(e) {
+        Swal.fire({
+            icon: "warning",
+            title: "Perhatian!",
+            text: "Lokasi " + e?.nama_lokasi + " akan dihapus. Anda yakin ?",
+            showDenyButton: true,
+            confirmButtonText: "Yakin",
+            confirmButtonColor: "red",
+            denyButtonColor: "green",
+            denyButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const payload = {
+                    id: e.id
+                }
+                Swal.fire("Menghapus data..")
+                Swal.showLoading()
+                protectDelete("/lokasiKantor", payload)
+                    .then(async (response) => {
+                        if (response.data.status) {
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Sukses!',
+                                text: response?.data?.message ?? 'Data berhasil dihapus.'
+                            })
+                            getLokasi()
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon: "error",
+                            text: error.response.data?.message ?? 'Data gagal dihapus.'
+                        })
+                    })
+            }
+        })
+    }
+
+    const [colDefs, setColDefs] = useState([
+        {
+            headerName: "No",
+            valueGetter: (params) => params.node.rowIndex + 1,
+            width: 40,
+            cellStyle: { textAlign: "center" },
+        },
+        { field: 'nama_lokasi', headerName: "Nama Lokasi", cellStyle: { whiteSpace: "normal" }, },
+        { field: 'alamat', headerName: "Alamat", width: 420, cellStyle: { whiteSpace: "normal" }, },
+        {
+            field: 'batas_waktu_masuk', headerName: "Titik Lokasi", cellStyle: { whiteSpace: "normal" }, cellRenderer: params => {
+                return <a href={"https://www.google.com/maps/search/?api=1&query=" + params.data.lat + "," + params.data.long} target='_blank'>{params.data.lat + ", " + params.data.long}</a>
+            }
+        },
+        {
+            field: 'act', headerName: "Act", width: 120, cellRenderer: params => {
+                return <Flex gap="small" >
+                    <Button variant='solid' onClick={() => {
+                        setValueInput(params.data)
+                        setOpenModal(true)
+                    }} shape="round" color='orange' icon={<EditOutlined />} size={"small"}></Button>
+                    <Button onClick={() => deleteMasterLokasi(params.data)} variant='solid' shape="round" color='danger' icon={<DeleteOutlined />} size={"small"}></Button>
+                </Flex>
+            }
+        },
+    ]);
+
     return (
         <>
             <Title level={4} style={{ margin: 0, padding: 0, textAlign: "end" }}>Lokasi Kantor</Title>
             {cekRoles("admin") ||
                 (cekRoles("adm-peg") && user?.upt_id == "1000") ?
+                <>
                 <div className="mb-2">
                     <label className="block font-medium mb-1 text-left">UPT</label>
                     <Select
@@ -105,12 +153,22 @@ export default function MasterLokasiKantor() {
                         optionFilterProp="label"
                         onChange={(e) => {
                             setUpt(e)
-                            getShift(e)
+                            getLokasi(e)
                         }}
                         options={listUPT()}
                     />
                 </div>
+                    <Button onClick={() => setOpenModal(true)} color="volcano" variant="solid" icon={<PlusOutlined />} className='mb-2 mr-2'>Input Baru</Button>
+                </>
                 : ""}
+            <FormLokasiKantor
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                valueInput={valueInput}
+                listUPT={listUPT}
+                getLokasi={getLokasi}
+                setValueInput={setValueInput}
+            />
             <div
                 className="ag-theme-quartz" // applying the Data Grid theme
                 style={{ height: 400, display: datatabel ? "block" : "none" }} // the Data Grid will fill the size of the parent container
@@ -140,7 +198,7 @@ export default function MasterLokasiKantor() {
                     rowData={datatabel}
                     //   statusBar={statusBar}
                     columnDefs={colDefs}
-                    onGridReady={getShift}
+                    onGridReady={getLokasi}
                 // debug
                 />
             </div>
