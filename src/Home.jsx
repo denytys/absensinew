@@ -35,7 +35,7 @@ export default function Home() {
     lng: null,
     error: null,
   });
-  const [accuracy, setAccuracy] = useState(null);
+  let [accuracy, setAccuracy] = useState(null);
   let [previousTimestamp, setPreviousTimestamp] = useState(0);
   let [previousLocation, setPreviousLocation] = useState({
     latitude: "",
@@ -161,6 +161,14 @@ export default function Home() {
             text: "Kemungkinan GPS/lokasi palsu terdeteksi",
           });
         }
+        if (pos.coords.accuracy > 100) {
+          Swal.fire({
+            icon: "warning",
+            title: "GPS tidak akurat!",
+            text: "Mohon refresh halaman untuk mendapatkan akurasi yang tepat",
+          });
+          return;
+        }
         startAccelerometer(pos);
       },
       (err) => {
@@ -232,6 +240,14 @@ export default function Home() {
         icon: "warning",
         title: "Warning!",
         text: "Kemungkinan GPS/lokasi palsu terdeteksi",
+      });
+      return;
+    }
+    if (accuracy > 100) {
+      Swal.fire({
+        icon: "warning",
+        title: "GPS tidak akurat!",
+        text: "Mohon refresh halaman untuk mendapatkan akurasi yang tepat",
       });
       return;
     }

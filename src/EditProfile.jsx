@@ -15,7 +15,7 @@ import {
   DatePicker
 } from "antd";
 const { TextArea } = Input;
-import { EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { CaretLeftOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { decodeCookies } from "./helper/parsingCookies";
 import ListUPT from "../src/assets/uptNewGrouping.json";
 import WilProvinsi from "../src/assets/wilayah_propinsi.json";
@@ -247,8 +247,12 @@ export default function EditProfile() {
         console.log(response);
       }
       await Swal.fire("Sukses", response?.data?.message, "success")
-      getDataUser()
       setFileList([])
+      if(userGet) {
+        navigate("/admins/pegawai")
+        return
+      }
+      getDataUser()
     } catch (error) {
       if (import.meta.env.MODE == "development") {
         console.log(error);
@@ -267,7 +271,6 @@ export default function EditProfile() {
     <div className="max-w-full mx-auto p-4">
       <div className="bg-white/45 shadow-md rounded-xl p-6 mb-30">
         <Title level={4}>Edit Profil</Title>
-
         <Form
           form={form}
           labelCol={{ span: 8 }}
@@ -276,7 +279,6 @@ export default function EditProfile() {
           onFinish={handleSubmit}>
           <Row gutter={18}>
             <Col span={24} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              
               <Form.Item name="id_user" hidden></Form.Item>
               <Form.Item label="">
                 <Flex gap={8}>
