@@ -8,6 +8,7 @@ export default function PresensiSection({
   // sudahPulang,
 }) {
   const waktu = decodeCookies('waktu')
+  // console.log("waktu", waktu)
   return (
     // <div className="bg-white/45 rounded-xl p-3 mb-2">
     <div className="flex gap-4">

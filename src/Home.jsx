@@ -252,6 +252,9 @@ export default function Home() {
       return;
     }
     const user = decodeCookies('user')
+    if (user?.id_user == '5814') {
+      console.log("user", user)
+    }
     if (user?.shifting != 'Y') {
       const d = new Date()
       const time = d.toLocaleTimeString('en-US', { hour12: false })

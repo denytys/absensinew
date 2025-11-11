@@ -270,6 +270,11 @@ export default function EditProfile() {
   return (
     <div className="max-w-full mx-auto p-4">
       <div className="bg-white/45 shadow-md rounded-xl p-6 mb-30">
+        {userGet ?
+          <Button type="default" icon={<CaretLeftOutlined />} htmlType="button" onClick={() => navigate("/admins/pegawai")}>
+            Kembali ke master pegawai
+          </Button>
+      : ""}
         <Title level={4}>Edit Profil</Title>
         <Form
           form={form}
@@ -437,7 +442,7 @@ export default function EditProfile() {
                   />
                 </Form.Item>
                 :
-                <Form.Item label="UPT">
+                <Form.Item label="UPT" name="upt_id">
                   <Select
                     disabled
                     className="w-full text-left"
@@ -466,6 +471,7 @@ export default function EditProfile() {
               : 
                 <Form.Item
                   label="Lokasi Kantor"
+                  name="lokasi_kantor_id"
                 >
                   <Select
                     showSearch
@@ -491,7 +497,7 @@ export default function EditProfile() {
                 />
               </Form.Item>
               :
-              <Form.Item label="Bagian" >
+                <Form.Item label="Bagian" name="bagian_id">
                 <Select
                   className="w-full text-left"
                   disabled={cekRoles("admin") || cekRoles("adm-peg") ? false : true}
@@ -502,17 +508,17 @@ export default function EditProfile() {
                 />
               </Form.Item>
               }
-              {cekRoles("admin") || cekRoles("adm-peg") ?
+              {/* {cekRoles("admin") || cekRoles("adm-peg") ? */}
               <Form.Item label="Absen Shift" name="shifting">
                 <Radio.Group
-                  disabled={cekRoles("admin") || cekRoles("adm-peg") ? false : true}
+                  // disabled={cekRoles("admin") || cekRoles("adm-peg") ? false : true}
                   style={{ display: "flex", justifyContent: "flex-start" }}
                 >
                   <Radio value="Y">Ya</Radio>
                   <Radio value="T">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              :
+              {/* :
               <Form.Item label="Absen Shift">
                 <Radio.Group
                   disabled={cekRoles("admin") || cekRoles("adm-peg") ? false : true}
@@ -523,7 +529,7 @@ export default function EditProfile() {
                   <Radio value="T">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              }
+              } */}
               <Form.Item
                 label="Jabatan"
                 name="jabatan"
